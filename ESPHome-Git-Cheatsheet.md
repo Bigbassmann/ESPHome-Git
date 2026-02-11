@@ -15,6 +15,9 @@ This is a practical checklist for keeping Home1 (production), Home2, and the Lap
 ## Golden Rule
 Make changes in only one place at a time, then immediately sync to the laptop repo and push to GitHub.
 
+## Source Of Truth
+Laptop repo is the source of truth. GitHub is the backup/central copy. Home1/Home2 are deployment targets (not Git repos).
+
 ## Standard Flow (Home1 -> Laptop -> GitHub)
 1. Make edits in Home1.
 2. Copy Home1 to Laptop repo.
@@ -64,10 +67,26 @@ git commit -m "Update from laptop"
 git push
 ```
 
+### PowerShell: Sync Back to Home1 (Pull Latest)
+```powershell
+cd "\\192.168.158.131\config\esphome"
+git pull
+```
+
 ### PowerShell: Pull to Home1
 ```powershell
 cd "\\192.168.158.131\config\esphome"
 git pull
+```
+
+### PowerShell: Deploy from Laptop to Home1 (No Git on Home1)
+```powershell
+robocopy "C:\Users\bigba\OneDrive\Documents\GitHub\ESPHome-Git" "\\192.168.158.131\config\esphome" /MIR /COPY:DAT /DCOPY:DAT /R:2 /W:2 /XJ /XD ".git" ".esphome" "__pycache__" /XF "*.pyc" "*.log" "*.tmp" "secrets.yaml" "secrets.*.yaml"
+```
+
+### PowerShell: Deploy from Laptop to Home2 (No Git on Home2)
+```powershell
+robocopy "C:\Users\bigba\OneDrive\Documents\GitHub\ESPHome-Git" "\\<HOME2-IP>\config\esphome" /MIR /COPY:DAT /DCOPY:DAT /R:2 /W:2 /XJ /XD ".git" ".esphome" "__pycache__" /XF "*.pyc" "*.log" "*.tmp" "secrets.yaml" "secrets.*.yaml"
 ```
 
 ## Home2 Sync (same pattern)
@@ -133,10 +152,6 @@ git log --oneline -5
 If you keep seeing LF/CRLF warnings:
 ```powershell
 git config --global core.autocrlf true
-```
-If you want to keep LF everywhere instead:
-```powershell
-git config --global core.autocrlf input
 ```
 
 ## Restore a File from GitHub (Laptop)
