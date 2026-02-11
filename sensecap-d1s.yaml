@@ -38,44 +38,6 @@ ota:
   - platform: esphome
     password: "41def07295f8022fbb33225b9baa335a"
 
-font:
-  - file: "gfonts://Montserrat"
-    id: montserrat_18
-    size: 18
-  - file: "gfonts://Montserrat"
-    id: montserrat_20
-    size: 20
-  - file: "gfonts://Montserrat"
-    id: montserrat_24
-    size: 24
-  - file: "gfonts://Montserrat"
-    id: montserrat_28
-    size: 28
-  - file: "gfonts://Montserrat"
-    id: montserrat_32
-    size: 32
-  - file: "gfonts://Montserrat"
-    id: montserrat_48
-    size: 48
-  - file: "gfonts://Montserrat"
-    id: montserrat_64
-    size: 64
-
-wifi:
-#  ssid: !secret wifi_ssid
-#  password: !secret wifi_password
-  ap:
-    ssid: "SenseCAP Fallback"
-    password: "1234567890"
-
-captive_portal:
-
-web_server:
-  port: 80
-  include_internal: true
-
-safe_mode:
-  disabled: false
 
 # --- I2C BUS --- PCA9554 Expander I2C Address: 0x20, 16bit -and Touchscreen
 i2c:
@@ -343,151 +305,6 @@ output:
 #    id: buzzer_output
 #    frequency: 2000Hz  # 2kHz for buzzer tones
 
-image:
-  - file: https://esphome.io/favicon-512x512.png
-    id: boot_logo
-    resize: 200x200
-    type: RGB565
-    transparency: alpha_channel
-
-  - file: icon_s/co2.svg
-    id: icon_co2_24
-    resize: 24x24
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/co2.svg
-    id: icon_co2_32
-    resize: 32x32
-    type: RGB565
-    transparency: alpha_channel
-
-  - file: icon_s/tvoc.svg
-    id: icon_tvoc_24
-    resize: 24x24
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/tvoc.svg
-    id: icon_tvoc_32
-    resize: 32x32
-    type: RGB565
-    transparency: alpha_channel
-
-  - file: icon_s/temp.svg
-    id: icon_temp_24
-    resize: 24x24
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/temp.svg
-    id: icon_temp_32
-    resize: 32x32
-    type: RGB565
-    transparency: alpha_channel
-
-  - file: icon_s/humidity.svg
-    id: icon_humid_24
-    resize: 24x24
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/humidity.svg
-    id: icon_humid_32
-    resize: 32x32
-    type: RGB565
-    transparency: alpha_channel
-
-  - file: icon_s/wifi.svg
-    id: icon_wifi_24
-    resize: 24x24
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/wifi.svg
-    id: icon_wifi_32
-    resize: 32x32
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/wifi_0.svg
-    id: icon_wifi_0
-    resize: 24x24
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/wifi_0.svg
-    id: icon_wifi_0_32
-    resize: 32x32
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/wifi_1.svg
-    id: icon_wifi_1
-    resize: 24x24
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/wifi_1.svg
-    id: icon_wifi_1_32
-    resize: 32x32
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/wifi_2.svg
-    id: icon_wifi_2
-    resize: 24x24
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/wifi_2.svg
-    id: icon_wifi_2_32
-    resize: 32x32
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/wifi_3.svg
-    id: icon_wifi_3
-    resize: 24x24
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/wifi_3.svg
-    id: icon_wifi_3_32
-    resize: 32x32
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/wifi_off.svg
-    id: icon_wifi_off
-    resize: 24x24
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/wifi_off.svg
-    id: icon_wifi_off_32
-    resize: 32x32
-    type: RGB565
-    transparency: alpha_channel
-
-  - file: icon_s/dim.svg
-    id: icon_dim_24
-    resize: 24x24
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/bright.svg
-    id: icon_bright_24
-    resize: 24x24
-    type: RGB565
-    transparency: alpha_channel
-
-  - file: icon_s/power.svg
-    id: icon_power_24
-    resize: 24x24
-    type: RGB565
-    transparency: alpha_channel
-
-  - file: icon_s/volume_up.svg
-    id: icon_vol_up_24
-    resize: 24x24
-    type: RGB565
-    transparency: alpha_channel
-  - file: icon_s/volume_down.svg
-    id: icon_vol_down_24
-    resize: 24x24
-    type: RGB565
-    transparency: alpha_channel
-
-  - file: icon_s/onoff.svg
-    id: icon_onoff_24
-    resize: 24x24
-    type: RGB565
-    transparency: alpha_channel
 
 light:
   - platform: monochromatic
@@ -1611,6 +1428,9 @@ interval:
 
 # --- MODULAR UI SYSTEM ---
 packages:
+  - !include shared/packages/fonts_montserrat.yaml
+  - !include shared/packages/icons.yaml
+  - !include shared/packages/wifi_base.yaml
 #  - !include iaq-project/packages/display-fonts.yaml
 #  - !include sensecap-ha/esphome/ui/ui_theme.yaml
   - !include sensecap-ha/esphome/ui/ui_home.yaml
@@ -1623,8 +1443,6 @@ packages:
 #  - !include sensecap-ha/esphome/ui/ui_updates.yaml
 #  - !include sensecap-ha/esphome/ui/ui_sleep.yaml
 #  - !include sensecap-ha/esphome/ui/ui_analog_clock.yaml
-
-
 
 
 
