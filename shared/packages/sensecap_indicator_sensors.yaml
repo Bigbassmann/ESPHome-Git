@@ -1,4 +1,4 @@
-# SenseCAP Indicator sensors + wifi info text
+ï»¿# SenseCAP Indicator sensors + wifi info text
 text_sensor:
   - platform: wifi_info
     ip_address:
@@ -53,7 +53,7 @@ sensor:
     internal: false
     accuracy_decimals: 1
     icon: "mdi:thermometer"
-    unit_of_measurement: "°C"
+    unit_of_measurement: "ï¿½C"
     device_class: temperature
 
   - platform: packet_transport

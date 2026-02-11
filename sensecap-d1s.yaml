@@ -151,7 +151,8 @@ globals:
     type: bool
     initial_value: "false"
 
-script:\n  - id: graph_render
+script:
+  - id: graph_render
     then:
       - lambda: |-
           const int HIST = 1440;
