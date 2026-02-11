@@ -8,6 +8,10 @@
       - lambda: 'id(last_interaction_ms) = millis();'
       - lvgl.page.show: 
           id: page_home
+      - lambda: 'id(boot_ready) = false;'
+      - delay: 8s
+      - lambda: 'id(boot_ready) = true;'
+      - logger.log: "Boot gate enabled: runtime UI updates active"
       
 logger:
   hardware_uart: UART0
@@ -152,6 +156,9 @@ text_sensor:
 
 # --- GLOBALS FOR MIN/MAX ---
 globals:
+  - id: boot_ready
+    type: bool
+    initial_value: "false"
   - id: temp_min
     type: float
     initial_value: "9999"
