@@ -1023,14 +1023,14 @@ interval:
 
 # --- MODULAR UI SYSTEM ---
 packages:
-  - !include shared/packages/sensecap_indicator_hw.yaml
-  - !include shared/packages/sensecap_indicator_display.yaml
-  - !include shared/packages/sensecap_indicator_lvgl.yaml
-  - !include shared/packages/sensecap_indicator_sensors.yaml
-  - !include shared/packages/sensecap_indicator_inputs.yaml
-  - !include shared/packages/fonts_montserrat.yaml
-  - !include shared/packages/icons.yaml
-  - !include shared/packages/wifi_base.yaml
+  - !include packages/sensecap/sensecap_indicator_hw.yaml
+  - !include packages/sensecap/sensecap_indicator_display.yaml
+  - !include packages/sensecap/sensecap_indicator_lvgl.yaml
+  - !include packages/sensecap/sensecap_indicator_sensors.yaml
+  - !include packages/sensecap/sensecap_indicator_inputs.yaml
+  - !include packages/shared/fonts_montserrat.yaml
+  - !include packages/shared/icons.yaml
+  - !include packages/shared/wifi_base.yaml
 #  - !include iaq-project/packages/display-fonts.yaml
 #  - !include sensecap-ha/esphome/ui/ui_theme.yaml
   - !include sensecap-ha/esphome/ui/ui_home.yaml

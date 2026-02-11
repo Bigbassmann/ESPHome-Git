@@ -1,0 +1,95 @@
+# SenseCAP Indicator display + touch + backlight
+output:
+  - platform: ledc
+    pin:
+      number: GPIO45
+      ignore_strapping_warning: true
+    id: ledc_gpio45
+    frequency: 25000Hz  # 100Hz default
+
+light:
+  - platform: monochromatic
+    id: backlight
+    output: ledc_gpio45
+    restore_mode: ALWAYS_ON
+    default_transition_length: 0s
+    on_turn_on:
+      - light.control:
+          id: backlight
+          brightness: 50%  # Default to 50% brightness on power on
+
+# --- DISPLAY (MIPI RGB) ---
+display:
+  - platform: mipi_rgb
+    model: SEEED-INDICATOR-D1
+    id: my_display
+    invert_colors: true  # Toggle to false
+    update_interval: 0s
+#    color_order: GRB
+    draw_rounding: 2
+    auto_clear_enabled: false
+    use_axis_flips: true
+
+# --- TOUCHSCREEN (FT5x06) --- I2C 39/40
+touchscreen:
+  - platform: ft5x06
+    id: my_touch
+    transform:
+      mirror_x: true
+      mirror_y: true
+#      swap_xy: true  # Add this to test if coords are rotated
+    on_touch:
+      then:
+        - lambda: |-
+            // Log the first touch point (assuming single-touch)
+            if (!touches.empty()) {
+              ESP_LOGD("touch", "Touch detected at %d/%d!", touches[0].x, touches[0].y);
+            }
+        - lambda: |-
+            if (!touches.empty()) {
+              const int graph_left = 30;
+              const int graph_top = 60;
+              const int graph_w = 413;
+              const int graph_h = 200;
+              int tx = touches[0].x;
+              int ty = touches[0].y;
+              if (tx >= graph_left && tx <= (graph_left + graph_w) && ty >= graph_top && ty <= (graph_top + graph_h)) {
+                int idx = (int)roundf((tx - graph_left) / 7.0f);
+                if (idx < 0) idx = 0;
+                if (idx > 59) idx = 59;
+                float minv = id(graph_min);
+                float maxv = id(graph_max);
+                if (isnan(minv) || isnan(maxv) || minv == maxv) {
+                  id(graph_touch_valid) = false;
+                } else {
+                  int y = id(graph_points)[idx];
+                  float v = maxv - ((float)y / (float)graph_h) * (maxv - minv);
+                  id(graph_touch_value) = v;
+                  id(graph_touch_valid) = true;
+                }
+              } else {
+                id(graph_touch_valid) = false;
+              }
+            }
+        - lvgl.label.update:
+            id: graph_touch_label
+            text: !lambda |-
+              if (!id(graph_touch_valid)) return std::string("Tap: --");
+              char buf[32];
+              float v = id(graph_touch_value);
+              switch (id(graph_metric)) {
+                case 0: snprintf(buf, sizeof(buf), "Tap: %.1f F", v); break;
+                case 1: snprintf(buf, sizeof(buf), "Tap: %.0f%%", v); break;
+                case 2: snprintf(buf, sizeof(buf), "Tap: %.0f ppm", v); break;
+                case 3: snprintf(buf, sizeof(buf), "Tap: %.0f", v); break;
+                default: snprintf(buf, sizeof(buf), "Tap: %.1f", v); break;
+              }
+              return std::string(buf);
+        - if:
+            condition: lvgl.is_paused
+            then:
+              - logger.log: "Resuming LVGL from pause"
+              - lvgl.resume:
+              - light.turn_on: backlight
+              - lvgl.page.show: # page_home
+                  id: page_home

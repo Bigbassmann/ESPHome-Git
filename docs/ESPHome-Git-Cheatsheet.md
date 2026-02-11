@@ -7,6 +7,20 @@ This is a practical checklist for keeping Home1 (production), Home2, and the Lap
 - Home2 (prod): `\\<HOME2-IP>\config\esphome`
 - Laptop repo: `C:\Users\bigba\OneDrive\Documents\GitHub\ESPHome-Git`
 
+## Folder Structure (Canonical)
+```
+ESPHome-Git/
+  custom_components/   # custom ESPHome components
+  fonts/               # font files
+  icon_s/              # svg/png icons
+  packages/            # reusable packages only
+    shared/            # wifi, fonts, icons, etc.
+    sensecap/          # SenseCAP-specific packages
+  projects/            # full projects / device configs
+  boards/              # board pinouts / substitutions
+  docs/                # cheatsheets, pinouts, notes
+```
+
 ## Repo Hygiene (Must Haves)
 - `.gitignore` should include: `.esphome/`, `**/.esphome/`, `**/__pycache__/`, `*.pyc`, `*.log`, `*.tmp`, `secrets.yaml`, `secrets.*.yaml`.
 - Remove nested `.git` folders inside subprojects unless you truly want submodules.
