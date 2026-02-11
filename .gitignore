@@ -1,0 +1,6 @@
+.esphome/
+.secrets/
+secrets.yaml
+secrets.*.yaml
+*.log
+*.tmp
