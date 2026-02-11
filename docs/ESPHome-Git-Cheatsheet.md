@@ -7,20 +7,6 @@ This is a practical checklist for keeping Home1 (production), Home2, and the Lap
 - Home2 (prod): `\\<HOME2-IP>\config\esphome`
 - Laptop repo: `C:\Users\bigba\OneDrive\Documents\GitHub\ESPHome-Git`
 
-## Folder Structure (Canonical)
-```
-ESPHome-Git/
-  custom_components/   # custom ESPHome components
-  fonts/               # font files
-  icon_s/              # svg/png icons
-  packages/            # reusable packages only
-    shared/            # wifi, fonts, icons, etc.
-    sensecap/          # SenseCAP-specific packages
-  projects/            # full projects / device configs
-  boards/              # board pinouts / substitutions
-  docs/                # cheatsheets, pinouts, notes
-```
-
 ## Repo Hygiene (Must Haves)
 - `.gitignore` should include: `.esphome/`, `**/.esphome/`, `**/__pycache__/`, `*.pyc`, `*.log`, `*.tmp`, `secrets.yaml`, `secrets.*.yaml`.
 - Remove nested `.git` folders inside subprojects unless you truly want submodules.
@@ -251,3 +237,38 @@ robocopy $repo $home1 /MIR /COPY:DAT /DCOPY:DAT /R:2 /W:2 /XJ /XD ".git" ".espho
 # esphome upload sensecap-d1s.yaml
 # Pop-Location
 ```
+
+## Manual GitHub Desktop: Promote `dev` to `main`
+Use this when you want full manual control and no automated sync/merge.
+
+1. Open GitHub Desktop.
+2. Select your ESPHome repo.
+3. Confirm current branch is `dev`.
+4. Commit all tested changes on `dev`.
+5. Click `Push origin` on `dev`.
+6. Switch branch to `main`.
+7. Click `Fetch origin` then `Pull origin` on `main`.
+8. Go to `Branch` -> `Merge into current branch...`.
+9. Choose `dev` and complete merge.
+10. Review changed files in Desktop.
+11. Commit merge (if prompted).
+12. Click `Push origin` on `main`.
+
+## Manual Tag After Stable Merge
+GitHub Desktop is fine for branch merges, but tagging is most reliable with these manual commands:
+
+```powershell
+cd "C:\Users\bigba\OneDrive\Documents\GitHub\ESPHome-Git"
+git checkout main
+git pull origin main
+git tag -a v2026.02.11-stable1 -m "Stable SenseCAP release"
+git push origin v2026.02.11-stable1
+```
+
+## Quick Verify Before Promote
+```powershell
+git status -sb
+git log --oneline --decorate -n 10
+```
+
+If `git status -sb` is not clean, stop and review before merging `dev` into `main`.
