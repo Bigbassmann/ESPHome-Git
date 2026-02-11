@@ -12,6 +12,7 @@
       - delay: 8s
       - lvgl.page.show:
           id: page_home
+      - delay: 2s
       - lambda: 'id(boot_ready) = true;'
       - logger.log: "Boot gate enabled: runtime UI updates active"
       
@@ -930,6 +931,7 @@ packages:
 #  - !include sensecap-ha/esphome/ui/ui_updates.yaml
 #  - !include sensecap-ha/esphome/ui/ui_sleep.yaml
 #  - !include sensecap-ha/esphome/ui/ui_analog_clock.yaml
+
 
 
 
