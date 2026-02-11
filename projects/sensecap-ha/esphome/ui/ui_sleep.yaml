@@ -1,0 +1,23 @@
+lvgl:
+  pages:
+    - id: page_sleep
+      widgets:
+
+        - label:
+            id: sleep_title
+            text: "Sleep Mode"
+            align: TOP_MID
+            y: 20
+            text_font: montserrat_32
+            styles:
+              - style_title
+
+        - button:
+            id: btn_sleep_now
+            text: "Sleep Now"
+            align: CENTER
+            styles:
+              - style_bg
+            on_press:
+              - light.turn_off: backlight
+              - lvgl.pause:

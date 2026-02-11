@@ -1,0 +1,50 @@
+# SenseCAP Indicator hardware (ESP32-S3)
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: ESP32S3
+  flash_size: 8MB
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_ESPTOOLPY_FLASHSIZE_8MB: y
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: y
+      CONFIG_ESP32S3_DATA_CACHE_64KB: y
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM_RODATA: y
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+# --- I2C BUS --- PCA9554 Expander I2C Address: 0x20, 16bit -and Touchscreen
+i2c:
+  - id: bus_a
+    sda: GPIO39
+    scl: GPIO40
+    scan: true  #false in docs
+
+# --- SPI BUS ---
+spi:
+  - id: lcd_spi
+    clk_pin: GPIO41
+    mosi_pin: GPIO48
+    miso_pin: GPIO47
+
+# --- PCA9554 IO EXPANDER --- GPIO39/40
+pca9554:
+  - id: pca9554a_device
+    address: 0x20
+    pin_count: 16
+
+# --- RP2040 UART FOR SENSOR PACKET TRANSPORT --- 2nd CPU
+uart:
+  - id: rp2040_serial
+    tx_pin: GPIO20  # TX from ESP32S3 to RP2040 RX RP_16
+    rx_pin: GPIO19  # RX to ESP32S3 from RP2040 TX RP_17
+    baud_rate: 115200
+
+packet_transport:
+  - platform: uart
+    uart_id: rp2040_serial
+    providers:
+      - name: d1-rp2040

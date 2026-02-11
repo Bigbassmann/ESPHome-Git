@@ -1,0 +1,72 @@
+lvgl:
+  pages:
+    - id: page_settings
+      widgets:
+
+        - label:
+            id: settings_title
+            text: "Settings"
+            align: TOP_MID
+            y: 40
+            text_font: montserrat_32
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+
+        - label:  # New: Label over the slider
+            id: brightness_label
+            text: "Display Brightness"
+            align: CENTER
+            y: 60  # Position above slider (adjust if needed for your 480x480 screen)
+            text_font: montserrat_24
+            text_color: 0xFFFFFF
+            border_color: 0x303F4F  # Dark grayish blue
+
+        - image:
+            align: CENTER
+            x: -140  # Left of slider center (adjust based on width)
+            y: 80
+            src: icon_dim_24
+        - label:
+            text: "Dim"
+            align: CENTER
+            x: -140
+            y: 120
+            text_font: montserrat_18
+            text_color: 0x808080
+
+        - slider:
+            id: brightness_slider
+            align: CENTER
+            y: 100
+            width: 200
+            height: 20
+#            value: 50
+            min_value: 0
+            max_value: 100
+            bg_color: 0x374151
+            knob:
+              bg_color: 0xFFFFFF
+              border_color: 0x4F46E5
+              border_width: 2
+            indicator:
+              bg_color: 0x4F46E5
+            on_value:
+              then:
+                - light.control:
+                    id: backlight
+                    brightness: !lambda |- 
+                      if (x == 0) return 0.0f;
+                      return x / 100.0f;
+
+        - image:
+            align: CENTER
+            x: 140  # Right of slider center (adjust based on width)
+            y: 80
+            src: icon_bright_24
+        - label:
+            text: "Bright"
+            align: CENTER
+            x: 140
+            y: 120
+            text_font: montserrat_18
+            text_color: 0xFFFFFF

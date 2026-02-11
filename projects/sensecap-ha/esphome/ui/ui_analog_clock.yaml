@@ -1,0 +1,58 @@
+lvgl:
+  pages:
+    - id: page_analog_clock
+      widgets:
+
+        - label:
+            id: analog_title
+            text: "Analog Clock"
+            align: TOP_MID
+            y: 20
+            text_font: montserrat_32
+            styles:
+              - style_title
+
+        - container:
+            id: analog_clock_container
+            align: CENTER
+            width: 300
+            height: 300
+            styles:
+              - style_clock_container
+
+            widgets:
+
+              - canvas:
+                  id: analog_ticks
+                  width: 300
+                  height: 300
+
+              - line:
+                  id: analog_hour_hand
+                  points:
+                    - x: 150
+                      y: 150
+                    - x: 150
+                      y: 90
+                  styles:
+                    - style_clock_hand_hour
+
+              - line:
+                  id: analog_minute_hand
+                  points:
+                    - x: 150
+                      y: 150
+                    - x: 150
+                      y: 60
+                  styles:
+                    - style_clock_hand_minute
+
+              - line:
+                  id: analog_second_hand
+                  points:
+                    - x: 150
+                      y: 150
+                    - x: 150
+                      y: 40
+                  styles:
+                    - style_clock_hand_second

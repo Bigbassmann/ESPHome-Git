@@ -1,0 +1,432 @@
+        - id: page_home  # --ui_home.yaml
+      bg_color: 0x101820  # Dark navy blue (almost black)
+      widgets:
+        - label:
+            id: clock_label  # --ui_home.yaml
+            text: "--:--"
+            align: TOP_MID
+            y: 20
+            text_font: montserrat_48
+            text_color: 0xFFFFFF  #0xFF0000  # Red 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+        - label:
+            id: date_label  # --ui_home.yaml
+            text: "-- --- ----"
+            align: TOP_MID
+            y: 90
+            text_font: montserrat_20
+#            bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  #0xFF0000    # RED   0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+        - label:
+            id: temp_label  # --ui_home.yaml
+            text: "Temp: -- °C"
+            align: LEFT_MID
+            x: 40
+            y: -40
+            text_font: montserrat_28
+#            bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+        - label:
+            id: humid_label  # --ui_home.yaml
+            text: "Humidity: -- %"
+            align: LEFT_MID
+            x: 40
+            y: 20
+            text_font: montserrat_28
+#            bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+        - label:
+            id: co2_label  # --ui_home.yaml
+            text: "CO2: -- ppm"
+            align: RIGHT_MID
+            x: -40
+            y: -40
+            text_font: montserrat_28
+#            bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+        - label:
+            id: voc_label  # --ui_home.yaml
+            text: "VOC: --"
+            align: RIGHT_MID
+            x: -40
+            y: 20
+            text_font: montserrat_28
+#            bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+        
+        
+        - button:
+            id: nav_settings
+            text: "Settings"
+            align: BOTTOM_LEFT
+            x: 20
+            y: -40  # Lower to ensure on-screen
+#            bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+            on_press:
+              - logger.log: "Nav to Settings pressed!"
+              - lvgl.page.show:
+                  id: page_settings
+        - button:
+            id: nav_updates
+            text: "Updates"
+            align: BOTTOM_MID
+            x: 0
+            y: -40  # Lower to ensure on-screen
+#            bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+            on_press:
+              - logger.log: "Nav to Updates pressed!"
+              - lvgl.page.show:
+                  id: page_updates
+        - button:
+            id: nav_air
+            text: "Air Quality"
+            align: BOTTOM_LEFT
+            x: 20
+            y: -80
+#            bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+            on_press:
+              - logger.log: "Nav to Air pressed!"
+              - lvgl.page.show:
+                  id: page_air
+        - button:
+            id: nav_admin
+            text: "Admin"
+            align: BOTTOM_RIGHT
+            x: -20
+            y: -80
+#            bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+            on_press:
+              - logger.log: "Nav to Admin pressed!"
+              - lvgl.page.show:
+                  id: page_admin
+    
+    
+    
+    
+    - id: page_settings  #--ui_settings.yaml
+      bg_color: 0x101820  # Dark navy blue (almost black)
+      widgets:
+        - label:
+            id: settings_title   #--ui_settings.yaml
+            text: "Settings"
+            align: TOP_MID
+            y: 10
+            text_font: montserrat_32
+ #           bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+        - slider:  # Fixed: Proper dictionary structure
+            id: brightness_slider
+            min_value: 0
+            max_value: 100  # Assumed from original; adjust if needed
+            align: CENTER
+            y: 40
+            value: !lambda |-
+              float val = id(ha_light_brightness).state;
+              return isnan(val) ? 0 : val / 2.55;
+            on_value:
+              then:
+                - light.turn_on:
+                    id: backlight
+                    brightness: !lambda return x / 100.0;
+                - homeassistant.service:
+                    service: light.turn_on
+                    data:
+                      entity_id: light.in_wall_paddle_dimmer_500s
+                      brightness: !lambda return x * 2.55;  # Or brightness_pct: !lambda return x;
+        - button:  # Back button to return to home
+            id: nav_home_settings
+            text: "Home"
+            align: BOTTOM_MID
+            y: -40  # Lower to ensure on-screen
+  #          bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+            on_press:
+              - logger.log: "Nav to Home pressed!"
+              - lvgl.page.show: 
+                  id: page_home
+
+    - id: page_updates   #--ui_updates.yaml
+      bg_color: 0x101820  # Dark navy blue (almost black)
+      widgets:
+        - label:
+            id: updates_title    #--ui_updates.yaml
+            text: "Updates"
+            align: TOP_MID
+            y: 20
+            text_font: montserrat_32
+   #         bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+        - label:
+            id: ota_status_label    #--ui_updates.yaml
+            text: "OTA: Idle"
+            align: CENTER
+            y: -20
+            text_font: montserrat_24
+    #        bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+        - button:
+            id: btn_check_updates    #--ui_updates.yaml
+            text: "Check for Updates"
+            align: CENTER
+            y: 40
+     #       bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+            on_press:
+              - homeassistant.service:
+                  service: esphome.sensecap_d1s_check_update
+        - button:  # Back button to return to home
+            id: nav_home_updates
+            text: "Home"
+            align: BOTTOM_MID
+            y: -40  # Lower to ensure on-screen
+      #      bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+            on_press:
+              - logger.log: "Nav to Home pressed!"
+              - lvgl.page.show: 
+                  id: page_home
+
+#    - id: page_graphs  #--ui_graphs.yaml
+#      widgets:
+#        - chart:
+#            id: temp_chart      #--ui_graphs.yaml
+#            type: line
+#            align: CENTER
+#            width: 440
+#            height: 300
+#            series:
+#              - id: temp_series      #--ui_graphs.yaml
+#                styles:
+#                  - style_graph_line
+    - id: page_air   #--ui_air.yaml
+      bg_color: 0x101820  # Dark navy blue (almost black)
+      widgets:
+        - label:
+            id: air_title   #--ui_air.yaml
+            text: "Air Quality"
+            align: TOP_MID
+            y: 20
+            text_font: montserrat_32
+       #     bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+        - label:
+            id: co2_detail   #--ui_air.yaml
+            text: "CO2: -- ppm"
+            align: CENTER
+            y: -20
+            text_font: montserrat_28
+        #    bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+        - label:
+            id: voc_detail   #--ui_air.yaml
+            text: "VOC Index: --"
+            align: CENTER
+            y: 40
+            text_font: montserrat_28
+#            bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+        - button:  # Back button to return to home
+            id: nav_home_air
+            text: "Home"
+            align: BOTTOM_MID
+            y: -40  # Lower to ensure on-screen
+ #           bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+            on_press:
+              - logger.log: "Nav to Home pressed!"
+              - lvgl.page.show: 
+                  id: page_home
+    - id: page_admin    #--ui_admin.yaml
+      bg_color: 0x101820  # Dark navy blue (almost black)
+      widgets:
+        - label:
+            id: admin_title    #--ui_admin.yaml
+            text: "Admin Panel"
+            align: TOP_MID
+            y: 20
+            text_font: montserrat_32
+  #          bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+        - label:
+            id: wifi_ssid_label    #--ui_admin.yaml
+            text: "WiFi: --"
+            align: LEFT_MID
+            x: 20
+            y: -40
+            text_font: montserrat_24
+   #         bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+        - label:
+            id: ip_label    #--ui_admin.yaml
+            text: "IP: --"
+            align: LEFT_MID
+            x: 20
+            y: 0
+            text_font: montserrat_24
+    #        bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+        - button:
+            id: btn_restart    #--ui_admin.yaml
+            text: "Restart Device"
+            align: CENTER
+            y: 40
+     #       bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+            on_press:
+              - switch.turn_on: restart_switch
+        - button:  # Back button to return to home
+            id: nav_home_admin
+            text: "Home"
+            align: BOTTOM_MID
+            y: -40  # Lower to ensure on-screen
+      #      bg_color: 0x101820  # Dark navy blue (almost black)
+            text_color: 0xFFFFFF  # Pure white
+            border_color: 0x303F4F  # Dark grayish blue
+            radius: 12
+            pad_all: 6
+            border_width: 2
+            shadow_width: 0
+            on_press:
+              - logger.log: "Nav to Home pressed!"
+              - lvgl.page.show: 
+                  id: page_home
+
+  widgets:
+    - slider: # HA brightness
+        id: brightness_slider_lvgl
+        value: !lambda return id(ha_light_brightness).state;
+        x: 50
+        y: 350
+        on_value:
+          - homeassistant.service:
+              service: "light.turn_on"
+              data:
+                entity_id: "light.in_wall_paddle_dimmer_500s"
+          - homeassistant.service:
+              service: "light.set_brightness"
+              data:
+                entity_id: "light.in_wall_paddle_dimmer_500s"
+                brightness_pct: !lambda return x;      

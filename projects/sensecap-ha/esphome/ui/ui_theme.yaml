@@ -1,0 +1,41 @@
+lvgl:
+  style_definitions:
+
+    - id: style_bg
+      bg_color: 0x101820
+      text_color: 0xFFFFFF
+      border_color: 0x303F4F
+      radius: 12
+      pad_all: 6
+      border_width: 2
+      shadow_width: 0
+
+    - id: style_title
+      text_color: 0xFFFFFF
+      text_letter_space: 2
+
+    - id: style_subtitle
+      text_color: 0xAAAAAA
+      text_letter_space: 1
+
+    - id: style_graph_line
+      line_color: 0x00A0FF
+      line_width: 3
+
+    - id: style_clock_container
+      bg_color: 0x0D141C
+      border_color: 0x2A3A4A
+      border_width: 4
+      radius: 150
+
+    - id: style_clock_hand_hour
+      line_color: 0xFFFFFF
+      line_width: 6
+
+    - id: style_clock_hand_minute
+      line_color: 0x66CCFF
+      line_width: 4
+
+    - id: style_clock_hand_second
+      line_color: 0xFF4444
+      line_width: 2

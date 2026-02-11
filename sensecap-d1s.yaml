@@ -61,6 +61,78 @@ binary_sensor:
     entity_id: binary_sensor.front_door  # Replace with actual
     name: "Front Door Sensor"
 
+  - platform: homeassistant
+    id: ha_cleaners_toggle
+    entity_id: input_boolean.cleaners_toggle
+    internal: true
+    on_state:
+      - logger.log:
+          format: "HA sync: cleaners_toggle -> %s"
+          args: ['x ? "ON" : "OFF"']
+
+  - platform: homeassistant
+    id: ha_dani_mode_on
+    entity_id: input_boolean.dani_mode_on
+    internal: true
+    on_state:
+      - logger.log:
+          format: "HA sync: dani_mode_on -> %s"
+          args: ['x ? "ON" : "OFF"']
+
+  - platform: homeassistant
+    id: ha_front_door_auto_lock_off
+    entity_id: input_boolean.front_door_auto_lock_off
+    internal: true
+    on_state:
+      - logger.log:
+          format: "HA sync: front_door_auto_lock_off -> %s"
+          args: ['x ? "ON" : "OFF"']
+
+  - platform: homeassistant
+    id: ha_tod_control
+    entity_id: input_boolean.automation_time_of_day_trigger
+    internal: true
+    on_state:
+      - logger.log:
+          format: "HA sync: automation_time_of_day_trigger -> %s"
+          args: ['x ? "ON" : "OFF"']
+
+  - platform: homeassistant
+    id: ha_motion_automation_off
+    entity_id: input_boolean.motion_automation_off
+    internal: true
+    on_state:
+      - logger.log:
+          format: "HA sync: motion_automation_off -> %s"
+          args: ['x ? "ON" : "OFF"']
+
+  - platform: homeassistant
+    id: ha_entry_motion_automation_off
+    entity_id: input_boolean.entry_motion_automation_off
+    internal: true
+    on_state:
+      - logger.log:
+          format: "HA sync: entry_motion_automation_off -> %s"
+          args: ['x ? "ON" : "OFF"']
+
+  - platform: homeassistant
+    id: ha_garage_light_automation_off
+    entity_id: input_boolean.garage_light_automation_off
+    internal: true
+    on_state:
+      - logger.log:
+          format: "HA sync: garage_light_automation_off -> %s"
+          args: ['x ? "ON" : "OFF"']
+
+  - platform: homeassistant
+    id: ha_mbr_motion_off
+    entity_id: input_boolean.mbr_motion_off
+    internal: true
+    on_state:
+      - logger.log:
+          format: "HA sync: mbr_motion_off -> %s"
+          args: ['x ? "ON" : "OFF"']
+
 # --- GLOBALS FOR MIN/MAX ---
 globals:
   - id: temp_min
@@ -978,6 +1050,198 @@ interval:
             }
           animated: true
 
+      - if:
+          condition:
+            lambda: 'return id(ha_cleaners_toggle).state;'
+          then:
+            - lvgl.label.update:
+                id: ov_cleaners_state
+                text: "ON"
+            - lvgl.widget.update:
+                id: ov_cleaners_state
+                text_color: 0xD1FAE5
+            - lvgl.widget.update:
+                id: ov_cleaners_btn
+                bg_color: 0x166534
+          else:
+            - lvgl.label.update:
+                id: ov_cleaners_state
+                text: "OFF"
+            - lvgl.widget.update:
+                id: ov_cleaners_state
+                text_color: 0xFCA5A5
+            - lvgl.widget.update:
+                id: ov_cleaners_btn
+                bg_color: 0x374151
+
+      - if:
+          condition:
+            lambda: 'return id(ha_dani_mode_on).state;'
+          then:
+            - lvgl.label.update:
+                id: ov_dani_state
+                text: "ON"
+            - lvgl.widget.update:
+                id: ov_dani_state
+                text_color: 0xD1FAE5
+            - lvgl.widget.update:
+                id: ov_dani_btn
+                bg_color: 0x166534
+          else:
+            - lvgl.label.update:
+                id: ov_dani_state
+                text: "OFF"
+            - lvgl.widget.update:
+                id: ov_dani_state
+                text_color: 0xFCA5A5
+            - lvgl.widget.update:
+                id: ov_dani_btn
+                bg_color: 0x374151
+
+      - if:
+          condition:
+            lambda: 'return id(ha_front_door_auto_lock_off).state;'
+          then:
+            - lvgl.label.update:
+                id: ov_front_lock_state
+                text: "ON"
+            - lvgl.widget.update:
+                id: ov_front_lock_state
+                text_color: 0xD1FAE5
+            - lvgl.widget.update:
+                id: ov_front_lock_btn
+                bg_color: 0x166534
+          else:
+            - lvgl.label.update:
+                id: ov_front_lock_state
+                text: "OFF"
+            - lvgl.widget.update:
+                id: ov_front_lock_state
+                text_color: 0xFCA5A5
+            - lvgl.widget.update:
+                id: ov_front_lock_btn
+                bg_color: 0x374151
+
+      - if:
+          condition:
+            lambda: 'return id(ha_tod_control).state;'
+          then:
+            - lvgl.label.update:
+                id: ov_tod_state
+                text: "ON"
+            - lvgl.widget.update:
+                id: ov_tod_state
+                text_color: 0xD1FAE5
+            - lvgl.widget.update:
+                id: ov_tod_btn
+                bg_color: 0x166534
+          else:
+            - lvgl.label.update:
+                id: ov_tod_state
+                text: "OFF"
+            - lvgl.widget.update:
+                id: ov_tod_state
+                text_color: 0xFCA5A5
+            - lvgl.widget.update:
+                id: ov_tod_btn
+                bg_color: 0x374151
+
+      - if:
+          condition:
+            lambda: 'return id(ha_motion_automation_off).state;'
+          then:
+            - lvgl.label.update:
+                id: ov_motion_all_state
+                text: "ON"
+            - lvgl.widget.update:
+                id: ov_motion_all_state
+                text_color: 0xD1FAE5
+            - lvgl.widget.update:
+                id: ov_motion_all_btn
+                bg_color: 0x166534
+          else:
+            - lvgl.label.update:
+                id: ov_motion_all_state
+                text: "OFF"
+            - lvgl.widget.update:
+                id: ov_motion_all_state
+                text_color: 0xFCA5A5
+            - lvgl.widget.update:
+                id: ov_motion_all_btn
+                bg_color: 0x374151
+
+      - if:
+          condition:
+            lambda: 'return id(ha_entry_motion_automation_off).state;'
+          then:
+            - lvgl.label.update:
+                id: ov_motion_entry_state
+                text: "ON"
+            - lvgl.widget.update:
+                id: ov_motion_entry_state
+                text_color: 0xD1FAE5
+            - lvgl.widget.update:
+                id: ov_motion_entry_btn
+                bg_color: 0x166534
+          else:
+            - lvgl.label.update:
+                id: ov_motion_entry_state
+                text: "OFF"
+            - lvgl.widget.update:
+                id: ov_motion_entry_state
+                text_color: 0xFCA5A5
+            - lvgl.widget.update:
+                id: ov_motion_entry_btn
+                bg_color: 0x374151
+
+      - if:
+          condition:
+            lambda: 'return id(ha_garage_light_automation_off).state;'
+          then:
+            - lvgl.label.update:
+                id: ov_motion_garage_state
+                text: "ON"
+            - lvgl.widget.update:
+                id: ov_motion_garage_state
+                text_color: 0xD1FAE5
+            - lvgl.widget.update:
+                id: ov_motion_garage_btn
+                bg_color: 0x166534
+          else:
+            - lvgl.label.update:
+                id: ov_motion_garage_state
+                text: "OFF"
+            - lvgl.widget.update:
+                id: ov_motion_garage_state
+                text_color: 0xFCA5A5
+            - lvgl.widget.update:
+                id: ov_motion_garage_btn
+                bg_color: 0x374151
+
+      - if:
+          condition:
+            lambda: 'return id(ha_mbr_motion_off).state;'
+          then:
+            - lvgl.label.update:
+                id: ov_motion_mbr_state
+                text: "ON"
+            - lvgl.widget.update:
+                id: ov_motion_mbr_state
+                text_color: 0xD1FAE5
+            - lvgl.widget.update:
+                id: ov_motion_mbr_btn
+                bg_color: 0x166534
+          else:
+            - lvgl.label.update:
+                id: ov_motion_mbr_state
+                text: "OFF"
+            - lvgl.widget.update:
+                id: ov_motion_mbr_state
+                text_color: 0xFCA5A5
+            - lvgl.widget.update:
+                id: ov_motion_mbr_btn
+                bg_color: 0x374151
+
   - interval: 60s
     then:
       - lambda: |-
@@ -1038,6 +1302,7 @@ packages:
 #  - !include sensecap-ha/esphome/ui/ui_air.yaml
   - !include sensecap-ha/esphome/ui/ui_settings.yaml
   - !include sensecap-ha/esphome/ui/ui_admin.yaml
+  - !include sensecap-ha/esphome/ui/ui_overrides.yaml
   - !include sensecap-ha/esphome/ui/ui_wifi.yaml
 #  - !include sensecap-ha/esphome/ui/ui_navigation.yaml
 #  - !include sensecap-ha/esphome/ui/ui_updates.yaml

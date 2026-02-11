@@ -1,0 +1,1102 @@
+substitutions:   # .yaml
+  device_name: "esp32-2"  #
+  friendly_name: Enviro pHAT ESP32 (151) #
+  api_key: "d34fPlEMAtK3kx65TrygHQsTHID2DrSbYXZimY7UobU="  #
+  ota_password: "19a7e1f0611fa48fd837744bfb3cf01f"   #
+#  wifi_ssid_home1: !secret wifi_ssid_home1
+#  wifi_password_home1: !secret wifi_password_home1
+#  wifi_ssid_home2: !secret wifi_ssid_home2
+#  wifi_password_home2: !secret wifi_password_home2
+#  wifi_ssid: !secret wifi_ssid
+#  wifi_password: !secret wifi_password
+  wifi_power_save_mode: NONE # NONE, LIGHT, MODEM
+  wifi_use_address: 192.168.119.151  #
+#  manual_ip_static_ip: 192.168.119.151 # 192.168.119.151
+#  manual_ip_gateway: 192.168.119.1
+#  manual_ip_subnet: 255.255.255.0
+  ap_ssid: "Esp32-2 Fallback Hotspot"  # 
+  ap_password: "eObcKEh48Q1A"  #
+  espnow_id: esp32_2_151  # No hyphens or spaces; valid C++ identifier
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  platformio_options:
+    build_flags:
+      - -Os
+      - -g0
+      - -fno-exceptions
+    build_unflags:
+      - -fexceptions
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf   #arduino
+
+# Enable logging
+logger:
+  baud_rate: 0 #115200 #0
+  level: DEBUG  #VERY_VERBOSE
+# Enable Home Assistant API
+api:
+  encryption:
+    key: ${api_key}
+
+ota:
+  - platform: esphome
+    password: ${ota_password}
+
+wifi:
+#  ssid: !secrets wifi_ssid_home1
+#  password: !secrets wifi_password_home1
+  id: wifi_component
+  power_save_mode: ${wifi_power_save_mode}
+  reboot_timeout: 60min            # optional - reboot if no network for too long
+  use_address: ${wifi_use_address}    # Critical for moving/roaming devices — MUST be set!  ← This disables any assumed static IP
+  ap:
+    ssid: ${ap_ssid}
+    password: ${ap_password}
+#    ap_timeout: 15min               # how long to keep AP active before sleep/retry
+  # Recommended extras for faster/more reliable reconnects
+  fast_connect: true                    # quicker reconnect after moving
+
+  # Fallback to AP if WiFi connection fails
+  manual_ip:
+    static_ip: 192.168.119.151  #!secret static_ip_temp
+    gateway:   192.168.119.1  #!secret gateway_temp
+    subnet:    255.255.255.0
+
+  # Enable scanning + auto-select best known network
+#  scan_method: ACTIVE
+  # Secondary / fallback networks (tried in order)
+  networks:
+    # Primary network (Home1) — tried first
+    - ssid: !secret wifi_ssid_home1
+      password: !secret wifi_password_home1
+#   - ssid: !secret wifi_ssid
+#     password: !secret wifi_password
+    - ssid: !secret wifi_ssid_home2
+      password: !secret wifi_password_home2
+    # Optional: add more networks with different priorities
+    - ssid: !secret wifi_ssid_hotspot
+      password: !secret wifi_password_hotspot
+  #   priority: 1.0  #(optional float): higher number = prefer this network when multiple are visible
+
+captive_portal:
+
+mdns:
+  disabled: false
+
+web_server:
+  port: 80
+  include_internal: true  
+
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+  scan: true
+
+uart:
+  id: uart_pms
+  tx_pin: GPIO17
+  rx_pin: GPIO16
+  baud_rate: 9600
+
+spi:
+  clk_pin: GPIO18
+  mosi_pin: GPIO23
+
+#font:
+#  - file: "fonts/RobotoMonoNerdFontPropo-Regular.ttf"   #"fonts/Arial.ttf"   #"fonts/materialdesignicons-webfont.ttf"  #"fonts/Arial.ttf'  #"fonts/Roboto-Medium.ttf"
+#    id: material_font  #user_font
+#    size: 20
+
+font:
+  - file: "fonts/RobotoMonoNerdFontPropo-Regular.ttf"
+    id: user_font   #nerd_font
+    size: 18  # Test 16–22; larger = crisper but uses more RAM
+
+  # Optional: Limit to needed glyphs/icons to reduce size even more
+    glyphs:
+      - "0123456789"  # Numbers
+      - "ABCDEFGHIJKLMNOPQRSTUVWXYZ"  # Uppercase letters
+      - "abcdefghijklmnopqrstuvwxyz"  # Lowercase letters
+      - "°%µ"  # Degree, percent, micro
+      - ".:/ "  # Common symbols
+      - "\uf2c7"  # Thermometer (U+F2C7)
+      - "\uf2c9"  # Water drop (U+F2C9)
+      - "#"                       # ← Add this line – fixes the warning
+      # You can also add more if you plan to use them later, e.g.:
+      - "-+"                     # for trends/arrows if needed
+      - "μ"                       # if you ever want the real micro symbol instead of µ
+      - "Ω"
+      - "³"
+      # Add more as needed
+
+#Choose free GPIOs that don't conflict with your current setup!
+# Suggested safe choices (avoid your existing SPI/I2C/UART pins):
+# GPIO32, 33, 34, 35, 36, etc. — adjust if needed
+i2s_audio:
+  id: i2s_mic_bus
+  i2s_lrclk_pin: GPIO14     # Word Select / Frame Sync (WS/LRCLK)
+  i2s_bclk_pin: GPIO25      # Bit Clock (BCLK)
+  
+microphone:
+  - platform: i2s_audio
+    id: env_mic
+    i2s_audio_id: i2s_mic_bus           # Must match i2s_audio id
+    adc_type: external
+    i2s_din_pin: GPIO12                 # Data In (DOUT/DIN)
+    channel: left                       # SPH0645LM4H outputs on left channel
+    sample_rate: 16000                  # adjust as needed 8000
+    bits_per_sample: 16bit
+    pdm: false
+    
+globals:
+     # Sound wake feature control
+  - id: sound_wake_enabled
+    type: bool
+    restore_value: yes
+    initial_value: 'false'      # off by default
+
+     # Sound wake threshold (dB)
+  - id: sound_wake_threshold_db
+    type: float
+    restore_value: yes
+    initial_value: '65.0'       # ~normal conversation level
+
+  - id: prox_threshold
+    type: int
+    restore_value: yes
+    initial_value: '2'         # default medium sensitivity
+
+  - id: lux_high_threshold
+    type: int
+    restore_value: yes
+    initial_value: '80'
+
+  - id: lux_low_threshold
+    type: int
+    restore_value: yes
+    initial_value: '60'
+
+  - id: brightness_max_pct
+    type: float
+    restore_value: yes
+    initial_value: '100.0'
+
+  - id: brightness_min_pct
+    type: float
+    restore_value: yes
+    initial_value: '60.0'
+
+  - id: cycling_active
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+  - id: current_mode
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+  - id: cycle_count_current
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+  - id: mode_interval_seconds
+    type: int
+    restore_value: yes
+    initial_value: '5'
+
+  - id: cycle_count_target
+    type: int
+    restore_value: yes
+    initial_value: '5'           # same for ALL triggers
+
+  - id: last_activation
+    type: unsigned long
+    restore_value: no
+    initial_value: '0'
+
+  - id: last_manual_activation     # Used to give manual higher priority
+    type: unsigned long
+    restore_value: no
+    initial_value: '0'  
+
+  - id: last_switch
+    type: unsigned long
+    restore_value: no
+    initial_value: '0'
+
+     # Calibration baselines (R0 in ohms; calibrate in clean air and adjust via HA)
+
+  - id: r0_red
+    type: float
+    restore_value: yes
+    initial_value: '200000.0'  # Example for reducing (CO); adjust per sensor
+  - id: r0_ox
+    type: float
+    restore_value: yes
+    initial_value: '20000.0'   # Example for oxidizing (NO2)
+  - id: r0_nh3
+    type: float
+    restore_value: yes
+    initial_value: '750000.0'  # Example for NH3
+
+ads1115:
+  address: 0x49
+  continuous_mode: false
+
+number:
+  - platform: template
+    name: "Display Sound Wakeup dB"
+    id: sound_threshold_num
+    icon: "mdi:volume-high"
+    min_value: 40
+    max_value: 100
+    step: 5
+    unit_of_measurement: "dB"
+    optimistic: true
+    restore_value: true
+    initial_value: 65
+    set_action:
+      - lambda: |-
+          id(sound_wake_threshold_db) = x;
+
+  - platform: template
+    name: "Display Max Brightness"
+    id: max_brightness_num
+    icon: "mdi:brightness-7"
+    min_value: 30
+    max_value: 100
+    step: 5
+    unit_of_measurement: "%"
+    optimistic: true
+    restore_value: true
+    initial_value: 100
+    set_action:
+      - lambda: |-
+          id(brightness_max_pct) = x;
+
+  - platform: template
+    name: "Display Min Offset v. Max"
+    id: min_offset_num
+    icon: "mdi:brightness-3"
+    min_value: -70
+    max_value: 0
+    step: 5
+    unit_of_measurement: "%"
+    optimistic: true
+    restore_value: true
+    initial_value: -30   # e.g. 100% max → 70% min
+    set_action:
+      - lambda: |-
+          float offset = x;
+          id(brightness_min_pct) = id(brightness_max_pct) + offset;
+          if (id(brightness_min_pct) < 0) id(brightness_min_pct) = 0;
+
+select:
+  - platform: template
+    name: "Display High Lux"
+    id: lux_high_select
+    icon: "mdi:weather-sunny"
+    optimistic: true
+    restore_value: true
+    options:
+      - "30"
+      - "40"
+      - "50"
+      - "60"
+      - "70"
+      - "80"
+      - "90"
+      - "100"
+    initial_option: "70"
+    on_value:
+      then:
+        - lambda: |-
+            id(lux_high_threshold) = atoi(x.c_str());
+
+  - platform: template
+    name: "Display Cycle(s) Select"
+    id: display_cycle_count
+    icon: "mdi:repeat"
+    optimistic: true
+    restore_value: true
+    options:
+      - "1"
+      - "2"
+      - "3"
+      - "5"
+      - "7"
+      - "9"
+      - "11"
+    initial_option: "1"
+    on_value:
+      then:
+        - lambda: |-
+            id(cycle_count_target) = atoi(x.c_str());
+
+  - platform: template
+    name: "Display Interval Select"
+    id: display_mode_interval
+    icon: "mdi:clock-fast"
+    optimistic: true
+    restore_value: true
+    options:
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "7"
+      - "9"
+    initial_option: "1"
+    on_value:
+      then:
+        - lambda: |-
+            id(mode_interval_seconds) = atoi(x.c_str());
+
+#binary_sensor:
+#  - platform: gpio
+#    pin: GPIO35
+#    name: "Display Proximity Trigger"
+#    id: proximity_trigger
+#    device_class: motion
+#    mode: INPUT_PULLUP          # ← Add this! Internal pull-up prevents floating noise
+#    inverted: false             # Adjust if your button grounds the pin when pressed
+#    filters:
+#      - delayed_off: 350ms     # 1s # ← increased a bit to reduce chatter
+#    on_press:
+#      then:
+#        - lambda: |-
+#            if (id(backlight).current_values.is_on()) {
+#              id(backlight).turn_off();
+#              id(cycling_active) = false;
+#              id(display_cycle_script).stop();  // extra safety
+#            } else {
+#              id(backlight).turn_on();
+#              id(cycling_active) = true;
+#              id(current_mode) = 0;
+#              id(cycle_count_current) = 0;
+#              id(display_cycle_script).execute();  // starts if not running (single mode)
+#            }
+
+text_sensor:
+  - platform: template
+    name: "Display Cycle Count"  # Optional: For visibility in dashboard
+    id: cycle_count_sensor
+    icon: "mdi:progress-clock"
+    update_interval: 1s
+    lambda: |-
+      char buf[32];
+      snprintf(buf, sizeof(buf), "%d / %d", id(cycle_count_current) +1 , id(cycle_count_target));
+      return std::string(buf);
+
+  - platform: template
+    name: "Display Content"
+    id: current_display
+    lambda: |-
+      if (!id(backlight).current_values.is_on()) {
+        return std::string("Off");
+      }
+      int mode = id(current_mode);
+      std::string variable;
+      float data = 0.0;
+      std::string unit;
+      switch (mode) {
+        case 0: variable = "Temp"; data = id(temp_sensor).state; unit = "°F"; break;
+        case 1: variable = "Hum"; data = id(hum_sensor).state; unit = "%"; break;
+        case 2: variable = "Pres"; data = id(press_sensor).state; unit = "hPa"; break;
+        case 3: variable = "Light"; data = id(light_sensor).state; unit = "Lux"; break;
+        case 4: variable = "Oxi "; data = id(ox_raw).state; unit = "kΩ"; break;
+        case 5: variable = "Redu"; data = id(red_raw).state; unit = "kΩ"; break;
+        case 6: variable = "NH3 "; data = id(nh3_raw).state; unit = "kΩ"; break;
+        case 7: variable = "PM1 "; data = id(pm1_sensor).state; unit = "µg/m³"; break;
+        case 8: variable = "PM25"; data = id(pm25_sensor).state; unit = "µg/m³"; break;
+        case 9: variable = "PM10"; data = id(pm10_sensor).state; unit = "µg/m³"; break;
+        case 10: variable = "PM1 AQI"; data = id(pm1_aqi).state; unit = "Index"; break;  
+        case 11: variable = "PM25 AQI"; data = id(pm25_aqi).state; unit = "Index"; break; 
+        case 12: variable = "PM10 AQI"; data = id(pm10_aqi).state; unit = "Index"; break;
+        case 13: variable = "PM0.3"; data = id(pm0_3_sensor).state; unit = "#/.1L"; break;
+        case 14: variable = "PM0.5"; data = id(pm0_5_sensor).state; unit = "#/.1L"; break;
+        case 15: variable = "PM1.0"; data = id(pm1_0_sensor).state; unit = "#/.1L"; break;
+        case 16: variable = "PM2.5"; data = id(pm2_5_sensor).state; unit = "#/.1L"; break;
+        case 17: variable = "PM5.0"; data = id(pm5_0_sensor).state; unit = "#/.1L"; break;
+        case 18: variable = "PM10"; data = id(pm10_0_sensor).state; unit = "#/.1L"; break;
+      }
+      char buf[50];
+      snprintf(buf, sizeof(buf), "%s: %.1f %s", variable.c_str(), data, unit.c_str());
+      return std::string(buf);
+    update_interval: 1s
+
+sensor:
+  - platform: template
+    name: "Display Calc'd Brightness (raw)"
+    lambda: |-
+      return id(backlight).current_values.get_brightness() * 100.0;
+    unit_of_measurement: "%"
+    update_interval: 5s
+
+     # Relative dB (0 dB = maximum loudness the mic can handle without clipping)
+  - platform: sound_level
+    passive: false
+    microphone: env_mic
+    measurement_duration: 5s        # Optional: time window for each measurement (default 1s)
+    peak:                           # ← Peak sub-sensor
+      name: "Env Sound Peak"
+      id: sound_peak_db
+      unit_of_measurement: "dB"
+      accuracy_decimals: 1
+      icon: "mdi:microphone-alert"
+      filters:
+        - offset: 94.0              # Optional: approximate absolute dB SPL calibration
+
+    rms:                            # ← RMS (average) sub-sensor
+      name: "Env Sound RMS"
+      id: sound_rms_db
+      unit_of_measurement: "dB"
+      accuracy_decimals: 1
+      icon: "mdi:microphone-variant"
+      filters:
+        - offset: 94.0              # Same optional offset
+
+  - platform: ads1115
+    multiplexer: 'A0_GND'  # Oxidising (e.g., NO2)
+    gain: 6.144
+    name: "Gas Oxidising kΩ"
+    id: ox_raw
+    unit_of_measurement: "kΩ"
+    resolution: 12_bits
+    update_interval: 60s
+    filters:
+      - lambda: |-
+          if (x > 0) {
+            return (3.3 / x - 1.0) * 10.0;  //# Rload = 10kΩ, adjust per datasheet
+          }
+          return 0;
+
+  - platform: ads1115
+    multiplexer: 'A1_GND'  # Reducing (e.g., CO)
+    gain: 6.144
+    name: "Gas Reducing kΩ"
+    id: red_raw
+    unit_of_measurement: "kΩ"
+    resolution: 12_bits
+    update_interval: 60s
+    filters:
+      - lambda: |-
+          if (x > 0) {
+            return (3.3 / x - 1.0) * 10.0;
+          }
+          return 0;
+
+  - platform: ads1115
+    multiplexer: 'A2_GND'  # NH3
+    gain: 6.144
+    name: "Gas NH3 kΩ"
+    id: nh3_raw
+    unit_of_measurement: "kΩ"
+    resolution: 12_bits
+    update_interval: 60s
+    filters:
+      - lambda: |-
+          if (x > 0) {
+            return (3.3 / x - 1.0) * 10.0;
+          }
+          return 0;
+
+  - platform: bme280_i2c
+    address: 0x76
+    update_interval: 15s
+    temperature:
+      name: "Env Temperature"
+      id: temp_sensor
+      unit_of_measurement: "°F"
+      filters:
+        - offset: 0.0  # Calibrate if needed (e.g., CPU heat compensation)
+        - lambda: |-
+            if (isnan(x)) return NAN;
+            return x * (9.0/5.0) + 32.0;
+    pressure:
+      name: "Env Pressure"
+      id: press_sensor
+    humidity:
+      name: "Env Humidity"
+      id: hum_sensor
+                         #Add a small capacitor (e.g., 0.1µF–10µF) across 3.3V/GND near the Enviro board.
+  - platform: ltr_als_ps
+    type: ALS_PS                  # For LTR559 (integrated ALS + PS)
+    address: 0x23                 # Default for ALS_PS; explicit for clarity
+    update_interval: 50ms
+    ambient_light:
+      name: "Env Light"
+      id: light_sensor
+#      gain: X48                     # or X24, X96 – higher gain for low light
+#      integration_time: 200ms       # longer integration smooths readings
+    ps_counts:
+      name: "Display Proximity"
+      id: prox_sensor
+    ps_high_threshold: 2  # Equivalent to 'above: 1500'; lower if needed for testing
+    ps_cooldown: 1s         # ← Short cooldown prevents spam but allows quick re-triggers
+        # ============================================================================
+        # PROXIMITY - only starts if no recent manual activation
+        # ============================================================================
+    on_ps_high_threshold:
+      then:
+        - if:
+            condition:
+              lambda: |-
+                return (millis() - id(last_manual_activation) > 300000);
+            then:
+              - lambda: |-
+                  unsigned long now = millis();
+                  if (now - id(last_activation) < 10) return;
+                  id(last_activation) = now;
+              - globals.set: {id: cycling_active, value: 'true'}
+              - globals.set: {id: current_mode, value: '0'}
+              - globals.set: {id: cycle_count_current, value: '0'}
+              - light.turn_on: backlight
+              - script.stop: display_cycle_script
+              - script.execute: display_cycle_script
+              - logger.log:
+                  format: "Prox touch! Raw = %.0f"
+                  args: [id(prox_sensor).state]
+
+  - platform: pmsx003
+    type: PMSX003                  #PMSX003  #PMS5003ST
+    uart_id: uart_pms
+    update_interval: 120s
+  #    reset_pin: GPIO26  # Added for hardware reset
+  #    enable_pin: GPIO27  # Added for SET/enable control (e.g., active/passive mode)
+    pm_1_0:
+      name: "AQ PM <1.0µm"
+      id: pm1_sensor
+      filters:
+        - sliding_window_moving_average:
+            window_size: 10
+            send_every: 10
+    pm_2_5:
+      name: "AQ PM <2.5µm"
+      id: pm25_sensor
+      filters:
+        - sliding_window_moving_average:
+            window_size: 10
+            send_every: 10
+    pm_10_0:
+      name: "AQ PM <10.0µm"
+      id: pm10_sensor
+      filters:
+        - sliding_window_moving_average:
+            window_size: 10
+            send_every: 10
+    pm_0_3um:
+      name: "AQ Particles >0.3µm"
+      id: pm0_3_sensor
+      unit_of_measurement: "#/.1L"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 10
+            send_every: 10
+    pm_0_5um:
+      name: "AQ Particles >0.5µm"
+      id: pm0_5_sensor
+      unit_of_measurement: "#/.1L"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 10
+            send_every: 10
+    pm_1_0um:
+      name: "AQ Particles >1.0µm"
+      id: pm1_0_sensor
+      unit_of_measurement: "#/.1L"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 10
+            send_every: 10
+    pm_2_5um:
+      name: "AQ Particles >2.5µm"
+      id: pm2_5_sensor
+      unit_of_measurement: "#/.1L"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 10
+            send_every: 10
+    pm_5_0um:
+      name: "AQ Particles >5.0µm"
+      id: pm5_0_sensor
+      unit_of_measurement: "#/.1L"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 10
+            send_every: 10
+    pm_10_0um:
+      name: "AQ Particles >10.0µm"
+      id: pm10_0_sensor
+      unit_of_measurement: "#/.1L"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 10
+            send_every: 10  
+
+    # Calibrated ppm sensors (template; uses Rs in ohms)
+  - platform: template
+    name: "Gas CO PPM"
+    id: co_ppm
+    unit_of_measurement: "ppm"
+    update_interval: 30s
+    lambda: |-
+      float rs = id(red_raw).state * 1000.0;  //# Convert kΩ to Ω
+      if (rs > 0 && id(r0_red) > 0) {
+        float ratio = rs / id(r0_red);
+        return pow(10.0, -1.25 * log10(ratio) + 0.64);
+      }
+      return 0.0;
+
+  - platform: template
+    name: "Gas NO2 PPM"
+    id: no2_ppm
+    unit_of_measurement: "ppm"
+    update_interval: 30s
+    lambda: |-
+      float rs = id(ox_raw).state * 1000.0;
+      if (rs > 0 && id(r0_ox) > 0) {
+        float ratio = rs / id(r0_ox);
+        return pow(10.0, log10(ratio) - 0.8129);
+      }
+      return 0.0;
+
+  - platform: template
+    name: "Gas NH3 PPM"
+    id: nh3_ppm
+    unit_of_measurement: "ppm"
+    update_interval: 30s
+    lambda: |-
+      float rs = id(nh3_raw).state * 1000.0;
+      if (rs > 0 && id(r0_nh3) > 0) {
+        float ratio = rs / id(r0_nh3);
+        return pow(10.0, -1.8 * log10(ratio) - 0.163);
+      }
+      return 0.0;
+
+  - platform: template
+    name: "AQI PM1"
+    id: pm1_aqi
+    lambda: |-
+      float c = id(pm1_sensor).state;
+      if (c <= 0) return 0;
+      if (c <= 12) return (50 / 12) * c;
+      else if (c <= 35.4) return 50 + (50 / 23.4) * (c - 12);
+      else if (c <= 55.4) return 100 + (50 / 20) * (c - 35.4);
+      else if (c <= 150.4) return 150 + (50 / 95) * (c - 55.4);
+      else if (c <= 250.4) return 200 + (100 / 100) * (c - 150.4);
+      else if (c <= 500.4) return 300 + (200 / 250) * (c - 250.4);
+      else return 500;
+    unit_of_measurement: ""
+    update_interval: 120s
+    accuracy_decimals: 0
+
+  - platform: template
+    name: "AQI PM2.5"
+    id: pm25_aqi
+    lambda: |-
+      float c = id(pm25_sensor).state;
+      if (c <= 0) return 0;
+      if (c <= 12) return (50 / 12) * c;
+      else if (c <= 35.4) return 50 + (50 / 23.4) * (c - 12);
+      else if (c <= 55.4) return 100 + (50 / 20) * (c - 35.4);
+      else if (c <= 150.4) return 150 + (50 / 95) * (c - 55.4);
+      else if (c <= 250.4) return 200 + (100 / 100) * (c - 150.4);
+      else if (c <= 500.4) return 300 + (200 / 250) * (c - 250.4);
+      else return 500;
+    unit_of_measurement: ""
+    update_interval: 120s
+    accuracy_decimals: 0
+
+  - platform: template
+    name: "AQI PM10"
+    id: pm10_aqi
+    lambda: |-
+      float c = id(pm10_sensor).state;
+      if (c <= 0) return 0;
+      if (c <= 54) return (50 / 54) * c;
+      else if (c <= 154) return 50 + (50 / 100) * (c - 54);
+      else if (c <= 254) return 100 + (50 / 100) * (c - 154);
+      else if (c <= 354) return 150 + (50 / 100) * (c - 254);
+      else if (c <= 424) return 200 + (100 / 70) * (c - 354);
+      else if (c <= 604) return 300 + (200 / 180) * (c - 424);
+      else return 500;
+    unit_of_measurement: ""
+    update_interval: 120s
+    accuracy_decimals: 0    
+
+output:            # used with monochromatic mode
+  - platform: ledc
+    pin: GPIO15
+    id: backlight_output
+    frequency: 1000Hz      #1000Hz
+    min_power: 0.0
+    zero_means_zero: true
+  
+  #output:
+  #  - platform: gpio
+  #      pin: GPIO15
+  #    id: backlight_output
+  #    inverted: false  # Kept as false to match your working on/off    
+
+switch:
+  - platform: template
+    name: "Display Sound Wake"
+    id: sound_wake_switch
+    icon: "mdi:microphone"
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+    assumed_state: false
+    turn_on_action:
+      - globals.set:
+          id: sound_wake_enabled
+          value: !lambda 'return true;'
+    turn_off_action:
+      - globals.set:
+          id: sound_wake_enabled
+          value: !lambda 'return false;'
+
+  - platform: gpio
+    pin: GPIO13                 # Wire to Enviro+ Pin 18
+    name: "Gas Heater Enable"
+    id: gas_heater_switch
+    inverted: false               # High to enable
+    restore_mode: ALWAYS_ON       # Default on for normal use
+    icon: "mdi:fire"              # Optional HA icon
+
+
+    # Software-based switches for PMS control
+  - platform: gpio
+    pin: GPIO26                     # PMS Reset (Enviro+ Pin 13)
+    name: "PMS Reset"
+    id: pms_reset_switch
+    inverted: true                 # Active-low (pull low to reset)
+    icon: "mdi:restart"               # Optional HA icon
+    on_turn_on:
+      then:
+        - delay: 100ms                 # Short pulse for reset
+        - switch.turn_off: pms_reset_switch   # Auto-off to end pulse
+
+  - platform: gpio
+    pin: GPIO27                     # PMS Enable/Set (Enviro+ Pin 15)
+    name: "PMS Enable"
+    id: pms_enable_switch
+    inverted: false                  # High for active mode, low for passive
+    icon: "mdi:power"                # Optional HA icon
+    restore_mode: ALWAYS_ON            # Default to active mode on boot
+
+# ============================================================================
+# MANUAL ACTIVATION - highest priority (can always restart)
+# ============================================================================
+light:
+  - platform: monochromatic
+    name: "Display Backlight"
+    id: backlight
+    output: backlight_output
+    default_transition_length: 0.5s
+    restore_mode: RESTORE_AND_ON
+    on_turn_on:
+      - lambda: |-
+          unsigned long now = millis();
+          if (now - id(last_activation) < 400) return;
+          id(last_activation) = now;
+          id(last_manual_activation) = now;
+
+      - globals.set: {id: cycling_active, value: 'true'}
+      - globals.set: {id: current_mode, value: '0'}
+      - globals.set: {id: cycle_count_current, value: '0'}
+      - script.stop: display_cycle_script
+      - script.execute: display_cycle_script
+
+    on_turn_off:
+      - globals.set: {id: cycling_active, value: 'false'}
+      - globals.set: {id: cycle_count_current, value: '0'}
+      - globals.set: {id: current_mode, value: '0'}
+      - script.stop: display_cycle_script
+
+display:
+  - platform: ili9xxx
+    model: st7735
+    cs_pin: GPIO5
+    dc_pin: GPIO4
+    rotation: 270
+    invert_colors: false
+    color_order: RGB
+    dimensions:
+      width: 80
+      height: 160
+      offset_width: 26
+      offset_height: 1
+    update_interval: 1s
+    lambda: |-
+      it.fill(Color::WHITE);
+      std::string label = "";
+      float value = 0.0;
+      std::string unit = "";
+      Color text_color = Color::BLACK;
+      Color accent_color = Color(100, 100, 100);  // default gray
+      int bar_width = 0;
+      int hum_bar_width = 0;
+      float raw_hum = 0.0;
+      float hum_percent = 0.0;
+      int mode = id(current_mode);
+
+      switch (mode) {
+        case 0: // Temperature
+          label = "Temperature";
+          value = id(temp_sensor).state;
+          unit = "°F";
+
+          if (value < 64) accent_color = Color(0, 120, 255);
+          else if (value < 75) accent_color = Color(0, 180, 80);
+          else accent_color = Color(220, 40, 0);
+          text_color = accent_color;
+
+          it.printf(0, 27, id(user_font), text_color, TextAlign::TOP_LEFT, "%.1f", value);
+          it.printf(40, 27, id(user_font), Color(80, 80, 80), TextAlign::TOP_LEFT, "%s", unit.c_str());
+          it.printf(0, 0, id(user_font), Color(100, 100, 100), TextAlign::TOP_LEFT, "%s", label.c_str());
+          it.printf(65, 27, id(user_font), accent_color, "\uf2c7");  // Thermometer icon
+
+          bar_width = ((value + 10) / 115.0) * 125;
+          if (bar_width < 0) bar_width = 0;
+          if (bar_width > 125) bar_width = 125;
+          it.rectangle(0, 58, bar_width, 20, accent_color);
+          it.rectangle(bar_width, 58, 125 - bar_width, 20, Color(220, 220, 220));
+          break;
+
+        case 1: // Humidity
+          label = "Humidity";
+          raw_hum = id(hum_sensor).state;          // Raw 0–1
+          hum_percent = raw_hum;           // Convert once → 0–100
+          value = hum_percent;
+          unit = "%";
+          
+          if (hum_percent < 40) accent_color = Color(255, 160, 0);
+          else if (hum_percent <= 60) accent_color = Color(60, 180, 80);
+          else accent_color = Color(140, 0, 200);
+          text_color = accent_color;
+
+          it.printf(0, 27, id(user_font), text_color, TextAlign::TOP_LEFT, "%.1f", value);
+          it.printf(45, 27, id(user_font), Color(80, 80, 80), TextAlign::TOP_LEFT, "%s", unit.c_str());
+          it.printf(0, 0, id(user_font), Color(100, 100, 100), TextAlign::TOP_LEFT, "%s", label.c_str());
+          it.printf(65, 27, id(user_font), accent_color, "\uf2c9"); // # Humidityicon
+
+          hum_bar_width = hum_percent * 1.25;  // 100 → 125 px
+          if (hum_bar_width < 0) hum_bar_width = 0;
+          if (hum_bar_width > 125) hum_bar_width = 125;
+          it.rectangle(0, 58, hum_bar_width, 20, accent_color);
+          it.rectangle(hum_bar_width, 58, 125 - hum_bar_width, 20, Color(220, 220, 220));
+          break;
+
+        case 2: // Pressure
+          it.printf(0, 0, id(user_font), Color::BLACK, "Pres: %.1f hPa", id(press_sensor).state);
+          it.printf(0, 27, id(user_font), Color::BLACK, "Light: %.1f Lux", id(light_sensor).state);
+          it.printf(0, 58, id(user_font), Color::BLACK, "Oxi : %.1f kΩ", id(ox_raw).state);
+          break;
+        case 3:
+          it.printf(0, 0, id(user_font), Color::BLACK, "Light: %.1f Lux", id(light_sensor).state);
+          break;
+        case 4:
+          it.printf(0, 0, id(user_font), Color::BLACK, "Oxi : %.1f kΩ", id(ox_raw).state);
+          break;
+        case 5:
+          it.printf(0, 0, id(user_font), Color::BLACK, "Redu: %.1f kΩ", id(red_raw).state);
+          break;
+        case 6:
+          it.printf(0, 0, id(user_font), Color::BLACK, "NH3 : %.1f kΩ", id(nh3_raw).state);
+          break;
+        case 7:
+          it.printf(0, 0, id(user_font), Color::BLACK, "PM1 : %.1f µg/m³", id(pm1_sensor).state);
+          it.printf(0, 27, id(user_font), Color::BLACK, "PM25: %.1f µg/m³", id(pm25_sensor).state);
+          it.printf(0, 58, id(user_font), Color::BLACK, "PM10: %.1f µg/m³", id(pm10_sensor).state);
+          break;
+        case 8:
+          it.printf(0, 0, id(user_font), Color::BLACK, "PM25: %.1f µg/m³", id(pm25_sensor).state);
+          break;
+        case 9:
+          it.printf(0, 0, id(user_font), Color::BLACK, "PM10: %.1f µg/m³", id(pm10_sensor).state);
+          break;
+        case 10:
+          it.printf(0, 0, id(user_font), Color::BLACK, "PM1 AQI: %.0f", id(pm1_aqi).state);
+          it.printf(0, 27, id(user_font), Color::BLACK, "PM25 AQI: %.0f", id(pm25_aqi).state);
+          it.printf(0, 58, id(user_font), Color::BLACK, "PM10 AQI: %.0f", id(pm10_aqi).state);
+          break;
+        case 11:
+          it.printf(0, 0, id(user_font), Color::BLACK, "PM25 AQI: %.0f", id(pm25_aqi).state);
+          break;
+        case 12:
+          it.printf(0, 0, id(user_font), Color::BLACK, "PM10 AQI: %.0f", id(pm10_aqi).state);
+          break;
+        case 13:
+          it.printf(0, 0, id(user_font), Color::BLACK, "PM0.3 : %.0f #/.1L", id(pm0_3_sensor).state);
+          it.printf(0, 27, id(user_font), Color::BLACK, "PM0.5 : %.0f #/.1L", id(pm0_5_sensor).state);
+          it.printf(0, 58, id(user_font), Color::BLACK, "PM1.0 : %.0f #/.1L", id(pm1_0_sensor).state);
+          break;
+        case 14:
+          it.printf(0, 0, id(user_font), Color::BLACK, "PM0.5 : %.0f #/.1L", id(pm0_5_sensor).state);
+          break;
+        case 15:
+          it.printf(0, 0, id(user_font), Color::BLACK, "PM1.0 : %.0f #/.1L", id(pm1_0_sensor).state);
+          break;
+        case 16:
+          it.printf(0, 0, id(user_font), Color::BLACK, "PM2.5 : %.0f #/.1L", id(pm2_5_sensor).state);
+          it.printf(0, 0, id(user_font), Color::BLACK, "PM5.0 : %.0f #/.1L", id(pm5_0_sensor).state);
+          it.printf(0, 0, id(user_font), Color::BLACK, "PM10 : %.0f #/.1L", id(pm10_0_sensor).state);
+          break;
+        case 17:
+          it.printf(0, 0, id(user_font), Color::BLACK, "PM5.0 : %.0f #/.1L", id(pm5_0_sensor).state);
+          break;
+        case 18:
+          it.printf(0, 0, id(user_font), Color::BLACK, "PM10 : %.0f #/.1L", id(pm10_0_sensor).state);
+          break;
+      }
+
+# ============================================================================
+# DISPLAY CYCLE SCRIPT - identical behavior regardless of trigger
+# ============================================================================
+script:
+  - id: display_cycle_script
+    mode: single
+    then:
+      # Early exit / abort if cycling should no longer be active
+      - if:
+          condition:
+            lambda: 'return !id(cycling_active) || !id(backlight).current_values.is_on();'
+          then:
+            - script.stop: display_cycle_script   # ← This is the correct way!
+
+      # If we didn't stop → continue with normal cycle
+      - delay: !lambda 'return id(mode_interval_seconds) * 1000;'
+
+      # Advance mode & count cycles
+      - lambda: |-
+          id(current_mode) = (id(current_mode) + 1) % 19;
+          if (id(current_mode) == 0) {
+            id(cycle_count_current)++;
+          }
+
+      # Log current state
+      - logger.log:
+          format: "Display mode %d   cycle %d/%d"
+          args: [id(current_mode), id(cycle_count_current)+1, id(cycle_count_target)]
+
+      # Check if we've finished the requested cycles
+      - if:
+          condition:
+            lambda: 'return id(cycle_count_current) >= id(cycle_count_target);'
+          then:
+            - logger.log: "Cycle target reached → auto off"
+            - globals.set:
+                id: cycling_active
+                value: 'false'
+            - globals.set:
+                id: cycle_count_current
+                value: '0'
+            - globals.set:
+                id: current_mode
+                value: '0'
+            - light.turn_off: backlight
+          else:
+            - script.execute: display_cycle_script
+
+interval:
+  # 1. Sound wake check – every 2 seconds
+  - interval: 2s
+    then:
+      - if:
+          condition:
+            lambda: |-
+              unsigned long now = millis();
+              return id(sound_wake_enabled) &&
+                     !id(backlight).current_values.is_on() &&
+                     (now - id(last_manual_activation) > 300000) &&
+                     id(sound_rms_db).has_state() &&
+                     id(sound_rms_db).state > id(sound_wake_threshold_db);
+          then:
+            - logger.log: "Sound wake triggered → starting cycles"
+            - globals.set:
+                id: cycling_active
+                value: 'true'
+            - globals.set:
+                id: current_mode
+                value: '0'
+            - globals.set:
+                id: cycle_count_current
+                value: '0'
+            - light.turn_on: backlight
+            - script.stop: display_cycle_script
+            - script.execute: display_cycle_script
+
+  # 2. Lux-based automatic brightness adjustment – every 3 seconds
+  - interval: 3s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(backlight).current_values.is_on() && id(light_sensor).has_state();'
+          then:
+            - lambda: |-
+                float lux = id(light_sensor).state;
+                float min_b = id(brightness_min_pct) / 100.0;
+                float max_b = id(brightness_max_pct) / 100.0;
+                float target_brightness;
+
+                if (lux <= id(lux_low_threshold)) {
+                  target_brightness = min_b;
+                } else if (lux >= id(lux_high_threshold)) {
+                  target_brightness = max_b;
+                } else {
+                  target_brightness = min_b + (max_b - min_b) *
+                                      (lux - id(lux_low_threshold)) /
+                                      (id(lux_high_threshold) - id(lux_low_threshold));
+                }
+
+                  // Simple hysteresis to prevent constant small changes/flicker
+                static float last_brightness = -1.0;
+                if (abs(target_brightness - last_brightness) > 0.025f) {
+                  id(backlight).turn_on().set_brightness(target_brightness).perform();
+                  last_brightness = target_brightness;
+                  id(backlight).publish_state();                        // force HA update
+                  ESP_LOGD("lux_dim", "Brightness → %.0f%%  (lux=%.0f)", target_brightness * 100, lux);
+                }
+
+  # 3. Safety check – make sure cycle script is running when it should be (every 15s)
+  - interval: 15s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(cycling_active) && id(backlight).current_values.is_on() && !id(display_cycle_script).is_running();'
+          then:
+            - logger.log: "Cycle script was stopped unexpectedly → restarting"
+            - script.execute: display_cycle_script
+            
+packages:
+#  - !include iaq-project/packages/bmp280_espnow_pressure_publish.yaml # espnow broadcast pressure sensor
+#  - !include iaq-project/packages/bmp280_espnow_weathertrend_publish.yaml # espnow broadcast calc'd weather trend
+  - !include iaq-project/common/espnow.yaml # shared sensor broadcast
+#  - !include iaq-project/packages/aht20bmp280.yaml #AHT20-BMP280 t/h/pres
+#  - !include iaq-project/packages/aht20.yaml # temp/hum sensor
+##   - !include iaq-project/packages/BME680_688.yaml # temp/hum/pres/ sensor
+#  - !include iaq-project/packages/sgp30.yaml # eCO2, TVOC, 
+#  - !include iaq-project/packages/MH-Z19.yaml #mh-z19 CO2 Sensor
+#  - !include iaq-project/packages/SSD1306-64x48.yaml  # display2
+#  - !include iaq-project/packages/SSD1306-128x64-local.yaml  # display1 local with bmp280 sensor
+#  - !include iaq-project/packages/SSD1306-128x64-local-w-countdown.yaml  # with countdown to sleep. display1/2, local (with bmp280 sensor) or remote    
+#  - !include iaq-project/packages/display-fonts.yaml  # arial
+#  - !include iaq-project/packages/max17048.yaml #max17048 Fuel Guage
+#  - !include iaq-project/packages/PMSX003.yaml #PMSX003, 7003
+#  - !include iaq-project/boards/Board-esp32dev-Arduino.yaml #Board specific GPIO, etc.
+#  - !include iaq-project/common/base.yaml  # Hardware, logger, wifi, api, ota, etc.
+ # - !include iaq-project/common/sensors.yaml  # All sensors and text_sensors
+#  - !include iaq-project/common/sleep.yaml  # Deep sleep, globals, intervals
+  - !include iaq-project/common/diagnostics.yaml # resets, reasons
+  - !include iaq-project/common/esphome_includes.yaml # componnts
+#  - !include secrets.yaml # secrets
+#  - !include iaq-project/common/ip-mode-toggle.yaml

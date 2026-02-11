@@ -1,0 +1,51 @@
+#     To flash the RP2040, press the pinhole button on the bottom of the 
+#     Indicator whilst plugging in a USB cable to reveal the RPI-BOOT drive.
+esphome:
+  name: d1-rp2040
+  friendly_name: d1-rp2040
+
+rp2040:
+  board: rpipico
+
+# Enable logging
+logger:
+
+uart:
+  - id: esp32s3_serial
+    tx_pin: GPIO17
+    rx_pin: GPIO16
+    baud_rate: 115200
+
+i2c:
+  - sda: GPIO20
+    scl: GPIO21
+
+sensor:
+  - platform: sgp4x
+    voc:
+      id: voc
+      name: "VOC Index"
+  - platform: scd4x
+    co2:
+      id: co2
+      name: "CO2"
+    temperature:
+      id: temp
+      name: "Temperature"
+    humidity:
+      id: humid
+      name: "Humidity"
+
+power_supply:
+  - id: 'sensor_supply1'
+    pin: GPIO18
+    enable_on_boot: True
+
+packet_transport:
+  - platform: uart
+    uart_id: esp32s3_serial
+    sensors: 
+      - id: voc
+      - id: co2
+      - id: temp
+      - id: humid

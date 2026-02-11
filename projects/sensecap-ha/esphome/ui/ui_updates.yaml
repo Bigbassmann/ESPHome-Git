@@ -1,0 +1,33 @@
+lvgl:
+  pages:
+    - id: page_updates
+      widgets:
+
+        - label:
+            id: updates_title
+            text: "Updates"
+            align: TOP_MID
+            y: 20
+            text_font: montserrat_32
+            styles:
+              - style_title
+
+        - label:
+            id: ota_status_label
+            text: "OTA: Idle"
+            align: CENTER
+            y: -20
+            text_font: montserrat_24
+            styles:
+              - style_subtitle
+
+        - button:
+            id: btn_check_updates
+            text: "Check for Updates"
+            align: CENTER
+            y: 40
+            styles:
+              - style_bg
+            on_press:
+              - homeassistant.service:
+                  service: esphome.sensecap_d1s_check_update

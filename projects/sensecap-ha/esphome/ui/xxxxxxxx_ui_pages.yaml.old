@@ -1,0 +1,8 @@
+lvgl:
+  pages:
+    - id: page_home
+    - id: page_air
+    - id: page_graphs
+    - id: page_settings
+    - id: page_admin
+    - id: page_analog_clock

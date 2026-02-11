@@ -1,0 +1,100 @@
+﻿# SenseCAP Indicator sensors + wifi info text
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "Wi-Fi IP Address"
+      id: ip_sensor
+      entity_category: diagnostic
+    ssid:
+      name: "Wi-Fi SSID"
+      id: ssid_sensor
+      entity_category: diagnostic
+    bssid:
+      name: "Wi-Fi BSSID"
+      id: bssid_sensor
+      entity_category: diagnostic
+
+text:
+  - platform: lvgl
+    id: wifi_ssid_text
+    widget: wifi_ssid_input
+    mode: text
+    internal: true
+  - platform: lvgl
+    id: wifi_pass_text
+    widget: wifi_pass_input
+    mode: password
+    internal: true
+
+sensor:
+  - platform: packet_transport # from RP2040 0x59
+    provider: d1-rp2040
+    id: voc
+    name: "VOC Index"
+    internal: false
+    accuracy_decimals: 0
+    icon: "mdi:weather-dust"
+    device_class: aqi
+
+  - platform: packet_transport  # from RP2040 0x62
+    provider: d1-rp2040
+    id: co2
+    name: "CO2"
+    internal: false
+    accuracy_decimals: 0
+    icon: "mdi:molecule-co2"
+    unit_of_measurement: "ppm"
+    device_class: carbon_dioxide
+
+  - platform: packet_transport
+    provider: d1-rp2040
+    id: temp
+    name: "Temperature"
+    internal: false
+    accuracy_decimals: 1
+    icon: "mdi:thermometer"
+    unit_of_measurement: "�C"
+    device_class: temperature
+
+  - platform: packet_transport
+    provider: d1-rp2040
+    id: humid
+    name: "Humidity"
+    internal: false
+    accuracy_decimals: 1
+    icon: "mdi:water-percent"
+    unit_of_measurement: "%"
+    device_class: humidity
+
+  # --- INTERNAL TEMPERATURE + UPTIME ---
+  - platform: internal_temperature
+    id: internal_temp
+    name: "ESP Internal Temp"
+    update_interval: 30s
+    entity_category: diagnostic
+
+  - platform: uptime
+    id: uptime_sensor
+    name: "ESP Uptime"
+    update_interval: 10s
+    entity_category: diagnostic
+
+  - platform: wifi_signal
+    name: "Wi-Fi Signal"
+    id: wi_fi_signal
+    update_interval: 30s
+    entity_category: diagnostic
+
+  # Example HA Sensors (imported from Home Assistant)
+  - platform: homeassistant
+    id: ha_outdoor_temp
+    entity_id: sensor.outdoor_temperature  # Replace with actual
+    name: "Outdoor Temperature"
+
+  - platform: homeassistant
+    id: ha_light_brightness
+    entity_id: light.in_wall_paddle_dimmer_500s
+    attribute: brightness  # Reads the brightness attribute (0-255 scale)
+    name: "HA Light Brightness"
+    unit_of_measurement: ""  # Optional: No unit, or set to "%" if you prefer brightness_pct
+    accuracy_decimals: 0     # Integer value

@@ -1,0 +1,31 @@
+lvgl:
+  pages:
+    - id: page_air
+      widgets:
+
+        - label:
+            id: air_title
+            text: "Air Quality"
+            align: TOP_MID
+            y: 20
+            text_font: montserrat_32
+            styles:
+              - style_title
+
+        - label:
+            id: co2_detail
+            text: "CO2: -- ppm"
+            align: CENTER
+            y: -20
+            text_font: montserrat_28
+            styles:
+              - style_subtitle
+
+        - label:
+            id: voc_detail
+            text: "VOC Index: --"
+            align: CENTER
+            y: 40
+            text_font: montserrat_28
+            styles:
+              - style_subtitle

@@ -1,0 +1,78 @@
+# packages/ip-mode-toggle.yaml
+# Toggle temporary static IP for OTA convenience
+# Physical button + HA switch + status sensor
+
+substitutions:
+  static_ip_button_pin: GPIO14   # Your free GPIO
+
+globals:
+  - id: static_ip_mode
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+# 1. Physical button (GPIO)
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: ${static_ip_button_pin}
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Static IP Toggle Button (Physical)"
+    id: static_ip_toggle_physical
+    internal: false
+
+    on_press:
+      then:
+        - lambda: |-
+            id(static_ip_mode) = !id(static_ip_mode);
+
+        # Separate logs instead of dynamic args - 100% reliable
+        - if:
+            condition:
+              lambda: 'return id(static_ip_mode);'
+            then:
+              - logger.log: "Physical button: Static IP ENABLED - rebooting..."
+            else:
+              - logger.log: "Physical button: Static IP DISABLED - rebooting..."
+
+        - delay: 1s
+        - lambda: 'ESP.restart();'
+
+# 2. Software switch (in Home Assistant)
+switch:
+  - platform: template
+    name: "Toggle Static IP for OTA"
+    id: static_ip_toggle_sw
+    icon: "mdi:ip-network"
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+
+    lambda: 'return id(static_ip_mode);'
+
+    turn_on_action:
+      - lambda: 'id(static_ip_mode) = true;'
+      - logger.log: "HA switch: Static IP ENABLED - rebooting..."
+      - delay: 1s
+      - lambda: 'ESP.restart();'
+
+    turn_off_action:
+      - lambda: 'id(static_ip_mode) = false;'
+      - logger.log: "HA switch: Static IP DISABLED - rebooting..."
+      - delay: 1s
+      - lambda: 'ESP.restart();'
+
+# 3. Status sensor (shows current mode + active IP)
+text_sensor:
+  - platform: template
+    name: "IP Mode & Active Address"
+    id: ip_mode_status
+    icon: "mdi:network-outline"
+    update_interval: 10s
+    lambda: |-
+      if (id(static_ip_mode)) {
+        return std::string("Static IP - 192.168.119.151"); // # Explicit std::string conversion
+      } else {
+        auto ip = id(wifi_component).get_ip_addresses()[0];
+        return std::string("Dynamic IP - ") + ip.str();  //# Correct method: .str()
+      }

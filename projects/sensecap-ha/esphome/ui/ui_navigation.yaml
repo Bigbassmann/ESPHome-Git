@@ -1,0 +1,30 @@
+lvgl:
+  pages:
+    - id: page_navigation
+      widgets:
+
+        - button:
+            id: nav_home
+            text: "Home"
+            align: LEFT_MID
+            x: 20
+            on_press:
+              - lvgl.page.show:
+                  id: page_home
+
+        - button:
+            id: nav_air
+            text: "Air"
+            align: CENTER
+            on_press:
+              - lvgl.page.show:
+                  id: page_air
+
+        - button:
+            id: nav_graphs
+            text: "Graphs"
+            align: RIGHT_MID
+            x: -20
+            on_press:
+              - lvgl.page.show:
+                  id: page_graphs

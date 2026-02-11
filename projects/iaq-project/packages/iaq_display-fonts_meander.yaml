@@ -1,0 +1,38 @@
+font:
+  - file: "fonts/Arial.ttf"
+    id: arial15
+    size: 15  # Down from 15 for better fit
+  - file: "fonts/Arial.ttf"
+    id: arial12
+    size: 12
+  - file: "fonts/Arial.ttf"
+    id: arial14
+    size: 14    
+  - file: "fonts/Arial.ttf"
+    id: arial30
+    size: 30
+  - file: "fonts/Arial.ttf"
+    id: arial10
+    size: 10
+  - file: "fonts/Arial.ttf"
+    id: arial8
+    size: 8
+  - file: "fonts/Arial.ttf"
+    id: arial6
+    size: 6
+  - file: "fonts/Arial.ttf"
+    id: arial24
+    size: 24
+  - file: "fonts/Arial.ttf"
+    id: arial28
+    size: 28
+  - file: "fonts/Arial.ttf"
+    id: arial32
+    size: 32
+  
+  - file: "fonts/Arial.ttf"
+    id: arial20
+    size: 20                   
+  - file: "fonts/Arial.ttf"
+    id: arial48
+    size: 48                        
