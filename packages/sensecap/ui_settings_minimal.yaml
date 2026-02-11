@@ -1,0 +1,152 @@
+lvgl:
+  pages:
+    - id: page_settings
+      widgets:
+
+        - label:
+            id: settings_title
+            text: "Settings"
+            align: TOP_MID
+            y: 40
+            text_font: montserrat_32
+            text_color: 0xFFFFFF
+
+        - label:
+            id: brightness_label
+            text: "Display Brightness"
+            align: CENTER
+            y: 60
+            text_font: montserrat_24
+            text_color: 0xFFFFFF
+
+        - image:
+            align: CENTER
+            x: -140
+            y: 80
+            src: icon_dim_24
+
+        - label:
+            text: "Dim"
+            align: CENTER
+            x: -140
+            y: 120
+            text_font: montserrat_18
+            text_color: 0x808080
+
+        - slider:
+            id: brightness_slider
+            align: CENTER
+            y: 100
+            width: 200
+            height: 20
+            min_value: 0
+            max_value: 100
+            bg_color: 0x374151
+            knob:
+              bg_color: 0xFFFFFF
+              border_color: 0x4F46E5
+              border_width: 2
+            indicator:
+              bg_color: 0x4F46E5
+            on_value:
+              then:
+                - light.control:
+                    id: backlight
+                    brightness: !lambda |-
+                      if (x == 0) return 0.0f;
+                      return x / 100.0f;
+
+        - label:
+            text: "Bright"
+            align: CENTER
+            x: 140
+            y: 120
+            text_font: montserrat_18
+            text_color: 0xFFFFFF
+
+        - label:
+            id: sleep_title
+            text: "Display Sleep"
+            align: CENTER
+            y: 165
+            text_font: montserrat_24
+            text_color: 0xFFFFFF
+
+        - button:
+            id: sleep_enable_btn
+            align: CENTER
+            y: 205
+            width: 200
+            height: 44
+            bg_color: 0x374151
+            radius: 8
+            border_width: 0
+            on_press:
+              then:
+                - lambda: |-
+                    id(display_sleep_enabled) = !id(display_sleep_enabled);
+                    id(last_interaction_ms) = millis();
+                - if:
+                    condition:
+                      lambda: 'return !id(display_sleep_enabled) && id(screen_off);'
+                    then:
+                      - lvgl.resume:
+                      - light.turn_on: backlight
+                      - lambda: 'id(screen_off) = false;'
+            widgets:
+              - label:
+                  text: "Sleep"
+                  align: LEFT_MID
+                  x: 12
+                  text_font: montserrat_20
+                  text_color: 0xFFFFFF
+              - label:
+                  id: sleep_enable_state
+                  text: "ON"
+                  align: RIGHT_MID
+                  x: -12
+                  text_font: montserrat_20
+                  text_color: 0xD1FAE5
+
+        - label:
+            id: sleep_timeout_label
+            text: "Sleep Timeout"
+            align: CENTER
+            y: 260
+            text_font: montserrat_24
+            text_color: 0xFFFFFF
+
+        - slider:
+            id: sleep_timeout_slider
+            align: CENTER
+            y: 300
+            width: 280
+            height: 20
+            min_value: 15
+            max_value: 300
+            bg_color: 0x374151
+            knob:
+              bg_color: 0xFFFFFF
+              border_color: 0x2563EB
+              border_width: 2
+            indicator:
+              bg_color: 0x2563EB
+            on_value:
+              then:
+                - lambda: |-
+                    id(display_sleep_timeout_s) = x;
+                    id(last_interaction_ms) = millis();
+
+        - label:
+            id: sleep_timeout_value
+            text: "60s"
+            align: CENTER
+            y: 332
+            text_font: montserrat_20
+            text_color: 0xC0C0C0
+
+        - image:
+            align: CENTER
+            x: 140
+            y: 80
+            src: icon_bright_24

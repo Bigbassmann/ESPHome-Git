@@ -1,0 +1,23 @@
+# Shared Montserrat font sizes
+font:
+  - file: "gfonts://Montserrat"
+    id: montserrat_18
+    size: 18
+  - file: "gfonts://Montserrat"
+    id: montserrat_20
+    size: 20
+  - file: "gfonts://Montserrat"
+    id: montserrat_24
+    size: 24
+  - file: "gfonts://Montserrat"
+    id: montserrat_28
+    size: 28
+  - file: "gfonts://Montserrat"
+    id: montserrat_32
+    size: 32
+  - file: "gfonts://Montserrat"
+    id: montserrat_48
+    size: 48
+  - file: "gfonts://Montserrat"
+    id: montserrat_64
+    size: 64

@@ -1,15 +1,13 @@
-esphome:
+﻿esphome:
   name: sensecap-d1s
   friendly_name: SenseCAP Indicator
   min_version: 2024.6.0
   on_boot:
-    priority: -10.0  # Run after LVGL and display are ready
+    priority: 180  # -100    # -10.0  # Run after LVGL and display are ready
     then:
+      - lambda: 'id(last_interaction_ms) = millis();'
       - lvgl.page.show: 
           id: page_home
-      - lvgl.slider.update:
-          id: brightness_slider
-          value: !lambda 'return (int)(id(backlight).current_values.get_brightness() * 100);'    
       
 logger:
   hardware_uart: UART0
@@ -20,6 +18,20 @@ api:
 ota:
   - platform: esphome
     password: "41def07295f8022fbb33225b9baa335a"
+
+wifi:
+  ap:
+    ssid: "Fallback AP"
+    password: "1234567890"
+
+captive_portal:
+
+web_server:
+  port: 80
+  include_internal: true
+
+safe_mode:
+  disabled: false    
 
 
 #
@@ -133,6 +145,11 @@ binary_sensor:
           format: "HA sync: mbr_motion_off -> %s"
           args: ['x ? "ON" : "OFF"']
 
+
+sensor:
+
+text_sensor:
+
 # --- GLOBALS FOR MIN/MAX ---
 globals:
   - id: temp_min
@@ -222,6 +239,18 @@ globals:
   - id: screen_off
     type: bool
     initial_value: "false"
+
+  - id: display_sleep_enabled
+    type: bool
+    initial_value: "true"
+
+  - id: display_sleep_timeout_s
+    type: int
+    initial_value: "60"
+
+  - id: last_interaction_ms
+    type: uint32_t
+    initial_value: "0"
 
 script:
   - id: graph_render
@@ -819,429 +848,6 @@ time:
     id: ha_time
 # Refresh dynamic widgets
 interval:
-  - interval: 1s
-    then:
-      - if:
-          condition:
-            lambda: 'return id(ha_time).now().is_valid();'
-          then:
-            - lvgl.label.update:
-                id: clock_label
-                text: !lambda 'return id(ha_time).now().strftime("%I:%M:%S %p");' 
-            - lvgl.label.update:
-                id: date_label
-                text: !lambda 'return id(ha_time).now().strftime("%d %b %Y");'          
-      # HOME PAGE LABELS (with force redraw)
-      - lvgl.label.update:
-          id: temp_label
-          text: !lambda |-
-            char buf[32];
-            float f_temp = (id(temp).state * 9.0 / 5.0) + 32.0;
-            snprintf(buf, sizeof(buf), "%.1f F", f_temp);
-            return std::string(buf);
-      - lambda: 'lv_obj_invalidate(id(temp_label));'
-      - lambda: 'lv_scr_load_anim(lv_scr_act(), LV_SCR_LOAD_ANIM_NONE, 0, 0, false);'
-
-      - lvgl.label.update:
-          id: humid_label
-          text: !lambda |-
-            char buf[32];
-            snprintf(buf, sizeof(buf), "%.0f%%", id(humid).state);
-            return std::string(buf);
-      - lambda: 'lv_obj_invalidate(id(humid_label));'
-      - lambda: 'lv_scr_load_anim(lv_scr_act(), LV_SCR_LOAD_ANIM_NONE, 0, 0, false);'
-
-      - lvgl.label.update:
-          id: co2_label
-          text: !lambda |-
-            char buf[32];
-            snprintf(buf, sizeof(buf), "%.0f", id(co2).state);
-            return std::string(buf);
-      - lambda: 'lv_obj_invalidate(id(co2_label));'
-      - lambda: 'lv_scr_load_anim(lv_scr_act(), LV_SCR_LOAD_ANIM_NONE, 0, 0, false);'
-
-      - lvgl.label.update:
-          id: voc_label
-          text: !lambda |-
-            char buf[32];
-            snprintf(buf, sizeof(buf), "%.0f", id(voc).state);
-            return std::string(buf);
-      - lambda: 'lv_obj_invalidate(id(voc_label));'
-      - lambda: 'lv_scr_load_anim(lv_scr_act(), LV_SCR_LOAD_ANIM_NONE, 0, 0, false);'
-
-      - if:
-          condition:
-            lambda: 'return id(co2).state < 1000;'
-          then:
-            - lvgl.label.update:
-                id: co2_status_label
-                text: "Healthy AQ"
-            - lvgl.widget.update:
-                id: co2_status_label
-                text_color: 0x00C853
-          else:
-            - if:
-                condition:
-                  lambda: 'return id(co2).state < 2000;'
-                then:
-                  - lvgl.label.update:
-                      id: co2_status_label
-                      text: "Poor AQ"
-                  - lvgl.widget.update:
-                      id: co2_status_label
-                      text_color: 0xFFB300
-                else:
-                  - lvgl.label.update:
-                      id: co2_status_label
-                      text: "Unhealthy AQ"
-                  - lvgl.widget.update:
-                      id: co2_status_label
-                      text_color: 0xD50000
-
-      - if:
-          condition:
-            lambda: 'return id(voc).state < 100;'
-          then:
-            - lvgl.label.update:
-                id: voc_status_label
-                text: "Low"
-            - lvgl.widget.update:
-                id: voc_status_label
-                text_color: 0x00C853
-          else:
-            - if:
-                condition:
-                  lambda: 'return id(voc).state < 400;'
-                then:
-                  - lvgl.label.update:
-                      id: voc_status_label
-                      text: "Medium"
-                  - lvgl.widget.update:
-                      id: voc_status_label
-                      text_color: 0xFFB300
-                else:
-                  - lvgl.label.update:
-                      id: voc_status_label
-                      text: "High"
-                  - lvgl.widget.update:
-                      id: voc_status_label
-                      text_color: 0xD50000
-
-      - if:
-          condition:
-            lambda: |-
-              return (!id(ssid_sensor).state.empty()) && (id(ip_sensor).state != "0.0.0.0");
-          then:
-            - if:
-                condition:
-                  lambda: 'return id(wi_fi_signal).state >= -60;'
-                then:
-                  - lvgl.image.update:
-                      id: wifi_icon
-                      src: icon_wifi_3_32
-                else:
-                  - if:
-                      condition:
-                        lambda: 'return id(wi_fi_signal).state >= -70;'
-                      then:
-                        - lvgl.image.update:
-                            id: wifi_icon
-                            src: icon_wifi_2_32
-                      else:
-                        - if:
-                            condition:
-                              lambda: 'return id(wi_fi_signal).state >= -80;'
-                            then:
-                              - lvgl.image.update:
-                                  id: wifi_icon
-                                  src: icon_wifi_1_32
-                            else:
-                              - lvgl.image.update:
-                                  id: wifi_icon
-                                  src: icon_wifi_0_32
-          else:
-            - lvgl.image.update:
-                id: wifi_icon
-                src: icon_wifi_off_32
-
-
-      - lvgl.label.update:
-          id: wifi_ssid_label
-          text: !lambda |-
-            if (id(ssid_sensor).state.empty()) {
-              return "WiFi SSID: Disconnected";
-            } else {
-              return "WiFi SSID: " + id(ssid_sensor).state;
-            }
-      
-      - lvgl.label.update:
-          id: ip_label
-          text: !lambda |-
-            if (id(ip_sensor).state == "0.0.0.0") {
-              return "IP: None";
-            } else {
-              return "IP: " + id(ip_sensor).state;
-            }
-
-      - lvgl.label.update:
-          id: wifi_bssid_label
-          text: !lambda |-
-            if (id(bssid_sensor).state.empty()) {
-              return "WiFi BSSID: None";
-            } else {
-              return "WiFi BSSID: " + id(bssid_sensor).state;
-            }
-
-      - lvgl.label.update:
-          id: uptime_sensor_label
-          text: !lambda |-
-            if (isnan(id(uptime_sensor).state)) {
-              ESP_LOGD("admin_debug", "Uptime NaN - setting label to None");
-              return "Uptime: None";
-            } else {
-              char buf[32];
-              int seconds = (int)id(uptime_sensor).state;
-              int days = seconds / 86400;
-              int hours = (seconds / 3600) % 24;
-              int minutes = (seconds / 60) % 60;
-              int secs = seconds % 60;
-              snprintf(buf, sizeof(buf), "%dd %dh %dm %ds", days, hours, minutes, secs);
-              ESP_LOGD("admin_debug", "Updating uptime label to: %s", buf);
-              return "Uptime: " + std::string(buf);
-            }
-
-      - lvgl.label.update:
-          id: internal_temp_label
-          text: !lambda |-
-            char buf[32];
-            float temp_c = id(internal_temp).state;
-            if (isnan(temp_c)) {
-              ESP_LOGD("admin_debug", "Internal temp NaN - setting label to --");
-              return "Internal Temp: --";
-            } else {
-              float f_temp = (temp_c * 9.0 / 5.0) + 32.0;
-              snprintf(buf, sizeof(buf), "Internal Temp: %.1f °F", f_temp);
-              ESP_LOGD("admin_debug", "Updating internal temp label to: %s", buf);
-              return std::string(buf);
-            }
-
-      - lvgl.label.update:
-          id: wi_fi_signal_label  # Assuming this label is defined in your UI files
-          text: !lambda |-
-            if (isnan(id(wi_fi_signal).state)) {
-              return "WiFi Signal: None";
-            } else {
-              char buf[32];
-              snprintf(buf, sizeof(buf), "WiFi Signal: %.0f dBm", id(wi_fi_signal).state);
-              return std::string(buf);
-            }
-
-      - lvgl.slider.update:
-          id: brightness_slider
-          value: !lambda |-
-            auto brightness = id(backlight).current_values.get_brightness();
-            if (isnan(brightness)) {
-              ESP_LOGD("brightness_debug", "Brightness is NaN - setting slider to 0");
-              return 0;
-            } else {
-              int slider_val = (int)(brightness * 100);
-              ESP_LOGD("brightness_debug", "Current brightness: %.2f - Updating slider to %d", brightness, slider_val);
-              return slider_val;
-            }
-          animated: true
-
-      - if:
-          condition:
-            lambda: 'return id(ha_cleaners_toggle).state;'
-          then:
-            - lvgl.label.update:
-                id: ov_cleaners_state
-                text: "ON"
-            - lvgl.widget.update:
-                id: ov_cleaners_state
-                text_color: 0xD1FAE5
-            - lvgl.widget.update:
-                id: ov_cleaners_btn
-                bg_color: 0x166534
-          else:
-            - lvgl.label.update:
-                id: ov_cleaners_state
-                text: "OFF"
-            - lvgl.widget.update:
-                id: ov_cleaners_state
-                text_color: 0xFCA5A5
-            - lvgl.widget.update:
-                id: ov_cleaners_btn
-                bg_color: 0x374151
-
-      - if:
-          condition:
-            lambda: 'return id(ha_dani_mode_on).state;'
-          then:
-            - lvgl.label.update:
-                id: ov_dani_state
-                text: "ON"
-            - lvgl.widget.update:
-                id: ov_dani_state
-                text_color: 0xD1FAE5
-            - lvgl.widget.update:
-                id: ov_dani_btn
-                bg_color: 0x166534
-          else:
-            - lvgl.label.update:
-                id: ov_dani_state
-                text: "OFF"
-            - lvgl.widget.update:
-                id: ov_dani_state
-                text_color: 0xFCA5A5
-            - lvgl.widget.update:
-                id: ov_dani_btn
-                bg_color: 0x374151
-
-      - if:
-          condition:
-            lambda: 'return id(ha_front_door_auto_lock_off).state;'
-          then:
-            - lvgl.label.update:
-                id: ov_front_lock_state
-                text: "ON"
-            - lvgl.widget.update:
-                id: ov_front_lock_state
-                text_color: 0xD1FAE5
-            - lvgl.widget.update:
-                id: ov_front_lock_btn
-                bg_color: 0x166534
-          else:
-            - lvgl.label.update:
-                id: ov_front_lock_state
-                text: "OFF"
-            - lvgl.widget.update:
-                id: ov_front_lock_state
-                text_color: 0xFCA5A5
-            - lvgl.widget.update:
-                id: ov_front_lock_btn
-                bg_color: 0x374151
-
-      - if:
-          condition:
-            lambda: 'return id(ha_tod_control).state;'
-          then:
-            - lvgl.label.update:
-                id: ov_tod_state
-                text: "ON"
-            - lvgl.widget.update:
-                id: ov_tod_state
-                text_color: 0xD1FAE5
-            - lvgl.widget.update:
-                id: ov_tod_btn
-                bg_color: 0x166534
-          else:
-            - lvgl.label.update:
-                id: ov_tod_state
-                text: "OFF"
-            - lvgl.widget.update:
-                id: ov_tod_state
-                text_color: 0xFCA5A5
-            - lvgl.widget.update:
-                id: ov_tod_btn
-                bg_color: 0x374151
-
-      - if:
-          condition:
-            lambda: 'return id(ha_motion_automation_off).state;'
-          then:
-            - lvgl.label.update:
-                id: ov_motion_all_state
-                text: "ON"
-            - lvgl.widget.update:
-                id: ov_motion_all_state
-                text_color: 0xD1FAE5
-            - lvgl.widget.update:
-                id: ov_motion_all_btn
-                bg_color: 0x166534
-          else:
-            - lvgl.label.update:
-                id: ov_motion_all_state
-                text: "OFF"
-            - lvgl.widget.update:
-                id: ov_motion_all_state
-                text_color: 0xFCA5A5
-            - lvgl.widget.update:
-                id: ov_motion_all_btn
-                bg_color: 0x374151
-
-      - if:
-          condition:
-            lambda: 'return id(ha_entry_motion_automation_off).state;'
-          then:
-            - lvgl.label.update:
-                id: ov_motion_entry_state
-                text: "ON"
-            - lvgl.widget.update:
-                id: ov_motion_entry_state
-                text_color: 0xD1FAE5
-            - lvgl.widget.update:
-                id: ov_motion_entry_btn
-                bg_color: 0x166534
-          else:
-            - lvgl.label.update:
-                id: ov_motion_entry_state
-                text: "OFF"
-            - lvgl.widget.update:
-                id: ov_motion_entry_state
-                text_color: 0xFCA5A5
-            - lvgl.widget.update:
-                id: ov_motion_entry_btn
-                bg_color: 0x374151
-
-      - if:
-          condition:
-            lambda: 'return id(ha_garage_light_automation_off).state;'
-          then:
-            - lvgl.label.update:
-                id: ov_motion_garage_state
-                text: "ON"
-            - lvgl.widget.update:
-                id: ov_motion_garage_state
-                text_color: 0xD1FAE5
-            - lvgl.widget.update:
-                id: ov_motion_garage_btn
-                bg_color: 0x166534
-          else:
-            - lvgl.label.update:
-                id: ov_motion_garage_state
-                text: "OFF"
-            - lvgl.widget.update:
-                id: ov_motion_garage_state
-                text_color: 0xFCA5A5
-            - lvgl.widget.update:
-                id: ov_motion_garage_btn
-                bg_color: 0x374151
-
-      - if:
-          condition:
-            lambda: 'return id(ha_mbr_motion_off).state;'
-          then:
-            - lvgl.label.update:
-                id: ov_motion_mbr_state
-                text: "ON"
-            - lvgl.widget.update:
-                id: ov_motion_mbr_state
-                text_color: 0xD1FAE5
-            - lvgl.widget.update:
-                id: ov_motion_mbr_btn
-                bg_color: 0x166534
-          else:
-            - lvgl.label.update:
-                id: ov_motion_mbr_state
-                text: "OFF"
-            - lvgl.widget.update:
-                id: ov_motion_mbr_state
-                text_color: 0xFCA5A5
-            - lvgl.widget.update:
-                id: ov_motion_mbr_btn
-                bg_color: 0x374151
-
   - interval: 60s
     then:
       - lambda: |-
@@ -1290,24 +896,32 @@ packages:
   - !include packages/sensecap/sensecap_indicator_hw.yaml
   - !include packages/sensecap/sensecap_indicator_display.yaml
   - !include packages/sensecap/sensecap_indicator_lvgl.yaml
+  - !include packages/sensecap/ui_runtime_topbar.yaml
   - !include packages/sensecap/sensecap_indicator_sensors.yaml
   - !include packages/sensecap/sensecap_indicator_inputs.yaml
-  - !include packages/shared/fonts_montserrat.yaml
-  - !include packages/shared/icons.yaml
-  - !include packages/shared/wifi_base.yaml
+  - !include packages/sensecap/fonts_montserrat.yaml
+  - !include packages/sensecap/icons.yaml
+#  - !include packages/sensecap/wifi_base.yaml
 #  - !include iaq-project/packages/display-fonts.yaml
 #  - !include sensecap-ha/esphome/ui/ui_theme.yaml
-  - !include sensecap-ha/esphome/ui/ui_home.yaml
-  - !include sensecap-ha/esphome/ui/ui_graphs.yaml
+  - !include packages/sensecap/ui_home.yaml
+  - !include packages/sensecap/ui_runtime_home.yaml
+  - !include packages/sensecap/ui_graphs.yaml
 #  - !include sensecap-ha/esphome/ui/ui_air.yaml
-  - !include sensecap-ha/esphome/ui/ui_settings.yaml
-  - !include sensecap-ha/esphome/ui/ui_admin.yaml
-  - !include sensecap-ha/esphome/ui/ui_overrides.yaml
-  - !include sensecap-ha/esphome/ui/ui_wifi.yaml
+  - !include packages/sensecap/ui_settings_minimal.yaml
+  - !include packages/sensecap/ui_runtime_settings.yaml
+#  - !include packages/sensecap/ui_settings_full.yaml
+  - !include packages/sensecap/ui_admin.yaml
+  - !include packages/sensecap/ui_runtime_admin.yaml
+#  - !include packages/sensecap/ui_overrides.yaml
+#  - !include packages/sensecap/ui_fans.yaml
+  - !include packages/sensecap/ui_wifi_lvgl.yaml
 #  - !include sensecap-ha/esphome/ui/ui_navigation.yaml
 #  - !include sensecap-ha/esphome/ui/ui_updates.yaml
 #  - !include sensecap-ha/esphome/ui/ui_sleep.yaml
 #  - !include sensecap-ha/esphome/ui/ui_analog_clock.yaml
+
+
 
 
 

@@ -1,0 +1,69 @@
+﻿interval:
+  - interval: 3s
+    then:
+      - lvgl.label.update:
+          id: wifi_ssid_label
+          text: !lambda |-
+            if (id(ssid_sensor).state.empty()) {
+              return "WiFi SSID: Disconnected";
+            } else {
+              return "WiFi SSID: " + id(ssid_sensor).state;
+            }
+
+      - lvgl.label.update:
+          id: ip_label
+          text: !lambda |-
+            if (id(ip_sensor).state == "0.0.0.0") {
+              return "IP: None";
+            } else {
+              return "IP: " + id(ip_sensor).state;
+            }
+
+      - lvgl.label.update:
+          id: wifi_bssid_label
+          text: !lambda |-
+            if (id(bssid_sensor).state.empty()) {
+              return "WiFi BSSID: None";
+            } else {
+              return "WiFi BSSID: " + id(bssid_sensor).state;
+            }
+
+      - lvgl.label.update:
+          id: uptime_sensor_label
+          text: !lambda |-
+            if (isnan(id(uptime_sensor).state)) {
+              return "Uptime: None";
+            } else {
+              char buf[32];
+              int seconds = (int)id(uptime_sensor).state;
+              int days = seconds / 86400;
+              int hours = (seconds / 3600) % 24;
+              int minutes = (seconds / 60) % 60;
+              int secs = seconds % 60;
+              snprintf(buf, sizeof(buf), "%dd %dh %dm %ds", days, hours, minutes, secs);
+              return "Uptime: " + std::string(buf);
+            }
+
+      - lvgl.label.update:
+          id: internal_temp_label
+          text: !lambda |-
+            char buf[32];
+            float temp_c = id(internal_temp).state;
+            if (isnan(temp_c)) {
+              return "Internal Temp: --";
+            } else {
+              float f_temp = (temp_c * 9.0 / 5.0) + 32.0;
+              snprintf(buf, sizeof(buf), "Internal Temp: %.1f F", f_temp);
+              return std::string(buf);
+            }
+
+      - lvgl.label.update:
+          id: wi_fi_signal_label
+          text: !lambda |-
+            if (isnan(id(wi_fi_signal).state)) {
+              return "WiFi Signal: None";
+            } else {
+              char buf[32];
+              snprintf(buf, sizeof(buf), "WiFi Signal: %.0f dBm", id(wi_fi_signal).state);
+              return std::string(buf);
+            }

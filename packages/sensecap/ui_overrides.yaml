@@ -1,0 +1,171 @@
+﻿lvgl:
+  pages:
+    - id: page_overrides
+      widgets:
+        - label:
+            id: overrides_title
+            text: "Overrides"
+            align: TOP_MID
+            y: 40
+            text_font: montserrat_32
+            text_color: 0xFFFFFF
+
+        - button:
+            id: ov_cleaners_btn
+            align: TOP_LEFT
+            x: 20
+            y: 90
+            width: 215
+            height: 64
+            bg_color: 0x374151
+            on_press:
+              - if:
+                  condition:
+                    lambda: 'return id(ha_cleaners_toggle).state;'
+                  then:
+                    - homeassistant.service: {service: input_boolean.turn_off, data: {entity_id: input_boolean.cleaners_toggle}}
+                  else:
+                    - homeassistant.service: {service: input_boolean.turn_on, data: {entity_id: input_boolean.cleaners_toggle}}
+            widgets:
+              - label: {text: "Cleaners Mode", align: LEFT_MID, x: 12, text_font: montserrat_18, text_color: 0xFFFFFF}
+              - label: {id: ov_cleaners_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}
+
+        - button:
+            id: ov_dani_btn
+            align: TOP_RIGHT
+            x: -20
+            y: 90
+            width: 215
+            height: 64
+            bg_color: 0x374151
+            on_press:
+              - if:
+                  condition:
+                    lambda: 'return id(ha_dani_mode_on).state;'
+                  then:
+                    - homeassistant.service: {service: input_boolean.turn_off, data: {entity_id: input_boolean.dani_mode_on}}
+                  else:
+                    - homeassistant.service: {service: input_boolean.turn_on, data: {entity_id: input_boolean.dani_mode_on}}
+            widgets:
+              - label: {text: "Dani Mode", align: LEFT_MID, x: 12, text_font: montserrat_18, text_color: 0xFFFFFF}
+              - label: {id: ov_dani_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}
+
+        - button:
+            id: ov_front_lock_btn
+            align: TOP_LEFT
+            x: 20
+            y: 164
+            width: 215
+            height: 64
+            bg_color: 0x374151
+            on_press:
+              - if:
+                  condition:
+                    lambda: 'return id(ha_front_door_auto_lock_off).state;'
+                  then:
+                    - homeassistant.service: {service: input_boolean.turn_off, data: {entity_id: input_boolean.front_door_auto_lock_off}}
+                  else:
+                    - homeassistant.service: {service: input_boolean.turn_on, data: {entity_id: input_boolean.front_door_auto_lock_off}}
+            widgets:
+              - label: {text: "Front Door Ovrd", align: LEFT_MID, x: 12, text_font: montserrat_16, text_color: 0xFFFFFF}
+              - label: {id: ov_front_lock_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}
+
+        - button:
+            id: ov_tod_btn
+            align: TOP_RIGHT
+            x: -20
+            y: 164
+            width: 215
+            height: 64
+            bg_color: 0x374151
+            on_press:
+              - if:
+                  condition:
+                    lambda: 'return id(ha_tod_control).state;'
+                  then:
+                    - homeassistant.service: {service: input_boolean.turn_off, data: {entity_id: input_boolean.automation_time_of_day_trigger}}
+                  else:
+                    - homeassistant.service: {service: input_boolean.turn_on, data: {entity_id: input_boolean.automation_time_of_day_trigger}}
+            widgets:
+              - label: {text: "ToD Control", align: LEFT_MID, x: 12, text_font: montserrat_18, text_color: 0xFFFFFF}
+              - label: {id: ov_tod_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}
+
+        - button:
+            id: ov_motion_all_btn
+            align: TOP_LEFT
+            x: 20
+            y: 238
+            width: 215
+            height: 64
+            bg_color: 0x374151
+            on_press:
+              - if:
+                  condition:
+                    lambda: 'return id(ha_motion_automation_off).state;'
+                  then:
+                    - homeassistant.service: {service: input_boolean.turn_off, data: {entity_id: input_boolean.motion_automation_off}}
+                  else:
+                    - homeassistant.service: {service: input_boolean.turn_on, data: {entity_id: input_boolean.motion_automation_off}}
+            widgets:
+              - label: {text: "All Motion OFF", align: LEFT_MID, x: 12, text_font: montserrat_18, text_color: 0xFFFFFF}
+              - label: {id: ov_motion_all_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}
+
+        - button:
+            id: ov_motion_entry_btn
+            align: TOP_RIGHT
+            x: -20
+            y: 238
+            width: 215
+            height: 64
+            bg_color: 0x374151
+            on_press:
+              - if:
+                  condition:
+                    lambda: 'return id(ha_entry_motion_automation_off).state;'
+                  then:
+                    - homeassistant.service: {service: input_boolean.turn_off, data: {entity_id: input_boolean.entry_motion_automation_off}}
+                  else:
+                    - homeassistant.service: {service: input_boolean.turn_on, data: {entity_id: input_boolean.entry_motion_automation_off}}
+            widgets:
+              - label: {text: "Entry Motion", align: LEFT_MID, x: 12, text_font: montserrat_16, text_color: 0xFFFFFF}
+              - label: {id: ov_motion_entry_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}
+
+        - button:
+            id: ov_motion_garage_btn
+            align: TOP_LEFT
+            x: 20
+            y: 312
+            width: 215
+            height: 64
+            bg_color: 0x374151
+            on_press:
+              - if:
+                  condition:
+                    lambda: 'return id(ha_garage_light_automation_off).state;'
+                  then:
+                    - homeassistant.service: {service: input_boolean.turn_off, data: {entity_id: input_boolean.garage_light_automation_off}}
+                  else:
+                    - homeassistant.service: {service: input_boolean.turn_on, data: {entity_id: input_boolean.garage_light_automation_off}}
+            widgets:
+              - label: {text: "Garage Motion", align: LEFT_MID, x: 12, text_font: montserrat_16, text_color: 0xFFFFFF}
+              - label: {id: ov_motion_garage_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}
+
+        - button:
+            id: ov_motion_mbr_btn
+            align: TOP_RIGHT
+            x: -20
+            y: 312
+            width: 215
+            height: 64
+            bg_color: 0x374151
+            on_press:
+              - if:
+                  condition:
+                    lambda: 'return id(ha_mbr_motion_off).state;'
+                  then:
+                    - homeassistant.service: {service: input_boolean.turn_off, data: {entity_id: input_boolean.mbr_motion_off}}
+                  else:
+                    - homeassistant.service: {service: input_boolean.turn_on, data: {entity_id: input_boolean.mbr_motion_off}}
+            widgets:
+              - label: {text: "MBR Motion", align: LEFT_MID, x: 12, text_font: montserrat_16, text_color: 0xFFFFFF}
+              - label: {id: ov_motion_mbr_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}

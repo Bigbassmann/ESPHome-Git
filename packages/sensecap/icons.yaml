@@ -1,0 +1,140 @@
+# Shared icons (SVGs under /config/esphome/icon_s)
+image:
+  - file: icon_s/co2.svg
+    id: icon_co2_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/co2.svg
+    id: icon_co2_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/tvoc.svg
+    id: icon_tvoc_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/tvoc.svg
+    id: icon_tvoc_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/temp.svg
+    id: icon_temp_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/temp.svg
+    id: icon_temp_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/humidity.svg
+    id: icon_humid_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/humidity.svg
+    id: icon_humid_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/wifi.svg
+    id: icon_wifi_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi.svg
+    id: icon_wifi_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_0.svg
+    id: icon_wifi_0
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_0.svg
+    id: icon_wifi_0_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_1.svg
+    id: icon_wifi_1
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_1.svg
+    id: icon_wifi_1_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_2.svg
+    id: icon_wifi_2
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_2.svg
+    id: icon_wifi_2_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_3.svg
+    id: icon_wifi_3
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_3.svg
+    id: icon_wifi_3_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_off.svg
+    id: icon_wifi_off
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_off.svg
+    id: icon_wifi_off_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/dim.svg
+    id: icon_dim_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/bright.svg
+    id: icon_bright_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/power.svg
+    id: icon_power_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/volume_up.svg
+    id: icon_vol_up_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/volume_down.svg
+    id: icon_vol_down_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/onoff.svg
+    id: icon_onoff_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel

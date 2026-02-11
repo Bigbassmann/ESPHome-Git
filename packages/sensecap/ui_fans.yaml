@@ -1,0 +1,290 @@
+﻿lvgl:
+  pages:
+    - id: page_fans
+      widgets:
+        - label:
+            id: fans_title
+            text: "Fan Controls"
+            align: TOP_MID
+            y: 40
+            text_font: montserrat_32
+            text_color: 0xFFFFFF
+
+        - label:
+            text: "FR Fan"
+            align: TOP_LEFT
+            x: 20
+            y: 88
+            text_font: montserrat_24
+            text_color: 0xFFFFFF
+        - label:
+            id: fr_fan_status
+            text: "OFF"
+            align: TOP_LEFT
+            x: 140
+            y: 90
+            text_font: montserrat_20
+            text_color: 0xFCA5A5
+
+        - button:
+            id: fr_fan_off_btn
+            text: "OFF"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 20
+            y: 122
+            width: 100
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - homeassistant.service:
+                  service: fan.turn_off
+                  data:
+                    entity_id: fan.in_wall_fan_speed_control_500s
+        - button:
+            id: fr_fan_low_btn
+            text: "LOW"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 130
+            y: 122
+            width: 100
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - homeassistant.service:
+                  service: fan.set_percentage
+                  data:
+                    entity_id: fan.in_wall_fan_speed_control_500s
+                    percentage: "33"
+        - button:
+            id: fr_fan_med_btn
+            text: "MED"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 240
+            y: 122
+            width: 100
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - homeassistant.service:
+                  service: fan.set_percentage
+                  data:
+                    entity_id: fan.in_wall_fan_speed_control_500s
+                    percentage: "66"
+        - button:
+            id: fr_fan_high_btn
+            text: "HIGH"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 350
+            y: 122
+            width: 100
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - homeassistant.service:
+                  service: fan.set_percentage
+                  data:
+                    entity_id: fan.in_wall_fan_speed_control_500s
+                    percentage: "100"
+
+        - label:
+            text: "MBR Fan"
+            align: TOP_LEFT
+            x: 20
+            y: 190
+            text_font: montserrat_24
+            text_color: 0xFFFFFF
+        - label:
+            id: mbr_fan_status
+            text: "OFF"
+            align: TOP_LEFT
+            x: 140
+            y: 192
+            text_font: montserrat_20
+            text_color: 0xFCA5A5
+        - label:
+            id: mbr_fan_dir
+            text: "Dir: --"
+            align: TOP_LEFT
+            x: 300
+            y: 192
+            text_font: montserrat_18
+            text_color: 0xC0C0C0
+
+        - button:
+            id: mbr_fan_off_btn
+            text: "OFF"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 20
+            y: 224
+            width: 88
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - homeassistant.service:
+                  service: fan.turn_off
+                  data:
+                    entity_id: fan.mbr_fan_light
+        - button:
+            id: mbr_fan_low_btn
+            text: "LOW"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 116
+            y: 224
+            width: 88
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - homeassistant.service:
+                  service: fan.set_percentage
+                  data:
+                    entity_id: fan.mbr_fan_light
+                    percentage: "33"
+        - button:
+            id: mbr_fan_med_btn
+            text: "MED"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 212
+            y: 224
+            width: 88
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - homeassistant.service:
+                  service: fan.set_percentage
+                  data:
+                    entity_id: fan.mbr_fan_light
+                    percentage: "66"
+        - button:
+            id: mbr_fan_high_btn
+            text: "HIGH"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 308
+            y: 224
+            width: 88
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - homeassistant.service:
+                  service: fan.set_percentage
+                  data:
+                    entity_id: fan.mbr_fan_light
+                    percentage: "100"
+        - button:
+            id: mbr_fan_dir_btn
+            text: "DIR"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 404
+            y: 224
+            width: 46
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - if:
+                  condition:
+                    lambda: 'return id(ha_mbr_fan_dir).state == "forward";'
+                  then:
+                    - homeassistant.service:
+                        service: fan.set_direction
+                        data:
+                          entity_id: fan.mbr_fan_light
+                          direction: reverse
+                  else:
+                    - homeassistant.service:
+                        service: fan.set_direction
+                        data:
+                          entity_id: fan.mbr_fan_light
+                          direction: forward
+
+        - label:
+            text: "Attic Fans"
+            align: TOP_LEFT
+            x: 20
+            y: 296
+            text_font: montserrat_24
+            text_color: 0xFFFFFF
+        - button:
+            id: attic_fan_low_btn
+            align: TOP_LEFT
+            x: 20
+            y: 330
+            width: 210
+            height: 56
+            bg_color: 0x374151
+            on_press:
+              - if:
+                  condition:
+                    lambda: 'return id(ha_attic_fan_on).state;'
+                  then:
+                    - homeassistant.service:
+                        service: switch.turn_off
+                        data:
+                          entity_id: switch.attic_fan
+                  else:
+                    - homeassistant.service:
+                        service: switch.turn_on
+                        data:
+                          entity_id: switch.attic_fan
+            widgets:
+              - label:
+                  text: "Attic Low"
+                  align: LEFT_MID
+                  x: 10
+                  text_font: montserrat_20
+                  text_color: 0xFFFFFF
+              - label:
+                  id: attic_fan_low_state
+                  text: "OFF"
+                  align: RIGHT_MID
+                  x: -10
+                  text_font: montserrat_20
+                  text_color: 0xFCA5A5
+        - button:
+            id: attic_fan_high_btn
+            align: TOP_RIGHT
+            x: -20
+            y: 330
+            width: 210
+            height: 56
+            bg_color: 0x374151
+            on_press:
+              - if:
+                  condition:
+                    lambda: 'return id(ha_attic_fan2_on).state;'
+                  then:
+                    - homeassistant.service:
+                        service: switch.turn_off
+                        data:
+                          entity_id: switch.attic_fan_2
+                  else:
+                    - homeassistant.service:
+                        service: switch.turn_on
+                        data:
+                          entity_id: switch.attic_fan_2
+            widgets:
+              - label:
+                  text: "Attic High"
+                  align: LEFT_MID
+                  x: 10
+                  text_font: montserrat_20
+                  text_color: 0xFFFFFF
+              - label:
+                  id: attic_fan_high_state
+                  text: "OFF"
+                  align: RIGHT_MID
+                  x: -10
+                  text_font: montserrat_20
+                  text_color: 0xFCA5A5
+
+
+
+
+
