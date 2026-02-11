@@ -11,23 +11,6 @@ esphome:
           id: brightness_slider
           value: !lambda 'return (int)(id(backlight).current_values.get_brightness() * 100);'    
       
-esp32:
-  board: esp32-s3-devkitc-1
-  variant: ESP32S3
-  flash_size: 8MB
-  framework:
-    type: esp-idf
-    sdkconfig_options:
-      CONFIG_ESPTOOLPY_FLASHSIZE_8MB: y
-      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: y
-      CONFIG_ESP32S3_DATA_CACHE_64KB: y
-      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
-      CONFIG_SPIRAM_RODATA: y
-
-psram:
-  mode: octal
-  speed: 80MHz
-
 logger:
   hardware_uart: UART0
   level: DEBUG #VERY_VERBOSE
@@ -39,171 +22,7 @@ ota:
     password: "41def07295f8022fbb33225b9baa335a"
 
 
-# --- I2C BUS --- PCA9554 Expander I2C Address: 0x20, 16bit -and Touchscreen
-i2c:
-  - id: bus_a
-    sda: GPIO39
-    scl: GPIO40
-    scan: true  #false in docs
-#  - id: bus_b
-#    sda: GPIO20  #23
-#    scl: GPIO21   #22 
-#    GPIO18: pullup: true # Grove 1 INT pin with pullup Power Switch  
-
-# --- SPI BUS ---
-spi:
-  - id: lcd_spi
-    clk_pin: GPIO41
-    mosi_pin: GPIO48
-    miso_pin: GPIO47
-
-# --- PCA9554 IO EXPANDER --- GPIO39/40
-pca9554:
-  - id: pca9554a_device
-    address: 0x20
-    pin_count: 16
-
-# --- RP2040 UART FOR SENSOR PACKET TRANSPORT --- 2nd CPU
-uart:
-  - id: rp2040_serial
-    tx_pin: GPIO20  # TX from ESP32S3 to RP2040 RX RP_16
-    rx_pin: GPIO19  # RX to ESP32S3 from RP2040 TX RP_17
-    baud_rate: 115200
-
-#---UART from ESP32-S3 to RP2040 for logging/debug---
-# uart:
-#  - id: esp32s3_to_rp2040_uart
-#    tx_pin: GPIO18  # TX from ESP32S3 to RP2040 RX RP_15 - gpio16 in docs
-#    rx_pin: GPIO17  # RX to ESP32S3 from RP2040 TX RP_14 -  gpio17 in docs
-#    baud_rate: 115200
-
-#--Grove 1 I2C Port on D1S Baseboard---
-# i2c:
-#  - id: bus_b
-#    sda: GPIO20  #23
-#    scl: GPIO21   #22 
-#    GPIO18: pullup: true # Grove 1 INT pin with pullup Power Switch
-
-#--Grove 2 ADC Port on D1S Baseboard---
-# adc:
-#  - id: adc_grove2 
-#    pin: GPIO26  # ADC0 pin for Grove 2 Port
-#  - id: adc_grove2_2
-#    pin: GPIO27  # ADC1 pin for Grove 2 Port
-
-text_sensor:
-  - platform: wifi_info
-    ip_address:
-      name: "Wi-Fi IP Address"
-      id: ip_sensor
-      entity_category: diagnostic
-    ssid:
-      name: "Wi-Fi SSID"
-      id: ssid_sensor
-      entity_category: diagnostic
-    bssid:
-      name: "Wi-Fi BSSID"
-      id: bssid_sensor
-      entity_category: diagnostic  
-
-text:
-  - platform: lvgl
-    id: wifi_ssid_text
-    widget: wifi_ssid_input
-    mode: text
-    internal: true
-  - platform: lvgl
-    id: wifi_pass_text
-    widget: wifi_pass_input
-    mode: password
-    internal: true
-
-# --- LVGL CORE ---
-lvgl:
-  bg_color: 0x101820  # Dark navy blue (almost black)
-  buffer_size: 50%
-  touchscreens:
-    - touchscreen_id: my_touch  # Use 'touchscreen_id:' to make it a map
-      long_press_time: 400ms
-      long_press_repeat_time: 100ms
-      
-  # Persistent bottom navigation buttons in top_layer
-  top_layer:
-    widgets:
-      - label:
-          id: date_label
-          text: "-- --- ----"
-          align: TOP_LEFT
-          x: 12
-          y: 8
-          text_font: montserrat_20
-          text_color: 0xFFFFFF
-
-      - label:
-          id: clock_label
-          text: "--:--"
-          align: TOP_RIGHT
-          x: -12
-          y: 8
-          text_font: montserrat_20
-          text_color: 0xFFFFFF
-
-      - button:
-          id: wifi_button
-          align: TOP_MID
-          y: 2
-          width: 36
-          height: 36
-          bg_color: 0x000000
-          border_width: 0
-          radius: 0
-          pad_all: 0
-          shadow_width: 0
-          on_press:
-            - lvgl.page.show:
-                id: page_admin
-          widgets:
-            - image:
-                id: wifi_icon
-                align: CENTER
-                src: icon_wifi_2_32
-
-      - button:
-          id: prev_button
-          align: BOTTOM_LEFT
-          width: 100
-          height: 50
-          on_press:
-            - logger.log: "Prev button pressed!"
-            - lvgl.page.previous: 
-                animation: OVER_LEFT  # Optional: Smooth left slide (defaults to NONE if omitted)
-                time: 200ms  # Optional: Animation duration (defaults to 50ms)
-          widgets:
-            - label:
-                text: "Prev"
-                align: CENTER
-      - button:
-          id: next_button
-          align: BOTTOM_RIGHT
-          width: 100
-          height: 50
-          on_press:
-            - logger.log: "Next button pressed!"
-            - lvgl.page.next: 
-                animation: OVER_RIGHT  # Optional: Smooth right slide
-                time: 200ms  # Optional
-          widgets:
-            - label:
-                text: "Next"
-                align: CENTER
-        
-packet_transport:
-  - platform: uart
-    uart_id: rp2040_serial
-    providers:
-      - name: d1-rp2040
-    
-# Import HA entities
+#
 #number:
 #  - platform: homeassistant
 #    id: ha_light_brightness
@@ -214,231 +33,7 @@ packet_transport:
 #    entity_id: media_player.living_room_speaker  # Replace
 #    name: "HA Media Volume"
 
-# --- SENSORS FROM RP2040 ---
-sensor:
-  - platform: packet_transport # from RP2040 0x59
-    provider: d1-rp2040
-    id: voc
-    name: "VOC Index"
-    internal: false
-    accuracy_decimals: 0
-    icon: "mdi:weather-dust"
-    device_class: aqi
-
-  - platform: packet_transport  # from RP2040 0x62
-    provider: d1-rp2040
-    id: co2
-    name: "CO2"
-    internal: false
-    accuracy_decimals: 0
-    icon: "mdi:molecule-co2"
-    unit_of_measurement: "ppm"
-    device_class: carbon_dioxide
-
-  - platform: packet_transport
-    provider: d1-rp2040
-    id: temp
-    name: "Temperature"
-    internal: false
-    accuracy_decimals: 1
-    icon: "mdi:thermometer"
-    unit_of_measurement: "°C"
-    device_class: temperature
-
-  - platform: packet_transport
-    provider: d1-rp2040
-    id: humid
-    name: "Humidity"
-    internal: false
-    accuracy_decimals: 1
-    icon: "mdi:water-percent"
-    unit_of_measurement: "%"
-    device_class: humidity
-
-# --- INTERNAL TEMPERATURE + UPTIME ---
-  - platform: internal_temperature
-    id: internal_temp
-    name: "ESP Internal Temp"
-    update_interval: 30s
-    entity_category: diagnostic
-
-  - platform: uptime
-    id: uptime_sensor
-    name: "ESP Uptime"
-    update_interval: 10s
-    entity_category: diagnostic
-
-  - platform: wifi_signal
-    name: "Wi-Fi Signal"
-    id: wi_fi_signal
-    update_interval: 30s
-    entity_category: diagnostic
-
-# Example HA Sensors (imported from Home Assistant)
-  - platform: homeassistant
-    id: ha_outdoor_temp
-    entity_id: sensor.outdoor_temperature  # Replace with actual
-    name: "Outdoor Temperature"
-
-  - platform: homeassistant
-    id: ha_light_brightness
-    entity_id: light.in_wall_paddle_dimmer_500s
-    attribute: brightness  # Reads the brightness attribute (0-255 scale)
-    name: "HA Light Brightness"
-    unit_of_measurement: ""  # Optional: No unit, or set to "%" if you prefer brightness_pct
-    accuracy_decimals: 0     # Integer value
-
-# --- BACKLIGHT CONTROL ---
-output:
-  - platform: ledc
-    pin:
-      number: GPIO45
-      ignore_strapping_warning: true
-    id: ledc_gpio45
-    frequency: 25000Hz  # 100Hz default
-
-#---BUZZER GPIO19 PWM -----
-#  - platform: ledc
-#    pin:
-#      number: GPIO19
-#      ignore_strapping_warning: true
-#    id: buzzer_output
-#    frequency: 2000Hz  # 2kHz for buzzer tones
-
-
-light:
-  - platform: monochromatic
-    id: backlight
-    output: ledc_gpio45
-    restore_mode: ALWAYS_ON
-    default_transition_length: 0s
-    on_turn_on:
-      - light.control:
-          id: backlight
-          brightness: 50%  # Default to 50% brightness on power on
-
-# --- DISPLAY (MIPI RGB) ---
-display:
-  - platform: mipi_rgb
-    model: SEEED-INDICATOR-D1
-    id: my_display
-    invert_colors: true  # Toggle to false
-    update_interval: 0s
-#    color_order: GRB
-    draw_rounding: 2
-    auto_clear_enabled: false
-    use_axis_flips: true
-
-# --- TOUCHSCREEN (FT5x06) --- I2C 39/40
-touchscreen:
-  - platform: ft5x06
-    id: my_touch
-    transform:
-      mirror_x: true
-      mirror_y: true
-#      swap_xy: true  # Add this to test if coords are rotated
-    on_touch:
-      then:
-        - lambda: |-
-            // Log the first touch point (assuming single-touch)
-            if (!touches.empty()) {
-              ESP_LOGD("touch", "Touch detected at %d/%d!", touches[0].x, touches[0].y);
-            }
-        - lambda: |-
-            if (!touches.empty()) {
-              const int graph_left = 30;
-              const int graph_top = 60;
-              const int graph_w = 413;
-              const int graph_h = 200;
-              int tx = touches[0].x;
-              int ty = touches[0].y;
-              if (tx >= graph_left && tx <= (graph_left + graph_w) && ty >= graph_top && ty <= (graph_top + graph_h)) {
-                int idx = (int)roundf((tx - graph_left) / 7.0f);
-                if (idx < 0) idx = 0;
-                if (idx > 59) idx = 59;
-                float minv = id(graph_min);
-                float maxv = id(graph_max);
-                if (isnan(minv) || isnan(maxv) || minv == maxv) {
-                  id(graph_touch_valid) = false;
-                } else {
-                  int y = id(graph_points)[idx];
-                  float v = maxv - ((float)y / (float)graph_h) * (maxv - minv);
-                  id(graph_touch_value) = v;
-                  id(graph_touch_valid) = true;
-                }
-              } else {
-                id(graph_touch_valid) = false;
-              }
-            }
-        - lvgl.label.update:
-            id: graph_touch_label
-            text: !lambda |-
-              if (!id(graph_touch_valid)) return std::string("Tap: --");
-              char buf[32];
-              float v = id(graph_touch_value);
-              switch (id(graph_metric)) {
-                case 0: snprintf(buf, sizeof(buf), "Tap: %.1f F", v); break;
-                case 1: snprintf(buf, sizeof(buf), "Tap: %.0f%%", v); break;
-                case 2: snprintf(buf, sizeof(buf), "Tap: %.0f ppm", v); break;
-                case 3: snprintf(buf, sizeof(buf), "Tap: %.0f", v); break;
-                default: snprintf(buf, sizeof(buf), "Tap: %.1f", v); break;
-              }
-              return std::string(buf);
-        - if:
-            condition: lvgl.is_paused
-            then:
-              - logger.log: "Resuming LVGL from pause"
-              - lvgl.resume:
-              - light.turn_on: backlight
-              - lvgl.page.show: # page_home
-                  id: page_home
-
-#----- USER BUTTON (GPIO38) -----
-binary_sensor:
-  - platform: gpio
-    pin:
-      number: GPIO38
-      inverted: true
-    name: "User Button"
-    id: user_button
-    on_multi_click:
-      - timing:
-          - ON for 50ms to 500ms
-          - OFF for at least 50ms
-        then:
-          - if:
-              condition:
-                lambda: 'return id(screen_off);'
-              then:
-                - lvgl.resume:
-                - light.turn_on: backlight
-                - lambda: 'id(screen_off) = false;'
-              else:
-                - lvgl.pause:
-                - light.turn_off: backlight
-                - lambda: 'id(screen_off) = true;'
-
-      - timing:
-          - ON for 10s to 20s
-        then:
-          - button.press: factory_reset_btn
-
-      - timing:
-          - ON for 3s to 9s
-        then:
-          - if:
-              condition:
-                lambda: 'return !id(screen_off);'
-              then:
-                - lvgl.pause:
-                - light.turn_off: backlight
-                - lambda: 'id(screen_off) = true;'
-
-#---- EXAMPLE HOME ASSISTANT INTEGRATIONS ---
-  - platform: homeassistant
-    id: ha_door_sensor
-    entity_id: binary_sensor.front_door  # Replace with actual
-    name: "Front Door Sensor"
+# (moved: output/light/display/touchscreen/homeassistant door sensor)
 
 # Example Switches
 switch:
@@ -459,6 +54,12 @@ switch:
           service: homeassistant.turn_off
           data:
             entity_id: switch.some_ha_switch
+
+binary_sensor:
+  - platform: homeassistant
+    id: ha_door_sensor
+    entity_id: binary_sensor.front_door  # Replace with actual
+    name: "Front Door Sensor"
 
 # --- GLOBALS FOR MIN/MAX ---
 globals:
@@ -550,14 +151,7 @@ globals:
     type: bool
     initial_value: "false"
 
-button:
-  - platform: factory_reset
-    id: factory_reset_btn
-    name: "Factory Reset"
-    internal: true
-
-script:
-  - id: graph_render
+script:\n  - id: graph_render
     then:
       - lambda: |-
           const int HIST = 1440;
@@ -1428,6 +1022,11 @@ interval:
 
 # --- MODULAR UI SYSTEM ---
 packages:
+  - !include shared/packages/sensecap_indicator_hw.yaml
+  - !include shared/packages/sensecap_indicator_display.yaml
+  - !include shared/packages/sensecap_indicator_lvgl.yaml
+  - !include shared/packages/sensecap_indicator_sensors.yaml
+  - !include shared/packages/sensecap_indicator_inputs.yaml
   - !include shared/packages/fonts_montserrat.yaml
   - !include shared/packages/icons.yaml
   - !include shared/packages/wifi_base.yaml
@@ -1443,6 +1042,7 @@ packages:
 #  - !include sensecap-ha/esphome/ui/ui_updates.yaml
 #  - !include sensecap-ha/esphome/ui/ui_sleep.yaml
 #  - !include sensecap-ha/esphome/ui/ui_analog_clock.yaml
+
 
 
 
