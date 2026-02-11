@@ -1,0 +1,26 @@
+# PMS7003 - 
+# PMS7003 TX (SEND) → Xiao RX (GPIO20/D7/UART0_RX)
+# PMS7003 RX (RECEIVE) → Xiao TX (GPIO21/D6/UART0_TX)  # Optional for passive mode, but include it
+# PMS7003 VCC → 5V (if available) or 3.3V (check sensor specs; PMS7003 typically needs 5V)
+# PMS7003 GND → GND
+
+# No need to include board here—it's already in main
+
+# PMSX003 sensor referencing the PMS UART
+sensor:
+  - platform: pmsx003
+    type: PMSX003  # For PMS7003
+    uart_id: ${pms_uart_id}
+    update_interval: ${pms_update_interval}  # Optional: Adjust for sensor longevity (e.g., 120s to reduce fan wear)
+    pm_1_0:
+      name: ${pms_pm1_name}
+      unit_of_measurement: "µg/m³"
+      accuracy_decimals: 0
+    pm_2_5:
+      name: ${pms_pm2_5_name}
+      unit_of_measurement: "µg/m³"
+      accuracy_decimals: 0
+    pm_10_0:
+      name: ${pms_pm10_name}
+      unit_of_measurement: "µg/m³"
+      accuracy_decimals: 0

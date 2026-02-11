@@ -1,0 +1,1147 @@
+# https://github.com/ApolloAutomation/TEMP_PRO-1/blob/main/Integrations/ESPHome/Core.yaml
+# https://github.com/ApolloAutomation/TEMP_PRO-1/blob/main/Integrations/ESPHome/TEMP_PRO-1_W.yaml
+# https://github.com/ApolloAutomation/TEMP_PRO-1/blob/main/Integrations/ESPHome/Battery.yaml
+# https://esphome.io/components/switch/#config-switch
+# https://github.com/openairproject/sensor-esp32
+# https://community.home-assistant.io/t/success-esphome-esp32-c3-bme280-mqtt-and-deep-sleep-with-homeassistant/432067
+
+
+substitutions:
+  device_name: esp32c3-2a
+  friendly_name: ESP32C3-2A
+  # api_key: "fmlpfRzTy+RXkwsNjjdKiGJDPWFKRWsqwDxk4fyAEBI="
+  # ota_password: "dba6cbb118b753240121b7d266f9ff56"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  name_add_mac_suffix: false
+  platformio_options:
+    board_build.flash_mode: dio
+    # board_build.mcu: esp32c3 #old
+  on_boot:
+    priority: 900
+    then:
+      # 1) Hard guard: prevent any deep sleep until we explicitly allow it
+      - deep_sleep.prevent: deep_sleep_1
+
+      # 2) Reset deep sleep timers before deep_sleep component initializes
+      - lambda: |-
+          id(deep_sleep_1).set_run_duration(0);
+          id(deep_sleep_1).set_sleep_duration(0);
+          ESP_LOGW("main", "Deep Sleep Timers Reset at Priority 900");
+
+      # 3) Give scheduler/logging a moment
+      - delay: 300ms
+
+      # 4) Mark wake start time
+      - lambda: |-
+          id(wake_start_timestamp) = millis() / 1000;
+
+      # 5) Increment boot loop counter
+      - lambda: |-
+          id(boot_loop_counter)++;
+          ESP_LOGW("main", "Boot Loop Counter: %d", id(boot_loop_counter));
+
+      # 6) First boot after flash flow
+      - if:
+          condition:
+            lambda: 'return id(first_boot_flag);'
+          then:
+            - script.execute: boot_first_boot_flow
+
+      # 7) Boot loop recovery flow
+      - if:
+          condition:
+            lambda: 'return id(boot_loop_counter) > 5;'
+          then:
+            - script.execute: boot_loop_recovery_flow
+
+      # 8) Normal boot/wake flow
+      - script.execute: boot_normal_flow
+
+packages:
+  device: !include "common/Seeed xiao ESP32-c3 base.yaml"
+
+esp32:
+  board: esp32-c3-devkitm-1  #seeed_xiao_esp32c3 #old esp32-c3-devkitm-1
+  framework:
+    type: esp-idf  #old esp-idf arduino
+    # version: recommended
+    # log_level: DEBUG
+    # components: (Arduino build does not use esp-idf external components list)
+
+globals:
+  - id: prevent_sleep_forced_by_system
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+
+  - id: last_valid_fr_temp
+    type: float
+    restore_value: no
+    initial_value: '0'
+
+  - id: last_valid_fr_humidity
+    type: float
+    restore_value: no
+    initial_value: '0'
+
+  - id: cycleCounter
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+  - id: button_press_timestamp
+    restore_value: no
+    type: uint32_t
+    initial_value: '0'
+
+  - id: sleep_cycle_counter
+    type: int
+    restore_value: yes
+    initial_value: '0'
+
+  - id: first_boot_flag
+    type: bool
+    restore_value: no
+    initial_value: 'true'
+
+  - id: boot_loop_counter
+    type: int
+    restore_value: yes
+    initial_value: '0'
+
+  - id: wake_start_timestamp
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: last_wake_duration
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  # Evaluator debounce / guard
+  - id: last_eval_millis
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: eval_in_progress
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+# Enable logging
+logger:
+  hardware_uart: UART0
+  level: INFO #new
+  # baud_rate: 115200
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "UyQITDXTF7XjNZezIWepYVgih2+9XAMP2eM9a1ytlRU="
+  # reboot_timeout: 0s
+  on_client_connected:
+    then:
+      # Short delay to let HA/API stabilize
+      - delay: 1s
+      # Re-evaluate sleep conditions whenever HA attaches
+      - script.execute: evaluate_sleep_conditions
+
+ota:
+  - platform: esphome
+    password: "9f2e48f4c2b7398a00eed26a2f1102cc"
+    id: ota_esphome
+
+# Managed OTA via HTTP (optional)
+  - platform: http_request
+    id: ota_managed
+    #  url: "http://your-server.local/firmware/esp32c3-2a.bin"
+
+http_request:
+  verify_ssl: false
+
+improv_serial:
+
+esp32_improv:
+  authorizer: none
+
+web_server:
+  port: 80
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  use_address: 192.168.158.4
+  power_save_mode: light
+  output_power: 8.5  # Lower TX power to save battery
+  id: wifi_1
+  on_connect:
+    - delay: 5s
+    - ble.disable:
+  on_disconnect:
+    - ble.enable:
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp32C3-2A Fallback Hotspot"
+    password: "SHpLwvqGodr4"
+
+captive_portal:
+
+i2c:
+  sda: GPIO6
+  scl: GPIO7
+  scan: true
+  id: bus_a
+  frequency: 100kHz  # safer for SHT3x/AHT20
+
+# https://github.com/ApolloAutomation/TEMP_PRO-1/blob/main/Integrations/ESPHome/Core.yaml
+binary_sensor:
+  - platform: template
+    name: "Brownout Detected (Last Boot)"
+    id: brownout_detected_last_boot
+    entity_category: diagnostic
+    lambda: |-
+      return esp_reset_reason() == ESP_RST_BROWNOUT;
+
+  - platform: template
+    name: Alarm Active
+    id: alarm_active
+    lambda: |-
+      return (id(alarm_outside_temp_range).state && !id(temp_within_range).state) ||
+             (id(alarm_outside_humidity_range).state && !id(humidity_within_range).state);
+    on_press:
+      - lambda: ESP_LOGI("main", "Alarm is ACTIVE");
+      - script.execute: evaluate_sleep_conditions
+    on_release:
+      - lambda: ESP_LOGI("main", "Alarm is INACTIVE");
+      - script.execute: evaluate_sleep_conditions
+
+  - platform: template
+    name: "Internal Temp Alarm"
+    id: internal_temp_alarm
+    lambda: |-
+      if (isnan(id(sys_esp_temperature).state)) return false;
+      return id(sys_esp_temperature).state > id(max_internal_temp).state;
+    on_press:
+      - lambda: |-
+          ESP_LOGW("main", "Internal Temperature ALARM: %.1f°F exceeds %.1f°F",
+                   id(sys_esp_temperature).state, id(max_internal_temp).state);
+      - script.execute: evaluate_sleep_conditions
+    on_release:
+      - lambda: |-
+          ESP_LOGI("main", "Internal Temperature back within safe range");
+      - script.execute: evaluate_sleep_conditions
+
+  - platform: template
+    name: "Deep Sleep Blocked"
+    id: deep_sleep_blocked
+    internal: true
+    lambda: |-
+      return id(ota_mode_user).state || id(prevent_sleep_user).state;
+
+  - platform: status
+    name: Online
+    id: ink_ha_connected
+
+  - platform: gpio
+    pin:
+      number: GPIO0
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    id: reset_button
+    on_press:
+      then:
+        - lambda: |-
+            id(button_press_timestamp) = millis();
+    on_release:
+      then:
+        - lambda: |-
+            if (millis() - id(button_press_timestamp) >= 10000) {
+              // Remove Wifi
+              id(factory_reset_switch).turn_on();
+            } else {
+              // StatusCheck
+              id(statusCheck).execute();
+            }
+
+  - platform: template
+    name: Temperature Within Range
+    id: temp_within_range
+    lambda: 'bool temp_valid = !isnan(id(fr_temp).state); bool temp_in_range = !temp_valid || ((id(fr_temp).state <= id(max_temp).state) && (id(fr_temp).state >= id(min_temp).state)); return (temp_valid) && temp_in_range;'
+
+  - platform: template
+    name: Humidity Within Range
+    id: humidity_within_range
+    # Note: If additional humidity sensors are added, expand this logic following the temperature sensor pattern
+    lambda: 'bool hum_valid = !isnan(id(fr_humidity).state); bool hum_in_range = !hum_valid || ((id(fr_humidity).state <= id(max_humidity).state) && (id(fr_humidity).state >= id(min_humidity).state)); return (hum_valid) && hum_in_range;'
+    # lambda: 'bool sht_valid = !isnan(id(sht_temperature).state); bool dallas_valid = !isnan(id(temp_probe).state); bool sht_in_range = !sht_valid || ((id(sht_temperature).state <= id(max_temp).state) && (id(sht_temperature).state >= id(min_temp).state)); bool dallas_in_range = !dallas_valid || ((id(temp_probe).state <= id(max_temp).state) && (id(temp_probe).state >= id(min_temp).state)); return (sht_valid || dallas_valid) && sht_in_range && dallas_in_range;'
+
+sensor:
+  - platform: template
+    name: "ESP Reset Reason (Raw)"
+    id: esp_reset_reason_raw
+    entity_category: diagnostic
+    accuracy_decimals: 0
+    lambda: |-
+      return (float)esp_reset_reason();
+
+  - platform: template
+    name: "Boot Loop Counter"
+    id: boot_loop_counter_sensor
+    accuracy_decimals: 0
+    lambda: |-
+      return id(boot_loop_counter);
+    entity_category: diagnostic
+
+  - platform: template
+    name: "Last Wake Duration"
+    id: last_wake_duration_sensor
+    unit_of_measurement: "s"
+    accuracy_decimals: 0
+    lambda: |-
+      return id(last_wake_duration);
+    entity_category: diagnostic
+
+  - platform: template
+    name: "Sleep Cycle Counter"
+    id: sleep_cycle_counter_sensor
+    lambda: |-
+      return id(sleep_cycle_counter);
+    entity_category: diagnostic
+    accuracy_decimals: 0
+
+  - platform: aht10
+    variant: AHT20
+    id: aht20_sensor # <-- parent component ID
+    # address: 0x28
+    temperature:
+      name: "FR Temperature"
+      id: fr_temp
+      unit_of_measurement: °F
+      accuracy_decimals: 1
+      filters:
+        - lambda: |-
+            // If sensor returns NaN, use last valid reading
+            if (isnan(x)) {
+              return id(last_valid_fr_temp);
+            }
+
+            // Convert °C → °F
+            float f = x * (9.0/5.0) + 32.0;
+
+            // Store last valid reading
+            id(last_valid_fr_temp) = f;
+
+            return f;
+        - delta: 0.5
+        - heartbeat: 600s
+    humidity:
+      name: "FR Humidity"
+      id: fr_humidity
+      accuracy_decimals: 1
+      filters:
+        - lambda: |-
+            if (isnan(x)) {
+              return id(last_valid_fr_humidity);
+            }
+
+            id(last_valid_fr_humidity) = x;
+            return x;
+        - delta: 1.0
+        - heartbeat: 600s   # Force update every 10 min even if no change
+    update_interval: 30s
+
+  # Numeric wakeup cause
+  - platform: template
+    name: "Wakeup Cause (Numeric)"
+    id: wakeup_cause
+    accuracy_decimals: 0
+    lambda: |-
+      return (int)esp_sleep_get_wakeup_cause();
+
+  - platform: uptime
+    name: "ESP Uptime"
+    id: esp_uptime
+
+  - platform: template
+    name: "Run Duration (Numeric)"
+    id: run_duration_sensor
+    accuracy_decimals: 0
+    unit_of_measurement: "s"
+    lambda: |-
+      return (id(deep_sleep_run_duration).state);  
+
+  - platform: template
+    name: "Sleep Duration (Numeric)"
+    id: sleep_duration_sensor
+    accuracy_decimals: 0
+    unit_of_measurement: "s"
+    lambda: |-
+      return (id(deep_sleep_sleep_duration).state);    
+
+button:
+  #- platform: template
+   # name: "Update Firmware"
+    #id: update_firmware
+   # entity_category: config
+    # on_press:
+   #   - lambda: |-
+    #      ESP_LOGI("main", "Update Firmware button pressed");
+     #     // Trigger the HTTP OTA update request
+      #    id(ota_managed).perform();
+
+  - platform: restart
+    icon: mdi:power-cycle
+    name: "ESP Reboot"
+    id: restart_button
+
+  - platform: factory_reset
+    disabled_by_default: True
+    name: "Factory Reset ESP"
+    id: factory_reset_all
+
+number:
+  - platform: template
+    id: max_internal_temp
+    name: "Max Internal Temperature"
+    min_value: 0
+    max_value: 140
+    step: 1
+    unit_of_measurement: "°F"
+    initial_value: 120
+    optimistic: true
+    update_interval: never
+    mode: box
+    entity_category: config
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGI("main", "Max Internal Temperature changed to %.1f°F", x);
+
+  - platform: template
+    id: min_temp
+    name: Min Temperature
+    min_value: -60
+    max_value: 100
+    step: 0.1
+    unit_of_measurement: '°F'
+    initial_value: 58
+    optimistic: true
+    update_interval: never
+    mode: box
+    entity_category: config
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGI("main", "Min Temperature changed to %.1f°F", x);
+
+  - platform: template
+    id: max_temp
+    name: Max Temperature
+    min_value: -60
+    max_value: 100
+    step: 0.1
+    unit_of_measurement: '°F'
+    initial_value: 80
+    optimistic: true
+    update_interval: never
+    mode: box
+    entity_category: config
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGI("main", "Max Temperature changed to %.1f°F", x);
+
+  - platform: template
+    id: min_humidity
+    name: Min Humidity
+    min_value: 0
+    max_value: 100
+    step: 0.1
+    unit_of_measurement: '%'
+    initial_value: 40
+    optimistic: true
+    update_interval: never
+    mode: box
+    entity_category: config
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGI("main", "Min Humidity changed to %.1f%%", x);
+
+  - platform: template
+    id: max_humidity
+    name: Max Humidity
+    min_value: 0
+    max_value: 100
+    step: 0.1
+    unit_of_measurement: '%'
+    initial_value: 70
+    optimistic: true
+    update_interval: never
+    mode: box
+    entity_category: config
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGI("main", "Max Humidity changed to %.1f%%", x);
+
+  - platform: template
+    name: "Sleep Duration"
+    id: deep_sleep_sleep_duration
+    min_value: 0
+    max_value: 86400
+    step: 30
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 1800
+    icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "s"
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGI("main", "Sleep Duration (number) changed to %.0f s", x);
+            id(deep_sleep_1).set_sleep_duration((uint32_t)(x * 1000));
+        # optional: re-evaluate if you want number changes to affect behavior immediately
+        # - script.execute: evaluate_sleep_conditions
+  
+  - platform: template
+    name: "Run Duration"
+    id: deep_sleep_run_duration
+    min_value: 0
+    max_value: 86400
+    step: 30
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 120
+    icon: "mdi:arrow-collapse-left"
+    entity_category: CONFIG
+    unit_of_measurement: "s"
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGI("main", "Run Duration (number) changed to %.0f s", x);
+            id(deep_sleep_1).set_run_duration((uint32_t)(x * 1000));
+        # - script.execute: evaluate_sleep_conditions          
+
+switch:
+  - platform: template
+    name: "Prevent Sleep (User)"
+    id: prevent_sleep_user
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+    on_turn_on:
+      then:
+        - lambda: ESP_LOGI("main", "Prevent Sleep (User) turned ON");
+        - script.execute: evaluate_sleep_conditions
+    on_turn_off:
+      then:
+        - lambda: ESP_LOGI("main", "Prevent Sleep (User) turned OFF");
+        - script.execute: evaluate_sleep_conditions
+
+  - platform: template
+    name: "OTA Mode (User)"
+    id: ota_mode_user
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+    on_turn_on:
+      then:
+        - lambda: ESP_LOGI("main", "OTA Mode (User) turned ON");
+        - script.execute: evaluate_sleep_conditions
+    on_turn_off:
+      then:
+        - lambda: ESP_LOGI("main", "OTA Mode (User) turned OFF");
+        - script.execute: evaluate_sleep_conditions
+
+  - platform: factory_reset
+    id: factory_reset_switch
+    internal: true
+
+  - platform: gpio
+    pin: GPIO9
+    name: "Accessory Power"
+    id: accessory_power
+    restore_mode: ALWAYS_ON
+    setup_priority: 1100
+    internal: true
+
+  - platform: template
+    name: "Alarm Outside Temp Range"
+    id: alarm_outside_temp_range
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+
+  - platform: template
+    name: "Alarm Outside Humidity Range"
+    id: alarm_outside_humidity_range
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+
+# Periodic script execution
+interval:
+  - interval: 120s
+    id: periodic_state_log
+    then:
+      - script.execute: reportAllValues
+      - text_sensor.template.publish:
+          id: run_sleep_durations
+          state: !lambda |-
+            char buffer[64];
+            snprintf(buffer, sizeof(buffer), "Run: %.0f s / Sleep: %.0f s",
+                     id(deep_sleep_run_duration).state,
+                     id(deep_sleep_sleep_duration).state);
+            return {buffer};
+
+      # Also periodically re-evaluate sleep conditions
+      - script.execute: evaluate_sleep_conditions
+      - script.execute: auto_clear_prevent_sleep_if_stable
+
+script:
+  - id: auto_clear_prevent_sleep_if_stable
+    then:
+      - lambda: |-
+          if (!id(prevent_sleep_forced_by_system)) {
+            ESP_LOGI("main", "Prevent Sleep auto‑clear skipped (user‑controlled)");
+            return;
+          }
+          // Only auto‑clear if reset reason is clean and uptime is decent
+          float uptime_s = id(esp_uptime).state;
+          if ((esp_reset_reason() == ESP_RST_DEEPSLEEP || esp_reset_reason() == ESP_RST_POWERON) &&
+              uptime_s > 300) {
+            ESP_LOGI("main", "Auto‑clearing Prevent Sleep (User) — system appears stable");
+            id(prevent_sleep_forced_by_system) = false;
+            id(prevent_sleep_user).turn_off();
+          } else {
+            ESP_LOGI("main", "Auto‑clear conditions not met (reset_reason=%d, uptime=%.0f)",
+                     (int)esp_reset_reason(), uptime_s);
+          }
+
+  - id: reset_boot_loop_if_stable
+    then:
+      - lambda: |-
+          // If we reached this point with WiFi up and no brownout, consider this a stable boot
+          if (esp_reset_reason() == ESP_RST_DEEPSLEEP || esp_reset_reason() == ESP_RST_POWERON) {
+            id(boot_loop_counter) = 0;
+            ESP_LOGI("main", "Boot considered stable — boot_loop_counter reset to 0");
+          }
+
+  - id: detect_crash_or_sleep
+    then:
+      - lambda: |-
+          auto cause = esp_sleep_get_wakeup_cause();
+          std::string analysis;
+
+          if (cause == ESP_SLEEP_WAKEUP_TIMER) {
+            analysis = "Deep Sleep Wake (Timer)";
+            ESP_LOGI("main", "********** SLEEP SUCCESS **********");
+            ESP_LOGI("main", "Wake cause: TIMER");
+            ESP_LOGI("main", "***********************************");
+          }
+          else if (cause == ESP_SLEEP_WAKEUP_UNDEFINED) {
+            analysis = "Cold Boot or Crash";
+            ESP_LOGE("main", "********** CRASH DETECTED **********");
+            ESP_LOGE("main", "Wake cause: UNDEFINED");
+            ESP_LOGE("main", "************************************");
+          }
+          else {
+            char buf[64];
+            snprintf(buf, sizeof(buf), "Wake Cause %d (Non-Timer)", (int)cause);
+            analysis = buf;
+            ESP_LOGW("main", "Wake cause: %d (non-timer)", (int)cause);
+          }
+
+          id(wake_analysis).publish_state(analysis.c_str());
+
+  - id: sleep_timeline_event
+    parameters:
+      msg: string
+    then:
+      - lambda: |-
+          ESP_LOGI("timeline", "%s", msg.c_str());
+
+  - id: sleep_blocker_breakdown
+    then:
+      - lambda: |-
+          ESP_LOGW("main", "--- Sleep Blocker Breakdown ---");
+          ESP_LOGW("main", "Prevent Sleep (User): %s", id(prevent_sleep_user).state ? "ON" : "OFF");
+          ESP_LOGW("main", "OTA Mode (User): %s", id(ota_mode_user).state ? "ON" : "OFF");
+          ESP_LOGW("main", "Internal Temp Alarm: %s", id(internal_temp_alarm).state ? "ON" : "OFF");
+          ESP_LOGW("main", "Alarm Active: %s", id(alarm_active).state ? "ON" : "OFF");
+          ESP_LOGW("main", "--------------------------------");
+
+  - id: sleep_decision_summary
+    parameters:
+      allowed: bool
+    then:
+      - lambda: |-
+          std::string summary;
+          if (allowed) {
+            summary = "Sleep Allowed: YES (All conditions OK)";
+          } else {
+            summary = "Sleep Allowed: NO (";
+            bool first = true;
+
+            auto add = [&](const char* reason) {
+              if (!first) summary += ", ";
+              summary += reason;
+              first = false;
+            };
+
+            if (id(prevent_sleep_user).state) add("Prevent Sleep (User)");
+            if (id(ota_mode_user).state) add("OTA Mode (User)");
+            if (id(internal_temp_alarm).state) add("Internal Temp Alarm");
+            if (id(alarm_active).state) add("Alarm Active");
+
+            summary += ")";
+          }
+
+          ESP_LOGI("main", "%s", summary.c_str());
+          id(wake_analysis).publish_state(summary.c_str());
+
+  # Central sleep decision engine
+  - id: evaluate_sleep_conditions
+    mode: restart
+    then:
+      # Debounce guard
+      - lambda: |-
+          uint32_t now = millis();
+          if (id(eval_in_progress)) {
+            ESP_LOGW("main", "evaluate_sleep_conditions already running - ignored");
+            return;
+          }
+          if (now - id(last_eval_millis) < 1000) {
+            ESP_LOGI("main", "evaluate_sleep_conditions called too soon (%ums) - ignored", now - id(last_eval_millis));
+            return;
+          }
+          id(eval_in_progress) = true;
+          id(last_eval_millis) = now;
+
+          ESP_LOGI("main", "=== Evaluating Sleep Conditions (debounced) ===");
+
+      # Blocked?
+      - if:
+          condition:
+            or:
+              - switch.is_on: prevent_sleep_user
+              - switch.is_on: ota_mode_user
+              - binary_sensor.is_on: internal_temp_alarm
+              - binary_sensor.is_on: alarm_active
+          then:
+            - script.execute: sleep_blocker_breakdown
+            - script.execute:
+                id: set_why_no_sleep
+                reason: "Staying Awake (Live Blocker Active)"
+            - deep_sleep.prevent: deep_sleep_1
+            - script.execute:
+                id: sleep_decision_summary
+                allowed: false
+            - lambda: |-
+                ESP_LOGW("main", "Sleep prevented by live evaluation (blocker active)");
+                id(eval_in_progress) = false;
+            - script.stop: evaluate_sleep_conditions
+            - lambda: |-
+                id(eval_in_progress) = false;
+
+      # Allowed
+      - lambda: |-
+          ESP_LOGI("main", "Sleep allowed by live evaluation");
+      - script.execute:
+          id: sleep_decision_summary
+          allowed: true
+      - deep_sleep.allow: deep_sleep_1
+      - lambda: |-
+          id(eval_in_progress) = false;
+      - script.execute: prepare_for_sleep
+
+  # Normal boot/wake flow
+  - id: boot_normal_flow
+    then:
+      - lambda: |-
+          ESP_LOGI("main", "=== BOOT/WAKE START ===");
+          ESP_LOGI("main", "Run Duration (boot): %.0f s", id(deep_sleep_run_duration).state);
+          ESP_LOGI("main", "Sleep Duration (boot): %.0f s", id(deep_sleep_sleep_duration).state);
+          ESP_LOGI("main", "OTA Mode (User): %s", id(ota_mode_user).state ? "ON" : "OFF");
+          ESP_LOGI("main", "Prevent Sleep (User): %s", id(prevent_sleep_user).state ? "ON" : "OFF");
+          
+
+      - lambda: |-
+          auto cause = esp_sleep_get_wakeup_cause();
+          if (cause == ESP_SLEEP_WAKEUP_UNDEFINED) {
+            id(boot_type).publish_state("Cold Boot");
+          } else {
+            id(boot_type).publish_state("Deep Sleep Wake");
+          }
+
+      - script.execute: reset_boot_loop_if_stable
+      - script.execute: detect_crash_or_sleep
+
+      - script.execute: wake_cycle
+      - script.execute: evaluate_sleep_conditions
+
+  # First boot after flash flow
+  - id: boot_first_boot_flow
+    then:
+      - lambda: |-
+          ESP_LOGW("main", "First Boot After Flash — Skipping Sleep Logic");
+          id(first_boot_flag) = false;
+      - script.execute: wake_cycle
+      # Stay awake; do not call evaluate_sleep_conditions here
+
+  # Boot loop recovery flow
+  - id: boot_loop_recovery_flow
+    then:
+      - lambda: |-
+          ESP_LOGE("main", "BOOT LOOP DETECTED — Forcing Awake Mode");
+      - switch.turn_on: prevent_sleep_user
+      - script.execute: wake_cycle
+      # Let central engine keep us awake because prevent_sleep_user is ON
+
+  - id: record_wake_duration
+    then:
+      - lambda: |-
+          ESP_LOGE("main", "BOOT LOOP DETECTED — Forcing Awake Mode");
+          id(prevent_sleep_forced_by_system) = true;
+      - switch.turn_on: prevent_sleep_user
+      - script.execute: wake_cycle
+
+      - lambda: |-
+          uint32_t now = millis() / 1000;
+          id(last_wake_duration) = now - id(wake_start_timestamp);
+          ESP_LOGI("main", "Wake Duration Recorded: %u s", id(last_wake_duration));
+
+  - id: update_last_sleep_timestamp
+    then:
+      - text_sensor.template.publish:
+          id: last_sleep_timestamp
+          state: !lambda |-
+            char buffer[32];
+            time_t now = id(sntp_time).now().timestamp;
+            strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", localtime(&now));
+            return {buffer};
+
+  - id: update_last_wake_timestamp
+    then:
+      - text_sensor.template.publish:
+          id: last_wake_timestamp
+          state: !lambda |-
+            char buffer[32];
+            time_t now = id(sntp_time).now().timestamp;
+            strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", localtime(&now));
+            return {buffer};
+
+  - id: set_why_no_sleep
+    parameters:
+      reason: string
+    then:
+      - text_sensor.template.publish:
+          id: why_no_sleep
+          state: !lambda |-
+            return reason;
+      - lambda: |-
+          ESP_LOGW("main", "Why I Didn't Sleep: %s", reason.c_str());
+
+  - id: statusCheck
+    then:
+      - if:
+          condition:
+            - lambda: 'return id(ink_ha_connected).state;'
+          then:
+            - lambda: |-
+                ESP_LOGI("main", "ESP32C3-2A Automation: Connected To HA");
+          else:
+            - if:
+                condition:
+                  - wifi.connected
+                then:
+                  - lambda: |-
+                      ESP_LOGI("main", "ESP32C3-2A Automation: Connected To WiFi");
+                else:
+                  - lambda: |-
+                      ESP_LOGI("main", "ESP32C3-2A Automation: Not connected To WiFi");
+
+  - id: alarm_script
+    then:
+      - if:
+          condition:
+            lambda: |-
+              return id(alarm_active).state;
+          then:
+            - lambda: |-
+                ESP_LOGI("main", "Alarm is ACTIVE");
+          else:
+            - lambda: |-
+                ESP_LOGI("main", "Alarm is INACTIVE");
+      
+  - id: reportAllValues
+    then:
+      - lambda: |-
+          ESP_LOGI("main", "---- State Snapshot ----");
+
+          // Core environmental readings
+          ESP_LOGI("main", "FR Temp: %.1f°F", id(fr_temp).state);
+          ESP_LOGI("main", "FR Humidity: %.1f%%", id(fr_humidity).state);
+          ESP_LOGI("main", "Internal Temp: %.1f°F", id(sys_esp_temperature).state);
+
+          // Range checks
+          ESP_LOGI("main", "Temperature Within Range: %s", id(temp_within_range).state ? "YES" : "NO");
+          ESP_LOGI("main", "Humidity Within Range: %s", id(humidity_within_range).state ? "YES" : "NO");
+
+          // Alarm states
+          ESP_LOGI("main", "Internal Temp Alarm: %s", id(internal_temp_alarm).state ? "ON" : "OFF");
+          ESP_LOGI("main", "Alarm Active: %s", id(alarm_active).state ? "ON" : "OFF");
+
+          // Deep sleep configuration
+          ESP_LOGI("main", "Sleep Duration: %.0f s", id(deep_sleep_sleep_duration).state);
+          ESP_LOGI("main", "Run Duration: %.0f s", id(deep_sleep_run_duration).state);
+
+          // Wake/sleep diagnostics
+          ESP_LOGI("main", "Wakeup Cause (Numeric): %d", (int)id(wakeup_cause).state);
+          ESP_LOGI("main", "Wakeup Reason: %s", id(wakeup_reason).state.c_str());
+          ESP_LOGI("main", "Wake Analysis: %s", id(wake_analysis).state.c_str());
+          ESP_LOGI("main", "Last Wake Timestamp: %s", id(last_wake_timestamp).state.c_str());
+
+          // Boot diagnostics
+          ESP_LOGI("main", "Boot Type: %s", id(boot_type).state.c_str());
+          ESP_LOGI("main", "ESP Uptime: %.0f s", id(esp_uptime).state);
+
+          // Combined run/sleep text
+          ESP_LOGI("main", "Run/Sleep Durations (Text): %s", id(run_sleep_durations).state.c_str());
+          ESP_LOGI("main", "Last Valid FR Temp: %.1f°F", id(last_valid_fr_temp));
+          ESP_LOGI("main", "Last Valid FR Humidity: %.1f%%", id(last_valid_fr_humidity));
+      - lambda: |-
+          ESP_LOGI("main", "---- Crash Recovery Snapshot ----");
+          ESP_LOGI("main", "Reset Reason (Raw): %.0f", id(esp_reset_reason_raw).state);
+          ESP_LOGI("main", "Reset Reason (Text): %s", id(esp_reset_reason_text).state.c_str());
+          ESP_LOGI("main", "Brownout Detected (Last Boot): %s", id(brownout_detected_last_boot).state ? "YES" : "NO");
+          ESP_LOGI("main", "Boot Loop Counter: %.0f", id(boot_loop_counter_sensor).state);
+          ESP_LOGI("main", "Prevent Sleep (User): %s", id(prevent_sleep_user).state ? "ON" : "OFF");
+          ESP_LOGI("main", "Prevent Sleep Forced by System: %s", id(prevent_sleep_forced_by_system) ? "YES" : "NO");
+          ESP_LOGI("main", "Active Profile: %s", id(active_profile).state.c_str());
+          ESP_LOGI("main", "----------------------------------");
+          
+          
+
+  - id: wake_cycle
+    mode: restart
+    then:
+      # Give logger and scheduler a moment to settle
+      - delay: 300ms
+
+      # Timestamp update
+      - script.execute: update_last_wake_timestamp
+
+      - lambda: |-
+          ESP_LOGI("main", "=== Waking Up From Sleep ===");
+
+      # Update sensors safely
+      - component.update: aht20_sensor
+      - delay: 1s
+
+      # Snapshot logs
+      - script.execute: reportAllValues
+
+      # Announcements of applied durations / reason / text
+      - lambda: |-
+          ESP_LOGI("main", "Run Duration Applied (wake): %.0f s", id(deep_sleep_run_duration).state);
+          ESP_LOGI("main", "Sleep Duration Applied (wake): %.0f s", id(deep_sleep_sleep_duration).state);
+          ESP_LOGI("main", "Wakeup Reason (text): %s", id(wakeup_reason).state.c_str());
+          ESP_LOGI("main", "OTA Mode (User): %s", id(ota_mode_user).state ? "ON" : "OFF");
+          ESP_LOGI("main", "Prevent Sleep (User): %s", id(prevent_sleep_user).state ? "ON" : "OFF");
+
+      # Re-publish run/sleep durations text sensor
+      - text_sensor.template.publish:
+          id: run_sleep_durations
+          state: !lambda |-
+            char buffer[64];
+            snprintf(buffer, sizeof(buffer), "Run: %.0f s / Sleep: %.0f s",
+                     id(deep_sleep_run_duration).state,
+                     id(deep_sleep_sleep_duration).state);
+            return {buffer};
+
+      # Yield again to keep watchdog happy
+      - delay: 200ms
+
+  - id: countdown_to_sleep
+    mode: restart
+    then:
+      - lambda: |-
+          ESP_LOGI("main", "Starting deep sleep countdown...");
+      - repeat:
+          count: 9
+          then:
+            # Abort immediately if user blocks sleep or alarm fires
+            - if:
+                condition:
+                  or:
+                    - switch.is_on: prevent_sleep_user
+                    - switch.is_on: ota_mode_user
+                    - binary_sensor.is_on: internal_temp_alarm
+                    - binary_sensor.is_on: alarm_active
+                then:
+                  - script.execute:
+                      id: set_why_no_sleep
+                      reason: "User/Alarm Prevented Sleep During Countdown"
+                  - lambda: |-
+                      ESP_LOGW("main", "Countdown aborted: user/alarm prevented sleep");
+                  - deep_sleep.prevent: deep_sleep_1
+                  - script.stop: countdown_to_sleep
+
+            # Countdown tick
+            - script.execute:
+                id: sleep_timeline_event
+                msg: "Countdown tick"
+
+            - lambda: |-
+                static int remaining = 90;
+                ESP_LOGI("main", "Deep Sleep in %ds...", remaining);
+                remaining -= 10;
+
+            - delay: 10s
+
+  - id: prepare_for_sleep
+    then:
+      - component.update: aht20_sensor
+      - delay: 2s
+      - script.execute: reportAllValues
+
+      - lambda: ESP_LOGI("main", "=== Preparing to Enter Deep Sleep ===");
+
+      # Run countdown with abort logic
+      - script.execute: countdown_to_sleep
+
+      # Final guard before actual sleep
+      - if:
+          condition:
+            or:
+              - switch.is_on: prevent_sleep_user
+              - switch.is_on: ota_mode_user
+              - binary_sensor.is_on: internal_temp_alarm
+              - binary_sensor.is_on: alarm_active
+          then:
+            - script.execute:
+                id: set_why_no_sleep
+                reason: "Canceled at Final Check"
+            - lambda: |-
+                ESP_LOGW("main", "Deep Sleep canceled at final check");
+            - deep_sleep.prevent: deep_sleep_1
+          else:
+            - lambda: ESP_LOGI("main", "Entering Deep Sleep NOW");
+            - script.execute:
+                id: set_why_no_sleep
+                reason: "Device Slept Normally"
+            - lambda: |-
+                id(sleep_cycle_counter)++;
+            - script.execute: update_last_sleep_timestamp
+            - deep_sleep.enter:
+                id: deep_sleep_1
+                sleep_duration: !lambda 'return (uint32_t)(id(deep_sleep_sleep_duration).state * 1000);'
+
+select:
+
+deep_sleep:
+  id: deep_sleep_1
+  run_duration: 0ms         # online time per wake (adjust as needed)
+  sleep_duration: 0ms        # default sleep; will be overridden by number entity on boot
+  # https://esphome.io/components/deep_sleep/
+
+text_sensor:
+  - platform: template
+    name: "Active Profile"
+    id: active_profile
+    lambda: |-
+      return {"none"};
+      
+  - platform: template
+    name: "ESP Reset Reason"
+    id: esp_reset_reason_text
+    entity_category: diagnostic
+    lambda: |-
+      switch (esp_reset_reason()) {
+        case ESP_RST_POWERON:    return {"Power On"};
+        case ESP_RST_EXT:        return {"External Reset"};
+        case ESP_RST_SW:         return {"Software Reset"};
+        case ESP_RST_PANIC:      return {"Panic"};
+        case ESP_RST_INT_WDT:    return {"Interrupt WDT"};
+        case ESP_RST_TASK_WDT:   return {"Task WDT"};
+        case ESP_RST_WDT:        return {"Other WDT"};
+        case ESP_RST_DEEPSLEEP:  return {"Deep Sleep Wake"};
+        case ESP_RST_BROWNOUT:   return {"Brownout"};
+        case ESP_RST_SDIO:       return {"SDIO"};
+        default:                 return {"Unknown"};
+      }
+
+  - platform: template
+    name: "Wake Analysis"
+    id: wake_analysis
+    entity_category: diagnostic
+
+  - platform: template
+    name: "Last Sleep Timestamp"
+    id: last_sleep_timestamp
+    entity_category: diagnostic
+    
+  - platform: template
+    name: "Boot Type"
+    id: boot_type
+    entity_category: diagnostic
+
+  - platform: template
+    name: "Why I Didn't Sleep"
+    id: why_no_sleep
+    entity_category: diagnostic
+
+  - platform: template
+    name: "Last Wake Timestamp"
+    id: last_wake_timestamp
+    entity_category: diagnostic  
+
+  - platform: template
+    name: "Run/Sleep Durations"
+    id: run_sleep_durations
+    entity_category: "diagnostic"
+    lambda: |-
+      char buffer[64];
+      snprintf(buffer, sizeof(buffer), "Run: %.0f s / Sleep: %.0f s",
+               id(deep_sleep_run_duration).state,
+               id(deep_sleep_sleep_duration).state);
+      return {buffer};
+      
+  - platform: template
+    name: "OTA URL"
+    id: ota_url
+    entity_category: "diagnostic"
+    internal: true
+
+  # Human-readable wakeup reason
+  - platform: template
+    name: "Wakeup Reason"
+    id: wakeup_reason
+    lambda: |-
+      switch (esp_sleep_get_wakeup_cause()) {
+        case ESP_SLEEP_WAKEUP_TIMER: return {"Timer"};
+        case ESP_SLEEP_WAKEUP_EXT0:  return {"EXT0"};
+        case ESP_SLEEP_WAKEUP_EXT1:  return {"EXT1"};
+        case ESP_SLEEP_WAKEUP_GPIO:  return {"GPIO"};
+        case ESP_SLEEP_WAKEUP_TOUCHPAD: return {"Touchpad"};
+        case ESP_SLEEP_WAKEUP_ULP:   return {"ULP"};
+        case ESP_SLEEP_WAKEUP_UART:  return {"UART"};
+        case ESP_SLEEP_WAKEUP_WIFI:  return {"WIFI"};
+        case ESP_SLEEP_WAKEUP_COCPU: return {"COCPU"};
+        case ESP_SLEEP_WAKEUP_COCPU_TRAP_TRIG: return {"COCPU TRAP"};
+        case ESP_SLEEP_WAKEUP_BT:    return {"BT"};
+        default: return {"Other/Undefined"};
+      }

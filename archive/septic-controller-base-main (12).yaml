@@ -1,0 +1,1534 @@
+esphome:       #   Basic configuration for Septic System Controller with Alarms and Display septic-controller-base-main.yaml
+  name: septic-controller
+  friendly_name: Red House Poop Shooter
+  on_boot:
+    priority: 600  # After components init
+    then:
+      - globals.set:
+          id: buzzer_silenced
+          value: 'false'
+      - logger.log: "Buzzer silence reset on boot"
+      - delay: 5s
+      - light.turn_on:
+          id: status_led
+          brightness: 100%
+          red: 1.0
+          green: 0.0
+          blue: 0.0
+      - delay: 5s
+      - light.turn_on:
+          id: status_led
+          red: 0.0
+          green: 1.0
+          blue: 0.0
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+
+web_server:
+  port: 80
+  auth:
+    username: "admin"                 # !secret web_user
+    password: "1234567890"         #!secret web_pass
+
+wifi:
+#  reboot_timeout: 5min
+  fast_connect: true
+  passive_scan: True
+#  ssid: !secret wifi_ssid
+#  password: !secret wifi_password
+#  use_address: 192.168.119.180   #12.166   #119.180   # ${wifi_use_address} # Critical for moving/roaming devices — MUST be set!  ← This disables any assumed static IP
+  ap:
+    ssid: "Septic-Fallback"
+    password: "1234567890"
+  #  ap_timeout: 15min               # how long to keep AP active before sleep/retry    
+#  id: wifi_component
+  power_save_mode: NONE     #${wifi_power_save_mode}
+# Fallback to AP if WiFi connection fails
+#  manual_ip:
+#    static_ip: 192.168.119.151  #!secret static_ip_temp
+#    gateway:   192.168.119.1  #!secret gateway_temp
+#    subnet:    255.255.255.0
+  # Enable scanning + auto-select best known network
+  # Secondary / fallback networks (tried in order)
+  networks:
+    # Primary network (Home1) — tried first
+    - ssid: !secret wifi_ssid_home3
+      password: !secret wifi_password_home3
+    - ssid: !secret wifi_ssid
+      password: !secret wifi_password
+    - ssid: !secret wifi_ssid_home4
+      password: !secret wifi_password_home4
+    - ssid: !secret wifi_ssid_home1
+      password: !secret wifi_password_home1
+    - ssid: !secret wifi_ssid_home2
+      password: !secret wifi_password_home2
+    - ssid: !secret wifi_ssid_hotspot
+      password: !secret wifi_password_hotspot
+#  #   priority: 1.0  #(optional float): higher number = prefer this network when multiple are visible
+
+logger:
+  baud_rate: 115200 #0
+  level: DEBUG  #VERY_VERBOSE
+
+captive_portal:
+
+mdns:
+  disabled: False
+
+http_request:   #https://t.me/septic_controller_bot
+  useragent: septic-controller    #
+  timeout: 5s
+
+script:
+  - id: send_high_water_alert
+    then:
+      - http_request.post:
+          url: "https://api.telegram.org/bot8472415018:AAHSX8FC-EKHgwliW2vQQd-VDXBKWOmKe8g/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json:
+            chat_id: "7568904480"    # septic_controller_bot  8444070186
+            text: "🚨 HIGH LEVEL: Septic High Water! Level alarm triggered."
+            parse_mode: "Markdown"
+      - http_request.post:
+          url: "https://api.telegram.org/bot8472415018:AAHSX8FC-EKHgwliW2vQQd-VDXBKWOmKe8g/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json:
+            chat_id: "8444070186"    # septic_controller_bot  8444070186
+            text: "🚨 HIGH LEVEL: Septic High Water! Level alarm triggered."
+            parse_mode: "Markdown"      
+  - id: send_high_water_normal
+    then:
+      - http_request.post:
+          url: "https://api.telegram.org/bot8472415018:AAHSX8FC-EKHgwliW2vQQd-VDXBKWOmKe8g/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json:
+            chat_id: "7568904480" 
+            text: "- ✅ Level Normal: Septic High Water Alarm! NORMAL Restored"
+            parse_mode: "Markdown"
+      - http_request.post:
+          url: "https://api.telegram.org/bot8472415018:AAHSX8FC-EKHgwliW2vQQd-VDXBKWOmKe8g/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json:
+            chat_id: "8444070186" 
+            text: "- ✅ Level Normal: Septic High Water Alarm! NORMAL Restored"
+            parse_mode: "Markdown"      
+  - id: send_moisture_detected
+    then:
+      - http_request.post:
+          url: "https://api.telegram.org/bot8472415018:AAHSX8FC-EKHgwliW2vQQd-VDXBKWOmKe8g/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json:
+            chat_id: "7568904480"    # septic_controller_bot
+            text: "💧 Moisture Detected: Moisture DETECTED around the Septic Tank"
+            parse_mode: "Markdown"
+  - id: send_moisture_normal
+    then:
+      - http_request.post:
+          url: "https://api.telegram.org/bot8472415018:AAHSX8FC-EKHgwliW2vQQd-VDXBKWOmKe8g/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json:
+            chat_id: "7568904480" 
+            text: "🟡 Dry/Moisture Normal: Moisture is NORMAL around the Septic Tank"
+            parse_mode: "Markdown"
+  - id: send_presence_detected
+    then:
+      - http_request.post:
+          url: "https://api.telegram.org/bot8472415018:AAHSX8FC-EKHgwliW2vQQd-VDXBKWOmKe8g/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json:
+            chat_id: "7568904480"    # septic_controller_bot
+            text: "👤 Presence Detected: Occupancy/Presence has been DETECTED"
+            parse_mode: "Markdown"
+  - id: send_presence_clear
+    then:
+      - http_request.post:
+          url: "https://api.telegram.org/bot8472415018:AAHSX8FC-EKHgwliW2vQQd-VDXBKWOmKe8g/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json:
+            chat_id: "7568904480" 
+            text: "🟢 Presence Clear: Occupancy/Presence has CLEARED"
+            parse_mode: "Markdown"
+  - id: send_freeze_warning
+    then:
+      - http_request.post:
+          url: "https://api.telegram.org/bot8472415018:AAHSX8FC-EKHgwliW2vQQd-VDXBKWOmKe8g/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json:
+            chat_id: "7568904480"    # septic_controller_bot
+            text: "❄️ FREEZE WARNING: Ambient Temperature is close to FREEZING"
+            parse_mode: "Markdown"
+  - id: send_temperature_ok
+    then:
+      - http_request.post:
+          url: "https://api.telegram.org/bot8472415018:AAHSX8FC-EKHgwliW2vQQd-VDXBKWOmKe8g/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json:
+            chat_id: "7568904480" 
+            text: "🟢 Temp OK: Ambient Temperature is back withing NORMAL RANGE"
+            parse_mode: "Markdown"
+  - id: send_utility_off
+    then:
+      - http_request.post:
+          url: "https://api.telegram.org/bot8472415018:AAHSX8FC-EKHgwliW2vQQd-VDXBKWOmKe8g/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json:
+            chat_id: "7568904480"    # septic_controller_bot
+            text: "⚡❌ Utility Power OFF: Utility Power has turned OFF"
+            parse_mode: "Markdown"
+  - id: send_utility_on
+    then:
+      - http_request.post:
+          url: "https://api.telegram.org/bot8472415018:AAHSX8FC-EKHgwliW2vQQd-VDXBKWOmKe8g/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json:
+            chat_id: "7568904480" 
+            text: "⚡🟢 Utility OK: Utility Power has turned ON"
+            parse_mode: "Markdown"                                                 
+  - id: send_water_valve_open
+    then:
+      - http_request.post:
+          url: "https://api.telegram.org/bot8472415018:AAHSX8FC-EKHgwliW2vQQd-VDXBKWOmKe8g/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json:
+            chat_id: "7568904480"    # septic_controller_bot
+            text: "🚰🟢 Water Valve OPEN: Fresh Water Valve has OPENED"
+            parse_mode: "Markdown"
+  - id: send_water_valve_closed
+    then:
+      - http_request.post:
+          url: "https://api.telegram.org/bot8472415018:AAHSX8FC-EKHgwliW2vQQd-VDXBKWOmKe8g/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json:
+            chat_id: "7568904480" 
+            text: "🚰🔴 Water Valve CLOSED: Fresh Water Valve has CLOSED"
+            parse_mode: "Markdown"                                                 
+  - id: send_septic_pump_on
+    then:
+      - http_request.post:
+          url: "https://api.telegram.org/bot8472415018:AAHSX8FC-EKHgwliW2vQQd-VDXBKWOmKe8g/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json:
+            chat_id: "7568904480"    # septic_controller_bot
+            text: "🛠️🟢 Septic Pump ON: Septic Pump has turned ON"
+            parse_mode: "Markdown"
+  - id: send_septic_pump_off
+    then:
+      - http_request.post:
+          url: "https://api.telegram.org/bot8472415018:AAHSX8FC-EKHgwliW2vQQd-VDXBKWOmKe8g/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json:
+            chat_id: "7568904480" 
+            text: "🛠️🔴 Septic Pump OFF: Septic Pump has turned OFF"
+            parse_mode: "Markdown"                                                                      
+
+api:
+  #encryption: # For Home Assistant integration
+   # key:
+
+ota:  # Over-The-Air updates
+  platform: esphome
+  password: "1234567890" #!secret ota_password
+#  - platform: homeassistant  # Sync time from HA (fallback to sntp if standalone)      id: sntp_time
+
+time:
+  - platform: sntp
+    servers:
+      - 0.pool.ntp.org
+      - 1.pool.ntp.org
+    id: ha_time
+    on_time_sync:
+      then:
+        - logger.log: "Time synced from ntp server."
+
+espnow:
+  id: espnow_hub
+  # channel: 1  # Uncomment & set fixed channel if not using Wi-Fi (or match AP channel)
+  enable_on_boot: true
+
+packet_transport:
+  - platform: espnow
+    id: espnow_transport
+    peer_address: "FF:FF:FF:FF:FF:FF"  # Uncomment for explicit broadcast if needed
+    sensors:
+      - id: bme_temp
+      - id: bme_hum
+      - id: pressure_psi
+    binary_sensors:
+      - id: high_water
+      - id: moisture
+      - id: occupancy
+      - id: pump_onoff
+      - id: utility_power
+#      - id: shutoff_valve
+    update_interval: 60s
+    rolling_code_enable: False
+
+i2c:
+  sda: GPIO20
+  scl: GPIO21
+  scan: true          # Optional: Logs detected I2C devices on boot (great for debugging)
+  id: i2c_bus
+
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 128X64"
+    address: 0x3C
+    id: oled_display
+    update_interval: 1s
+    lambda: |-
+      it.clear();
+
+      // Safe, rounded readings
+      std::string temp_str = id(bme_temp).has_state() ? std::to_string(static_cast<int>(id(bme_temp).state + 0.5)) + "°F" : "--°F";
+      std::string hum_str  = id(bme_hum).has_state()  ? std::to_string(static_cast<int>(id(bme_hum).state + 0.5))  + "%"   : "--%";
+      char pres_buf[16];
+      if (id(pressure_psi).has_state()) {
+        snprintf(pres_buf, sizeof(pres_buf), "%.2f psi", id(pressure_psi).state);
+      } else {
+        strcpy(pres_buf, "-- psi");
+      }
+      std::string pres_str = pres_buf;
+
+      // Alarms
+      std::vector<std::string> alarms;
+      // if (id(high_water).state)    alarms.push_back("HIGH WATER!");
+      if (id(high_water).state) {
+        alarms.push_back("HIGH SEPTIC");
+        alarms.push_back("LEVEL!");
+      }
+      // if (id(moisture).state)      alarms.push_back("MOISTURE DETECTED!");
+      if (id(moisture).state) {
+        alarms.push_back("MOISTURE");
+        alarms.push_back("DETECTED!");
+      }
+      // if (id(bme_temp).state < 32 && !id(occupancy).state) alarms.push_back("FREEZE RISK!");
+      if (id(bme_temp).state < id(freeze_threshold).state) {           //   && !id(occupancy).state) {
+      alarms.push_back("FREEZE");
+      alarms.push_back("RISK!");
+      }
+      // if (!id(utility_power).state) alarms.push_back("POWER OUTAGE!");
+      if (!id(utility_power).state) {
+        alarms.push_back("POWER");
+        alarms.push_back("OUTAGE!");
+      }
+
+      uint32_t now = millis();
+
+      if (!alarms.empty() && !id(buzzer_silenced)) {
+        // Normal full-screen alarm mode (only when buzzer is NOT silenced)
+        std::string msg = alarms[(now / 3000) % alarms.size()];
+
+        int char_width_est = 11;
+        int text_width = static_cast<int>(msg.length()) * char_width_est;
+        int x = std::max(0, (128 - text_width) / 2);
+
+        int line_height = id(arial16).get_height();
+        int y = (64 - line_height) / 2;
+
+        it.filled_rectangle(0, y - 4, 128, line_height + 8, Color(0, 0, 0));
+        it.print(x, y, id(arial16), Color(255, 255, 255), TextAlign::TOP_LEFT, msg.c_str());
+
+        it.print(15, 0, id(arial12), Color(255, 255, 255), "ALARM ACTIVE!");
+      } else if (!alarms.empty() && id(buzzer_silenced)) {
+        // SILENCED MODE - show banner but no full-screen alarm
+        it.print(0, 0, id(arial12), Color(255, 255, 255), "SILENCED");
+
+        it.print(0, 20, id(arial10), Color(255, 255, 255), "Alarm active but buzzer muted");
+
+        // Optional: show small/mini list of active alarms or go to normal cycling
+        // For now, we fall through to cycling below
+      } else {
+        // NORMAL CYCLING MODE (no alarms OR silenced)
+        static int cycle_index = 0;
+        static uint32_t last_cycle_change = 0;
+
+        if (now - last_cycle_change > 8000) {
+          cycle_index = (cycle_index + 1) % 10;
+          last_cycle_change = now;
+        }
+
+        switch (cycle_index) {
+          case 0: {
+            // Title Screen
+            //it.print(0, 0, id(arial12), Color(255, 255, 255), "Red House Monitor");
+            //it.print(37, 17, id(arial14), Color(255, 255, 255), "POOP");
+            //it.print(22, 32, id(arial14), Color(255, 255, 255), "SHOOTER");
+            //it.print(34, 47, id(arial14), Color(255, 255, 255), "ALARM");
+            //break;
+           }
+
+           // Title Screen - manual underline + thicker "bold" by printing twice (offset)
+            it.print(10, 0, id(arial12), Color(255, 255, 255), "Red House Monitor");
+            // Underline: draw line under text (approximate width)
+            it.line(0, 14, 128, 14, Color(255, 255, 255));  // Horizontal line at y=14
+
+            // Pseudo-bold: print each line twice with 1px offset for thickness
+            it.print(37, 17, id(arial14), Color(255, 255, 255), "POOP");
+            it.print(38, 17, id(arial14), Color(255, 255, 255), "POOP");  // Offset right
+
+            it.print(22, 32, id(arial14), Color(255, 255, 255), "SHOOTER");
+            it.print(23, 32, id(arial14), Color(255, 255, 255), "SHOOTER");
+
+            it.print(34, 47, id(arial14), Color(255, 255, 255), "ALARM");
+            it.print(35, 47, id(arial14), Color(255, 255, 255), "ALARM");
+            break;
+          case 1: {
+            // 12-hour AM/PM time format
+            it.print(4, 0, id(arial12), Color(255, 255, 255), "Current Time & Date");
+            // Underline: draw line under text (approximate width)
+            it.line(0, 14, 128, 14, Color(255, 255, 255));  // Horizontal line at y=14
+            
+            auto time = id(ha_time).now();
+            char time_str[20];
+            char date_str[20];
+
+            if (time.is_valid()) {
+              strncpy(time_str, time.strftime("%I:%M:%S %p").c_str(), sizeof(time_str));
+              snprintf(date_str, sizeof(date_str), "%02d-%02d-%04d", time.month, time.day_of_month, time.year);
+            } else {
+              strcpy(time_str, "Time sync...");
+              strcpy(date_str, "--");
+            }
+
+            // Print as before
+            it.printf(28, 27, id(arial14), Color(255, 255, 255), TextAlign::CENTER_VERTICAL, "%s", time_str);
+            it.printf(30, 47, id(arial14), Color(255, 255, 255), TextAlign::CENTER_VERTICAL, "%s", date_str);
+
+            // 24hr time format
+            //it.print(13, 0, id(arial12), Color(255, 255, 255), "Current Time");
+            //
+            //auto time = id(ha_time).now();
+            //char time_str[20];
+            //char date_str[20];
+            //snprintf(time_str, sizeof(time_str), "%02d:%02d", time.hour, time.minute);
+            //snprintf(date_str, sizeof(date_str), "%02d-%02d-%04d", time.month, time.day_of_month, time.year);
+            //
+            //it.printf(30, 25, id(arial14), Color(255, 255, 255), TextAlign::CENTER_VERTICAL, "%s", time_str);
+            //it.printf(20, 45, id(arial14), Color(255, 255, 255), TextAlign::CENTER_VERTICAL, "%s", date_str);
+            //
+            break;
+          }
+          
+          case 2: {
+            // View 1: CURRENT STATES
+            // it.print(7, 0, id(arial10), Color(255, 255, 255), "Ambient Sensors");
+            it.print(18, 0, id(arial12), Color(255, 255, 255), "Current States");
+            // it.print(0, 50, id(arial10), Color(255, 255, 255), "Alarm Inputs");
+            // Underline: draw line under text (approximate width)
+            it.line(0, 14, 128, 14, Color(255, 255, 255));  // Horizontal line at y=14
+              // it.printf(0,-1, id(arial16), Color(255, 255, 255), "Temp: %s", temp_str.c_str());
+              // it.printf(0, 25, id(arial16), Color(255, 255, 255), "Hum:  %s", hum_str.c_str());
+              // it.printf(0, 20, id(arial12), Color(255, 255, 255), "Press: %s", pres_str.c_str());
+            // std::string wet  = id(moisture).state ? "WET" : "DRY";  
+            // std::string float  = id(high_water).state ? "ON" : "OFF";  
+            
+            std::string occ  = id(occupancy).state ? "DETECTED" : "CLEAR";
+            std::string power = id(utility_power).state ? "OK" : "OUT";
+            std::string valve = id(water_shutoff).state ? "CLOSED" : "OPEN";
+            std::string pump  = id(pump_onoff).state ? "ON" : "OFF";
+            // it.printf(0, 25, id(arial12), Color(255, 255, 255), "Water Detect: %s", wet.c_str());
+            // it.printf(0, 45, id(arial10), Color(255, 255, 255), "Float State: %s", float.c_str());
+            it.printf(0, 15, id(arial11), Color(255, 255, 255), "Presence: %s", occ.c_str());
+            it.printf(0, 28, id(arial11), Color(255, 255, 255), "Utility State: %s", power.c_str());
+            it.printf(0, 41, id(arial11), Color(255, 255, 255), "Water Valve: %s", valve.c_str());
+            it.printf(0, 54, id(arial11), Color(255, 255, 255), "Pump State: %s", pump.c_str());
+            break;
+          }
+
+          case 3: {
+            // View 2: AMBIENT SENSORS
+            it.print(15, 0, id(arial12), Color(255, 255, 255), "Ambient Sensors");
+            // it.print(0, 50, id(arial10), Color(255, 255, 255), "Inform States");
+            // it.print(0, 50, id(arial10), Color(255, 255, 255), "Alarm Inputs");
+            // Underline: draw line under text (approximate width)
+            it.line(0, 14, 128, 14, Color(255, 255, 255));  // Horizontal line at y=14
+            it.printf(2,15, id(arial11), Color(255, 255, 255), "Temp: %s", temp_str.c_str());
+            it.printf(2, 28, id(arial11), Color(255, 255, 255), "Hum:  %s", hum_str.c_str());
+            it.printf(2, 41, id(arial11), Color(255, 255, 255), "Press: %s", pres_str.c_str());
+            uint32_t since = (now - id(last_change_time)) / 1000;
+            it.printf(2, 53, id(arial10), Color(255, 255, 255), "Last change: %us ago", since);
+            // std::string wet  = id(moisture).state ? "WET" : "DRY";  
+            // std::string float  = id(high_water).state ? "ON" : "OFF";  
+            // std::string occ  = id(occupancy).state ? "DETECTED" : "CLEAR";
+            // std::string power = id(utility_power).state ? "OK" : "OUT";
+            // std::string valve = id(water_shutoff).state ? "CLOSED" : "OPEN";
+            // std::string pump  = id(pump_onoff).state ? "ON" : "OFF";
+            // it.printf(0, 25, id(arial12), Color(255, 255, 255), "Water Detect: %s", wet.c_str());
+            // it.printf(0, 45, id(arial10), Color(255, 255, 255), "Float State: %s", float.c_str());
+            // it.printf(0, 25, id(arial12), Color(255, 255, 255), "Presence: %s", occ.c_str());
+            // it.printf(0, 35, id(arial12), Color(255, 255, 255), "Utility State: %s", power.c_str());
+            // it.printf(0, 35, id(arial12), Color(255, 255, 255), "Water Valve: %s", valve.c_str());
+            //  it.printf(0, 45, id(arial10), Color(255, 255, 255), "Pump State: %s", pump.c_str());
+            break;
+          }
+          
+          case 4: {
+              // New Case 4: Diagnostic Info (same style as Case 3)
+            it.print(16, 0, id(arial12), Color(255, 255, 255), "Diagnostic Info");
+            // Underline: draw line under text (approximate width)
+            it.line(0, 14, 128, 14, Color(255, 255, 255));  // Horizontal line at y=14
+            std::string ip     = id(wifi_ip).has_state()   ? id(wifi_ip).state.c_str()   : "--";
+            std::string ssid   = id(wifi_ssid).has_state() ? id(wifi_ssid).state.c_str() : "--";
+            char signal_buf[16];
+            snprintf(signal_buf, sizeof(signal_buf), "%.0f dBm", id(wi_fi_signal).state);
+
+            it.printf(2, 15, id(arial11), Color(255, 255, 255), "IP: %s", ip.c_str());
+            it.printf(2, 28, id(arial11), Color(255, 255, 255), "SSID: %s", ssid.c_str());
+            it.printf(2, 41, id(arial11), Color(255, 255, 255), "Signal: %s", signal_buf);
+            it.printf(2, 54, id(arial11), Color(255, 255, 255), "Int Temp: %.1f°F", id(sys_esp_temperature).state);
+            // auto time = id(ha_time).now();
+            // char time_str[20];
+            // char date_str[20];
+            // snprintf(time_str, sizeof(time_str), "%02d:%02d", time.hour, time.minute);
+            // snprintf(date_str, sizeof(date_str), "%04d-%02d-%02d", time.year, time.month, time.day_of_month);
+
+            // it.printf(0, 55, id(arial10), Color(255, 255, 255), TextAlign::CENTER_HORIZONTAL, "%s", time_str);
+            // it.printf(0, 45, id(arial12), Color(255, 255, 255), TextAlign::CENTER_HORIZONTAL, "%s", date_str);
+
+            break;
+          }
+          case 5: {
+            it.print(2, 0, id(arial12), Color(255, 255, 255), "Temperature 24hr Stats");
+            // Underline: draw line under text (approximate width)
+            it.line(0, 14, 128, 14, Color(255, 255, 255));  // Horizontal line at y=14
+            // Temperature
+            it.printf(0, 15, id(arial10), Color(255, 255, 255), "Current: %.1f°F", id(bme_temp).state);
+            it.printf(0, 28, id(arial10), Color(255, 255, 255), "Avg: %.1f°F", id(temp_avg_24h).state);
+            it.printf(0, 41, id(arial10), Color(255, 255, 255), "Min: %.1f°F", id(temp_min_24h_sensor).state);
+            it.printf(0, 54, id(arial10), Color(255, 255, 255), "Max: %.1f°F", id(temp_max_24h_sensor).state);
+
+            break;
+          }
+          case 6: {
+            it.print(5, 0, id(arial12), Color(255, 255, 255), "Pressure 24hr Stats");
+            // Underline: draw line under text (approximate width)
+            it.line(0, 14, 128, 14, Color(255, 255, 255));  // Horizontal line at y=14
+            // Pressure (PSI)
+            it.printf(0, 15, id(arial10), Color(255, 255, 255), "Current: %.2f psi", id(pressure_psi).state);
+            it.printf(0, 28, id(arial10), Color(255, 255, 255), "Avg: %.2f psi", id(pressure_avg_24h).state);
+            it.printf(0, 41, id(arial10), Color(255, 255, 255), "Min: %.2f psi", id(pressure_min_24h_sensor).state);
+            it.printf(0, 54, id(arial10), Color(255, 255, 255), "Max: %.2f psi", id(pressure_max_24h_sensor).state);
+            break;
+          }
+          case 7: {
+            it.print(10, 0, id(arial12), Color(255, 255, 255), "Pump Stats 24h");
+            it.line(0, 14, 128, 14, Color(255, 255, 255));
+
+            it.printf(0, 18, id(arial10), Color(255, 255, 255), "Cycles: %d", id(pump_cycles_24h).state);
+            it.printf(0, 32, id(arial10), Color(255, 255, 255), "Longest Run: %.1f min", id(pump_longest_run_sensor).state);
+            it.printf(0, 46, id(arial10), Color(255, 255, 255), "Total Run: %.1f min", id(pump_runtime_24h_sensor).state);
+
+            break;
+          }
+          case 8: {
+            it.print(0, 0, id(arial12), Color(255, 255, 255), "High Water Float Status");
+
+            // Underline
+            it.line(0, 14, 128, 14, Color(255, 255, 255));
+
+            std::string float_status = id(high_water).state ? "HIGH WATER DETECTED!" : "CLEAR - No High Water";
+            Color status_color = id(high_water).state ? Color(255, 0, 0) : Color(0, 255, 0);  // Red if active, green if clear
+
+            it.print(0, 20, id(arial14), status_color, TextAlign::TOP_LEFT, float_status.c_str());
+
+            // Additional info
+            it.printf(0, 40, id(arial10), Color(255, 255, 255), "Last change: %us ago", (now - id(last_change_time)) / 1000);
+
+            if (id(high_water).state) {
+              it.print(0, 55, id(arial10), Color(255, 0, 0), "ALARM ACTIVE - Check Tank!");
+            } else {
+              it.print(0, 55, id(arial10), Color(0, 255, 0), "System Normal");
+            }
+
+            break;
+          }
+          case 9: {
+            it.print(0, 0, id(arial12), Color(255, 255, 255), "Utility Power Status");
+
+            // Underline
+            it.line(0, 14, 128, 14, Color(255, 255, 255));
+
+            std::string power_status = id(utility_power).state ? "POWER OK" : "POWER OUTAGE!";
+            Color status_color = id(utility_power).state ? Color(0, 255, 0) : Color(255, 0, 0);  // Green if OK, red if outage
+
+            it.print(0, 20, id(arial14), status_color, TextAlign::TOP_LEFT, power_status.c_str());
+
+            // Additional info
+            it.printf(0, 40, id(arial10), Color(255, 255, 255), "Last change: %us ago", (now - id(last_change_time)) / 1000);
+
+            if (!id(utility_power).state) {
+              it.print(0, 55, id(arial10), Color(255, 0, 0), "ALARM ACTIVE - Check Power!");
+            } else {
+              it.print(0, 55, id(arial10), Color(0, 255, 0), "Power Normal");
+            }
+
+            break;
+          }
+        }
+
+        // Small footer on all normal views
+      //  it.print(0, 55, id(arial8), Color(255, 255, 255), "Normal mode");
+      }
+
+globals:
+  - id: outage_count_24h
+    type: int
+    restore_value: yes
+    initial_value: '0'
+
+  - id: outage_last_start
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: float_cycle_count_24h
+    type: int
+    restore_value: yes
+    initial_value: '0'
+
+  - id: float_last_trigger
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+    
+  - id: pump_cycle_count_24h
+    type: int
+    restore_value: yes
+    initial_value: '0'
+
+  - id: pump_last_cycle_time
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: pump_longest_run
+    type: float
+    restore_value: yes
+    initial_value: '0.0'  # minutes
+
+  - id: pump_runtime_24h
+    type: float
+    restore_value: yes
+    initial_value: '0.0'  # minutes
+
+  # Temperature rolling 24h
+  - id: temp_min_24h
+    type: float
+    restore_value: yes
+    initial_value: '1000.0'
+
+  - id: temp_max_24h
+    type: float
+    restore_value: yes
+    initial_value: '-1000.0'
+
+  - id: temp_sum_24h
+    type: float
+    restore_value: yes
+    initial_value: '0.0'
+
+  - id: temp_count_24h
+    type: int
+    restore_value: yes
+    initial_value: '0'
+
+  # Pressure (PSI) rolling 24h
+  - id: pressure_min_24h
+    type: float
+    restore_value: yes
+    initial_value: '2000.0'
+
+  - id: pressure_max_24h
+    type: float
+    restore_value: yes
+    initial_value: '0.0'
+
+  - id: pressure_sum_24h
+    type: float
+    restore_value: yes
+    initial_value: '0.0'
+
+  - id: pressure_count_24h
+    type: int
+    restore_value: yes
+    initial_value: '0'
+
+  # Last reset timestamp (for daily reset)
+  - id: last_stats_reset
+    type: uint32_t
+    restore_value: yes
+    initial_value: '0'
+
+  - id: temp_min
+    type: float
+    restore_value: yes
+    initial_value: '1000.0'  # High number to start
+
+  - id: temp_max
+    type: float
+    restore_value: yes
+    initial_value: '-1000.0'
+
+  - id: temp_avg
+    type: float
+    restore_value: yes
+    initial_value: '0.0'
+
+  - id: temp_count
+    type: int
+    restore_value: yes
+    initial_value: '0'
+
+  - id: alarm_start_time
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'          # When first alarm triggered (millis)
+
+  - id: buzzer_auto_silence_active
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+  - id: last_change_time
+    type: uint32_t
+    initial_value: '0'
+
+  - id: buzzer_silenced
+    type: bool
+    initial_value: 'false'
+
+  - id: manual_override_active
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+    
+  - id: last_espnow_send_time
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "Wi-Fi IP Address"
+      id: wifi_ip
+      entity_category: diagnostic
+    ssid:
+      name: "Wi-Fi SSID"
+      entity_category: diagnostic
+      id: wifi_ssid
+    bssid:
+      name: "Wi-Fi BSSID"
+      entity_category: diagnostic
+
+sensor:
+  - platform: template
+    name: "Power Outages 24h"
+    id: outage_count_24h_sensor
+    lambda: 'return id(outage_count_24h);'
+    
+  - platform: template
+    name: "High Water Triggers 24h"
+    id: float_cycles_24h
+    lambda: 'return id(float_cycle_count_24h);'
+
+  - platform: template
+    name: "Pump Cycles 24h"
+    id: pump_cycles_24h
+    lambda: 'return id(pump_cycle_count_24h);'
+
+  - platform: template
+    name: "Pump Longest Run"
+    id: pump_longest_run_sensor
+    lambda: 'return id(pump_longest_run);'
+    unit_of_measurement: "min"
+
+  - platform: template
+    name: "Pump Runtime 24h"
+    id: pump_runtime_24h_sensor
+    lambda: 'return id(pump_runtime_24h);'
+    unit_of_measurement: "min"
+
+  - platform: template
+    name: "Temp Avg 24h"
+    id: temp_avg_24h
+    lambda: 'return id(temp_count_24h) > 0 ? id(temp_sum_24h) / id(temp_count_24h) : NAN;'
+    unit_of_measurement: "°F"
+
+  - platform: template
+    name: "Temp Min 24h"
+    id: temp_min_24h_sensor
+    lambda: 'return id(temp_min_24h);'
+    unit_of_measurement: "°F"
+
+  - platform: template
+    name: "Temp Max 24h"
+    id: temp_max_24h_sensor
+    lambda: 'return id(temp_max_24h);'
+    unit_of_measurement: "°F"
+
+  - platform: template
+    name: "Pressure Avg 24h (PSI)"
+    id: pressure_avg_24h
+    lambda: 'return id(pressure_count_24h) > 0 ? id(pressure_sum_24h) / id(pressure_count_24h) : NAN;'
+    unit_of_measurement: "psi"
+
+  - platform: template
+    name: "Pressure Min 24h (PSI)"
+    id: pressure_min_24h_sensor
+    lambda: 'return id(pressure_min_24h);'
+    unit_of_measurement: "psi"
+
+  - platform: template
+    name: "Pressure Max 24h (PSI)"
+    id: pressure_max_24h_sensor
+    lambda: 'return id(pressure_max_24h);'
+    unit_of_measurement: "psi"
+      
+  - platform: template
+    name: "Temp Min"
+    id: temp_min_sensor
+    lambda: 'return id(temp_min);'
+    unit_of_measurement: "°F"
+
+  - platform: template
+    name: "Temp Max"
+    id: temp_max_sensor
+    lambda: 'return id(temp_max);'
+    unit_of_measurement: "°F"
+
+  - platform: template
+    name: "Temp Avg"
+    id: temp_avg_sensor
+    lambda: 'return id(temp_avg);'
+    unit_of_measurement: "°F"
+    
+  - platform: template
+    name: "Env Pressure"
+    id: pressure_psi
+    unit_of_measurement: "psi"
+    icon: "mdi:gauge"
+    accuracy_decimals: 2
+    device_class: pressure
+    state_class: measurement
+#    entity_category: diagnostic
+    lambda: |-
+      if (isnan(id(bme_press).state)) return NAN;
+      return id(bme_press).state * 0.0145038;
+    update_interval: 30s
+
+  - platform: template
+    name: "Buzzer Silenced Global"
+    id: buzzer_silenced_global_sensor
+    lambda: 'return id(buzzer_silenced);'  # Returns true/false
+    update_interval: 5s
+    icon: "mdi:bell-off"
+    entity_category: diagnostic
+
+  - platform: template
+    name: "Water Valve Manual Override"
+    id: manual_override_sensor
+    internal: False
+    lambda: 'return id(manual_override_active);'
+    update_interval: 5s
+    icon: "mdi:hand-back-right"
+    entity_category: diagnostic
+
+  - platform: template
+    name: "ESP-NOW Last Send"
+    id: espnow_last_send
+    unit_of_measurement: "s ago"
+    icon: "mdi:clock-outline"
+    entity_category: diagnostic
+    accuracy_decimals: 0
+    lambda: |-
+      if (id(last_espnow_send_time) == 0) return 0;
+      return (millis() - id(last_espnow_send_time)) / 1000;
+    update_interval: 10s
+  - platform: uptime
+    name: "ESP Uptime"
+    id: esp_uptime
+    entity_category: diagnostic
+    accuracy_decimals: 2
+    update_interval: 30s
+  - platform: internal_temperature
+    name: "ESP Circuit Board Temp"
+    id: sys_esp_temperature
+    entity_category: ""
+    unit_of_measurement: °F
+    filters:
+      - lambda: return x * (9.0/5.0) + 32.0;
+
+  - platform: wifi_signal
+    name: "Wi-Fi Signal"
+    id: wi_fi_signal
+    update_interval: 30s
+    entity_category: diagnostic
+    
+  - platform: bme280_i2c
+    address: 0x76
+    temperature:
+      id: bme_temp
+      name: "Env Temperature"
+      unit_of_measurement: "°F"
+      filters:
+        - lambda: |-
+            if (isnan(x)) return NAN;
+            return x * (9.0/5.0) + 32.0;
+      on_value:
+        then:
+          - lambda: |-
+              float val = x;
+              if (val < id(temp_min)) id(temp_min) = val;
+              if (val > id(temp_max)) id(temp_max) = val;
+              id(temp_avg) = (id(temp_avg) * id(temp_count) + val) / (id(temp_count) + 1);
+              id(temp_count) += 1;
+          - lambda: |-
+              float val = x;
+              if (val < id(temp_min_24h)) id(temp_min_24h) = val;
+              if (val > id(temp_max_24h)) id(temp_max_24h) = val;
+              id(temp_sum_24h) += val;
+              id(temp_count_24h) += 1;    
+          - globals.set:
+              id: last_change_time
+              value: !lambda 'return millis();'
+          - globals.set:
+              id: last_espnow_send_time
+              value: !lambda 'return millis();'
+          - logger.log: "ESP-NOW timestamp updated on state change"
+      on_value_range:
+        - below: !lambda 'return id(freeze_threshold).state;'
+          then:
+            - if:
+                condition:
+                  and:
+                    - binary_sensor.is_off: occupancy
+                    - lambda: 'return !id(manual_override_active);'
+                then:
+                  - switch.turn_on: water_shutoff    # ← Now uses the single switch
+                  - script.execute: send_freeze_warning
+                  - logger.log: "Freeze Protection activated - valve shutoff"
+                  - script.execute: send_water_valve_closed
+                  - if:
+                      condition:
+                        lambda: 'return !id(buzzer_silenced);'
+                      then:
+                        - switch.turn_on: buzzer_switch
+                  - light.turn_on:
+                      id: status_led
+                      red: 1.0
+                      green: 0.0
+                      blue: 0.0
+        - above: !lambda 'return id(freeze_threshold).state + 0.5;'
+          then:
+            - logger.log: "Alarms cleared."
+            - switch.turn_off: buzzer_switch
+            - script.execute: send_temperature_ok
+            - script.execute: send_water_valve_open
+            - light.turn_on:
+                id: status_led
+                red: 0.0
+                green: 1.0
+                blue: 0.0
+            - logger.log: "ESP-NOW packet sent for Alarm Clear."
+    pressure:
+      id: bme_press
+      name: "Pressure"
+      on_value:
+        then:
+          - lambda: |-
+              float val_psi = x * 0.0145038;  // Convert hPa to PSI
+              if (val_psi < id(pressure_min_24h)) id(pressure_min_24h) = val_psi;
+              if (val_psi > id(pressure_max_24h)) id(pressure_max_24h) = val_psi;
+              id(pressure_sum_24h) += val_psi;
+              id(pressure_count_24h) += 1;
+    humidity:
+      id: bme_hum
+      name: "Env Humidity"
+    update_interval: 30s
+
+button:
+  - platform: restart
+    name: "ESP Restart"
+    entity_category: config
+  - platform: factory_reset
+    name: "ESP Factory Reset"
+    entity_category: config
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO0
+      mode: INPUT_PULLUP
+      inverted: false
+    name: "Water Valve Shutoff Switch"
+    id: manual_shutoff_switch
+    internal: true
+    on_press:
+      then:
+        - logger.log: "Manual switch pressed - overriding to CLOSE Water Valve"
+        - switch.turn_on: water_shutoff          # ← Changed from smart_shutoff
+        - script.execute: send_water_valve_closed
+        - globals.set:
+            id: manual_override_active
+            value: 'true'
+        - light.turn_on:
+            id: status_led
+            red: 1.0
+            green: 0.5
+            blue: 0.0   # Optional: amber/orange for override warning
+    on_release:
+      then:
+        - logger.log: "Manual switch released - returning to auto control"
+        - globals.set:
+            id: manual_override_active
+            value: 'false'
+        - light.turn_on:
+            id: status_led
+            red: 0.0
+            green: 1.0
+            blue: 0.0
+            
+  - platform: gpio
+    pin:
+      number: GPIO4
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "High Water Float"
+    id: high_water
+    device_class: problem
+    on_state:
+      then:
+        - globals.set:
+            id: last_change_time
+            value: !lambda 'return millis();'
+        - globals.set:
+            id: last_espnow_send_time
+            value: !lambda 'return millis();'
+        - logger.log: "ESP-NOW timestamp updated on state change"
+        - if:
+            condition:
+              binary_sensor.is_on: high_water
+            then:
+              - logger.log: "High Water Alarm triggered."
+              - script.execute: send_high_water_alert
+              - if:
+                  condition:
+                    lambda: 'return !id(buzzer_silenced);'
+                  then:
+                    - switch.turn_on: buzzer_switch
+              - light.turn_on:
+                  id: status_led
+                  red: 1.0
+                  green: 0.0
+                  blue: 0.0
+              - logger.log: "ESP-NOW packet sent for High Water Alarm."  # Assuming auto-send
+        - if:
+            condition:
+              binary_sensor.is_off: high_water
+            then:
+              - logger.log: "High Septic Alarms Cleared."
+              - script.execute: send_high_water_normal
+              - switch.turn_off: buzzer_switch
+              - light.turn_on:
+                  id: status_led
+                  red: 0.0
+                  green: 1.0
+                  blue: 0.0
+              - logger.log: "ESP-NOW packet sent for Alarm Clear."  # Assuming auto-send
+
+  - platform: gpio
+    pin:
+      number: GPIO7
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Septic Pump OnOff"
+    id: pump_onoff
+    filters:
+      # - delayed_on: 1000ms     # Only trigger alarm if high water persists for 100ms
+      # OR for quicker alarm + delayed clear:
+      # - delayed_off: 100ms
+      # OR most robust (recommended):
+      - delayed_on_off: 100ms
+    on_state:
+      then:
+        - globals.set:
+            id: last_change_time
+            value: !lambda 'return millis();'
+        - globals.set:
+            id: last_espnow_send_time
+            value: !lambda 'return millis();'
+        - lambda: |-
+            static uint32_t last_on = 0;
+            if (x) {  // pump turned ON
+              if (last_on == 0) {
+                last_on = millis();
+                if (id(pump_last_cycle_time) > 0) {
+                  uint32_t time_since_last = millis() - id(pump_last_cycle_time);
+                  if (time_since_last < 3600000) {  // within 1 hour
+                    id(pump_cycle_count_24h) += 1;
+                  }
+                }
+                id(pump_last_cycle_time) = millis();
+              }
+            } else {  // pump turned OFF
+              if (last_on > 0) {
+                float run_time_min = (millis() - last_on) / 60000.0;
+                id(pump_runtime_24h) += run_time_min;
+                if (run_time_min > id(pump_longest_run)) {
+                  id(pump_longest_run) = run_time_min;
+                }
+                last_on = 0;
+              }
+            }    
+        - logger.log: "ESP-NOW timestamp updated on state change"
+        
+        - if:
+            condition:
+              binary_sensor.is_on: pump_onoff
+            then:
+              - script.execute: send_septic_pump_on
+              - delay: 30min
+              - if:
+                  condition:
+                    binary_sensor.is_on: pump_onoff
+                  then:
+                    - logger.log: "Pump Anomaly detected (running too long)."
+                    - light.turn_on:
+                        id: status_led
+                        red: 1.0
+                        green: 1.0
+                        blue: 0.0
+                    - if:
+                        condition:
+                          lambda: 'return !id(buzzer_silenced);'
+                        then:
+                          - switch.turn_on: buzzer_switch
+                    - logger.log: "ESP-NOW packet sent for Pump Anomaly."  # Assuming auto-send
+            else:
+              - if:
+                  condition:
+                    binary_sensor.is_off: pump_onoff
+                  then:
+                    - script.execute: send_septic_pump_off  
+
+  - platform: gpio
+    pin:
+      number: GPIO5
+      mode: INPUT_PULLUP
+    name: "Utility Power Status"
+    id: utility_power
+    device_class: power
+    filters:
+      - invert:
+    on_state:
+      then:
+        - globals.set:
+            id: last_change_time
+            value: !lambda 'return millis();'
+        - globals.set:
+            id: last_espnow_send_time
+            value: !lambda 'return millis();'
+        - logger.log: "ESP-NOW timestamp updated on state change"
+        - if:
+            condition:
+              binary_sensor.is_off: utility_power
+            then:
+              - logger.log: "Power Outage detected."
+              - script.execute: send_utility_off
+              - switch.turn_on: buzzer_switch
+              - light.turn_on:
+                  id: status_led
+                  red: 1.0
+                  green: 1.0
+                  blue: 0.0
+              - logger.log: "ESP-NOW packet sent for Power Outage."
+        - if:
+            condition:
+              binary_sensor.is_on: utility_power
+            then:
+              - logger.log: "Alarms cleared."
+              - script.execute: send_utility_on
+              - switch.turn_off: buzzer_switch
+              - light.turn_on:
+                  id: status_led
+                  red: 0.0
+                  green: 1.0
+                  blue: 0.0
+              - logger.log: "ESP-NOW packet sent for Alarm Clear."
+
+  - platform: gpio
+    pin:
+      number: GPIO1
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Env Occupancy"
+    id: occupancy
+    device_class: occupancy
+    filters:
+      # - delayed_on: 1000ms     # Only trigger alarm if high water persists for 100ms
+      # OR for quicker alarm + delayed clear:
+      # - delayed_off: 100ms
+      # OR most robust (recommended):
+      - delayed_on_off: 1000ms
+    on_state:
+      then:
+        - globals.set:
+            id: last_change_time
+            value: !lambda 'return millis();'
+        - globals.set:
+            id: last_espnow_send_time
+            value: !lambda 'return millis();'
+        - logger.log: "ESP-NOW timestamp updated on state change"
+
+  - platform: gpio
+    pin:
+      number: GPIO6
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Septic Moisture/Leak"
+    id: moisture
+    device_class: moisture
+    filters:
+      # - delayed_on: 1000ms     # Only trigger alarm if high water persists for 100ms
+      # OR for quicker alarm + delayed clear:
+      # - delayed_off: 100ms
+      # OR most robust (recommended):
+      - delayed_on_off: 1000ms
+    on_state:
+      then:
+        - globals.set:
+            id: last_change_time
+            value: !lambda 'return millis();'
+        - globals.set:
+            id: last_espnow_send_time
+            value: !lambda 'return millis();'
+        - logger.log: "ESP-NOW timestamp updated on state change"
+        - if:
+            condition:
+              binary_sensor.is_on: moisture
+            then:
+              - logger.log: "Moisture Leak Alarm triggered."
+              - script.execute: send_moisture_detected
+              - if:
+                  condition:
+                    lambda: 'return !id(buzzer_silenced);'
+                  then:
+                    - switch.turn_on: buzzer_switch
+              - light.turn_on:
+                  id: status_led
+                  red: 1.0
+                  green: 0.0
+                  blue: 0.0
+              - logger.log: "ESP-NOW packet sent for Moisture Alarm."  # Assuming auto-send
+        - if:
+            condition:
+              binary_sensor.is_off: moisture
+            then:
+              - logger.log: "Alarms cleared."
+              - script.execute: send_moisture_normal
+              - switch.turn_off: buzzer_switch
+              - light.turn_on:
+                  id: status_led
+                  red: 0.0
+                  green: 1.0
+                  blue: 0.0
+              - logger.log: "ESP-NOW packet sent for Alarm Clear."  # Assuming auto-send
+              
+  - platform: template
+    name: "Buzzer Silenced"
+    id: buzzer_silenced_sensor
+    lambda: 'return id(silence_buzzer).state;'
+#    device_class: problem  # Optional: Use 'problem' if you want to indicate silence as an issue, or remove for none
+
+number:
+  - platform: template
+    name: "Buzzer Low Volume"
+    id: buzzer_low_level
+    min_value: 0.0
+    max_value: 1.0
+    step: 0.05
+    unit_of_measurement: "% duty"
+    restore_value: yes
+    initial_value: 0.25
+    set_action:
+      then:
+        - logger.log:
+            format: "Buzzer low level set to %.2f"
+            args: [x]
+
+  - platform: template
+    name: "Buzzer Med Volume"
+    id: buzzer_med_level
+    optimistic: True
+    min_value: 0.0
+    max_value: 1.0
+    step: 0.05
+    restore_value: yes
+    initial_value: 0.55
+
+  - platform: template
+    name: "Buzzer Auto Silence After"
+    id: auto_silence_after
+    optimistic: True
+    min_value: 1
+    max_value: 60
+    step: 1
+    unit_of_measurement: "minutes"
+    restore_value: yes
+    initial_value: 5
+
+  - platform: template
+    name: "Buzzer Silence Duration"
+    id: silence_duration
+    optimistic: True
+    min_value: 0.5
+    max_value: 60
+    step: 1
+    unit_of_measurement: "minutes"
+    restore_value: yes
+    initial_value: 0.5  # 30 seconds
+
+  - platform: template
+    name: "Buzzer Volume"
+    id: buzzer_volume
+    min_value: 0
+    max_value: 3
+    step: 1
+    icon: "mdi:volume-high"
+    optimistic: true
+    restore_value: yes           # Keeps setting after reboot
+    initial_value: 2             # Default: MED
+    set_action:
+      then:
+        - logger.log:
+            format: "Buzzer volume set to %d (0=OFF, 1=LOW, 2=MED, 3=HIGH)"
+            args: [x]
+
+  - platform: template
+    name: "Env Freeze Warning Threshold"
+    id: freeze_threshold
+    min_value: 25
+    max_value: 80
+    step: 1
+    unit_of_measurement: "°F"
+    restore_value: yes          # ← Add this line (critical!)
+    initial_value: 32
+    icon: "mdi:snowflake-thermometer"
+    optimistic: true
+    set_action:
+      then:
+        - logger.log:
+            format: "Freeze Warning threshold changed to %.1f °F"
+            args: [x]
+
+output:
+  - platform: gpio
+    pin: GPIO2
+    id: shutoff_valve
+
+#  - platform: gpio
+#    pin: GPIO10
+#    id: buzzer_out
+
+  - platform: ledc      # Changed from esp32_ledc
+    pin: GPIO10
+    id: buzzer_pwm
+    frequency: 2000     # 2 kHz tone (good audible range)
+    channel: 0          # Optional, but good to specify  
+
+switch:
+  - platform: template
+    name: "Buzzer State"
+    id: buzzer_switch
+    optimistic: true
+    internal: True
+    icon: "mdi:bell-ring"
+    turn_on_action:
+      - output.set_level:
+          id: buzzer_pwm
+          level: !lambda |-
+            int vol = id(buzzer_volume).state;
+            if (vol == 0) return 0.0;      // OFF
+            else if (vol == 1) return 0.25; // LOW ~25%
+            else if (vol == 2) return 0.55; // MED ~55%
+            else return 0.85;               // HIGH ~85%
+      - logger.log: "Buzzer turned ON with current volume setting"
+    turn_off_action:
+      - output.set_level:
+          id: buzzer_pwm
+          level: 0.0
+      - logger.log: "Buzzer turned OFF"
+
+  - platform: template
+    name: "Water Shutoff Valve"
+    id: water_shutoff
+    optimistic: true
+    icon: "mdi:valve-closed"
+    device_class: switch
+    turn_on_action:
+      - if:
+          condition:
+            lambda: 'return !id(manual_override_active);'
+          then:
+            - output.turn_on: shutoff_valve
+            - logger.log: "Valve CLOSED (software/HA)"
+            - script.execute: send_water_valve_closed
+          else:
+            - logger.log: "Valve CLOSE ignored - manual override active"
+    turn_off_action:
+      - if:
+          condition:
+            lambda: 'return !id(manual_override_active);'
+          then:
+            - output.turn_off: shutoff_valve
+            - logger.log: "Valve OPENED (software/HA)"
+            - script.execute: send_water_valve_open
+          else:
+            - logger.log: "Valve OPEN ignored - manual override active"
+
+#  - platform: output
+#    name: "Buzzer"
+#    output: buzzer_out
+#    id: buzzer_switch
+
+  - platform: template
+    name: "Buzzer Silence Switch"
+    id: silence_buzzer
+    optimistic: true
+    internal: False
+    turn_on_action:
+      - logger.log: "Buzzer silenced for 5 minutes."
+      - globals.set:
+          id: buzzer_silenced
+          value: 'true'
+      - switch.turn_off: buzzer_switch
+      - delay: !lambda 'return id(silence_duration).state * 60 * 1000;'
+      - globals.set:
+          id: buzzer_silenced
+          value: 'false'
+      - lambda: |-
+          bool any_alarm = id(high_water).state || id(moisture).state || 
+                           (id(bme_temp).state < id(freeze_threshold).state && !id(occupancy).state) || 
+                           id(pump_onoff).state;
+          if (any_alarm) {
+            id(buzzer_switch).turn_on();
+            ESP_LOGD("custom", "Buzzer resumed after silence - alarm still active.");
+          } else {
+            ESP_LOGD("custom", "Buzzer silence ended - no active alarms.");
+          }
+      - switch.turn_off: silence_buzzer   # ← This line makes switch turn OFF after silence ends
+    turn_off_action:
+      - logger.log: "Silence Buzzer manually turned off."
+      - globals.set:
+          id: buzzer_silenced
+          value: 'false'
+
+light:
+  - platform: esp32_rmt_led_strip
+    rgb_order: GRB
+    chipset: WS2812   # or WS2812B if your version supports it explicitly
+    pin: GPIO3
+    num_leds: 1
+#    brightness: 100%
+    default_transition_length: 1s  # Smooth changes
+    name: "Status LED"
+    id: status_led
+    rmt_symbols: 48   # ESP32-C3 has 96 RMT symbols; this allocates properly (common fix)
+    # rmt_channel: 0  # Optional - usually auto, but try 0-3 if issues persist
+
+interval:
+  - interval: 30s
+    then:
+      - lambda: |-
+          bool any_alarm = id(high_water).state || id(moisture).state ||
+                           (id(bme_temp).state < id(freeze_threshold).state && !id(occupancy).state) ||
+                           id(pump_onoff).state ||
+                           !id(utility_power).state;
+
+          static uint32_t alarm_start = 0;
+          static bool auto_silenced = false;
+
+          if (!any_alarm) {
+            alarm_start = 0;
+            auto_silenced = false;
+            return;
+          }
+
+          if (alarm_start == 0) {
+            alarm_start = millis();
+          }
+
+          uint32_t duration_ms = millis() - alarm_start;
+
+          // Auto-silence after user-set time (e.g. 5 min)
+          uint32_t silence_after_ms = id(auto_silence_after).state * 60 * 1000;
+          if (duration_ms >= silence_after_ms && !id(buzzer_silenced) && !auto_silenced) {
+            id(buzzer_silenced) = true;
+            id(buzzer_switch).turn_off();
+            auto_silenced = true;
+            ESP_LOGD("auto", "Auto-silencing buzzer - alarm active too long");
+          }
+
+          // Auto-resume after silence duration (user-set)
+          uint32_t silence_duration_ms = id(silence_duration).state * 60 * 1000;
+          if (auto_silenced && duration_ms >= (silence_after_ms + silence_duration_ms)) {
+            id(buzzer_silenced) = false;
+            id(buzzer_switch).turn_on();
+            auto_silenced = false;
+            alarm_start = millis();  // Restart cycle
+            ESP_LOGD("auto", "Auto-resuming buzzer - silence period ended");
+          }
+  - interval: 60s   # Check every minute
+    then:
+      - lambda: |-
+          auto now = id(ha_time).now();
+          uint32_t current_day = now.timestamp / 86400;  // Days since epoch
+
+          // Reset at midnight (new day)
+          if (current_day > id(last_stats_reset)) {
+            id(temp_min_24h) = 1000.0;
+            id(temp_max_24h) = -1000.0;
+            id(temp_sum_24h) = 0.0;
+            id(temp_count_24h) = 0;
+
+            id(pressure_min_24h) = 2000.0;
+            id(pressure_max_24h) = 0.0;
+            id(pressure_sum_24h) = 0.0;
+            id(pressure_count_24h) = 0;
+
+            id(last_stats_reset) = current_day;
+            ESP_LOGD("stats", "24h stats reset for new day");
+          }
+  - interval: 3600s  # hourly
+    then:
+      - lambda: |-
+          // Reset daily cycle count at midnight
+          auto now = id(ha_time).now();
+          if (now.hour == 0 && now.minute == 0) {
+            id(pump_cycle_count_24h) = 0;
+            ESP_LOGD("stats", "Pump cycle count reset for new day");
+          }        
+
+packages:
+  - !include iaq-project/packages/display-fonts.yaml  # arial
+  - !include iaq-project/common/espnow.yaml  # arial

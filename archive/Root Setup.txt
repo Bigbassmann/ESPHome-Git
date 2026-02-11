@@ -1,0 +1,125 @@
+✅ Step 4 — Use these substitutions in your main config
+✅ WiFi power:
+yaml
+wifi:
+  output_power: ${wifi_power_default}
+✅ Sensor update interval:
+yaml
+update_interval: ${sensor_update_default}
+✅ Deep sleep defaults:
+yaml
+deep_sleep:
+  id: deep_sleep_1
+  run_duration: ${run_duration_default}s
+  sleep_duration: ${sleep_duration_default}s
+✅ BLE enable/disable:
+yaml
+on_connect:
+  - if:
+      condition:
+        lambda: 'return ${ble_enabled_default} == "false";'
+      then:
+        - ble.disable:
+✅ Step 5 — Add profile to your logs (optional but helpful)
+Inside reportAllValues:
+
+cpp
+ESP_LOGI("main", "Active Profile: %s", "${profile}");
+✅ Result: You now have a professional‑grade profile system
+✅ Change one line:
+Code
+profile: performance
+…and the entire device behavior changes:
+
+Feature	Performance	Balanced	Saver
+Deep Sleep	Off	Normal	Long
+WiFi Power	High	Medium	Low
+Sensor Updates	Fast	Normal	Slow
+BLE	On	Auto	Off
+Battery Life	Worst	Good	Best
+Debugging	Best	Good	Hard
+
+place in Main yaml
+
+substitutions:
+  device_name: esp32c3-2a
+  friendly_name: ESP32C3-2A
+
+  # Choose one: performance, balanced, saver
+  profile: balanced
+
+select:
+  - platform: template
+    name: "Device Profile"
+    id: device_profile
+    optimistic: true
+    restore_value: true
+    options:
+      - performance
+      - balanced
+      - saver
+    initial_option: balanced
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGI("main", "Profile changed to: %s", x.c_str());
+        - script.execute: apply_profile_settings
+        
+text_sensor:
+  - platform: template
+    name: "Active Profile"
+    id: active_profile
+    icon: "mdi:account-cog"
+    
+script:
+  - id: apply_profile_settings
+    then:
+      - lambda: |-
+          std::string p = id(device_profile).state;
+
+          // PERFORMANCE MODE
+          if (p == "performance") {
+            id(deep_sleep_run_duration).publish_state(0);
+            id(deep_sleep_sleep_duration).publish_state(0);
+            id(wifi_1).set_output_power(20.0f);
+            id(aht20_sensor).set_update_interval(5000);
+            id(active_profile).publish_state("performance");
+            ESP_LOGW("main", "Applied PERFORMANCE profile");
+          }
+
+          // BALANCED MODE
+          else if (p == "balanced") {
+            id(deep_sleep_run_duration).publish_state(120);
+            id(deep_sleep_sleep_duration).publish_state(240);
+            id(wifi_1).set_output_power(8.5f);
+            id(aht20_sensor).set_update_interval(30000);
+            id(active_profile).publish_state("balanced");
+            ESP_LOGI("main", "Applied BALANCED profile");
+          }
+
+          // BATTERY SAVER MODE
+          else if (p == "saver") {
+            id(deep_sleep_run_duration).publish_state(20);
+            id(deep_sleep_sleep_duration).publish_state(1800);
+            id(wifi_1).set_output_power(5.0f);
+            id(aht20_sensor).set_update_interval(120000);
+            id(active_profile).publish_state("saver");
+            ESP_LOGI("main", "Applied BATTERY SAVER profile");
+          }
+
+      # Re-evaluate sleep logic after applying profile
+      - script.execute: evaluate_sleep_conditions
+      
+Add this to your on_boot: block:
+
+yaml
+      - script.execute: apply_profile_settings
+This ensures the device boots into the correct 
+
+
+6. Optional Enhancements (I can generate these too)
+If you want, I can add:
+
+✅ A “Profile Summary” text sensor ✅ A “Profile Auto‑Switch” based on battery voltage ✅ A “Profile Lock” switch to prevent accidental changes ✅ A “Profile Change Timeline” log ✅ A “Profile‑based deep sleep override”
+    
+

@@ -1,0 +1,22 @@
+switch:
+  - platform: template
+    name: "Prevent Sleep (User)"
+    id: prevent_sleep_user
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+
+  - platform: template
+    name: "OTA Mode (User)"
+    id: ota_mode_user
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+
+  - platform: template
+    name: "Alarm Outside Temp Range"
+    id: alarm_outside_temp_range
+    optimistic: true
+
+  - platform: template
+    name: "Alarm Outside Humidity Range"
+    id: alarm_outside_humidity_range
+    optimistic: true

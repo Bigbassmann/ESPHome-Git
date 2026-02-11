@@ -1,0 +1,12 @@
+packages:
+  ui_theme: !include ui/ui_theme.yaml
+  ui_pages: !include ui/ui_pages.yaml
+  ui_home: !include ui/ui_home.yaml
+  ui_graphs: !include ui/ui_graphs.yaml
+  ui_air: !include ui/ui_air.yaml
+  ui_settings: !include ui/ui_settings.yaml
+  ui_admin: !include ui/ui_admin.yaml
+  ui_navigation: !include ui/ui_navigation.yaml
+  ui_updates: !include ui/ui_updates.yaml
+  ui_sleep: !include ui/ui_sleep.yaml
+  ui_analog_clock: !include ui/ui_analog_clock.yaml

@@ -1,0 +1,352 @@
+esphome:
+  name: sensecap-d1s
+  friendly_name: SenseCAP Indicator
+  min_version: 2024.6.0
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 8MB
+  framework: 
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_ESPTOOLPY_FLASHSIZE_8MB: y
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: y
+      CONFIG_ESP32S3_DATA_CACHE_64KB: y
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM_RODATA: y
+
+psram:
+  mode: octal
+  speed: 80MHz
+    
+logger:
+  hardware_uart: UART0
+
+api: # For HA discovery/integration
+ota: # Over-The-Air updates
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap: # WiFi AP fallback mode
+    ssid: "SenseCAP Fallback"
+    password: "fallback_pass" # Change to secure
+
+captive_portal: # Web portal for AP config
+
+# I²C for touchscreen and PCA9554
+i2c:
+  - id: bus_a
+    sda: GPIO39
+    scl: GPIO40
+    scan: false
+
+# PCA9554 (for touch interrupt/reset)
+pca9554:
+  - id: pca9554a_device
+    address: 0x20
+    pin_count: 16
+
+# UART for RP2040 (matches page exactly)
+uart:
+  - id: rp2040_serial
+    tx_pin: GPIO20
+    rx_pin: GPIO19
+    baud_rate: 115200
+
+# Packet Transport for sensors from RP2040 (matches page exactly)
+packet_transport:
+  - platform: uart
+    uart_id: rp2040_serial
+    providers:
+      - name: d1-rp2040    
+
+# Sensors from RP2040 (closer to page: simpler IDs, added internal: False; note: temp/humid may be inaccurate due to heat)
+sensor:
+  - platform: packet_transport
+    provider: d1-rp2040
+    id: voc
+    name: "VOC Index"
+    internal: False
+    accuracy_decimals: 0
+    icon: "mdi:weather-dust"
+    device_class: aqi
+  - platform: packet_transport
+    provider: d1-rp2040
+    id: co2
+    name: "CO2"
+    internal: False
+    accuracy_decimals: 0
+    icon: "mdi:molecule-co2"
+    unit_of_measurement: "ppm"
+    device_class: carbon_dioxide
+  - platform: packet_transport
+    provider: d1-rp2040
+    id: temp
+    name: "Temperature"
+    internal: False
+    accuracy_decimals: 1
+    icon: "mdi:thermometer"
+    unit_of_measurement: "°C"
+    device_class: temperature
+  - platform: packet_transport
+    provider: d1-rp2040
+    id: humid
+    name: "Humidity"
+    internal: False
+    accuracy_decimals: 1
+    icon: "mdi:water-percent"
+    unit_of_measurement: "%"
+    device_class: humidity
+
+# Example HA Sensors (imported from Home Assistant)
+#sensor:
+  - platform: homeassistant
+    id: ha_outdoor_temp
+    entity_id: sensor.outdoor_temperature  # Replace with actual
+    name: "Outdoor Temperature"
+
+binary_sensor:
+  - platform: homeassistant
+    id: ha_door_sensor
+    entity_id: binary_sensor.front_door  # Replace with actual
+    name: "Front Door Sensor"
+
+# User Button (physical GPIO button; on_press example)
+#binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO38
+      inverted: true
+    name: "User Button"
+    id: user_button
+    on_press:
+      then:
+        - homeassistant.service:  # Example: Toggle HA light
+            service: light.toggle
+            data:
+              entity_id: light.living_room_light  # Replace
+
+# Example Switches
+switch:
+  - platform: restart  # Restart device
+    name: "Restart Device"
+  - platform: template  # Virtual switch for HA
+    name: "Example Toggle Switch"
+    id: example_switch
+    optimistic: true
+    turn_on_action:
+      - homeassistant.service:
+          service: homeassistant.turn_on
+          data:
+            entity_id: switch.some_ha_switch  # Replace
+    turn_off_action:
+      - homeassistant.service:
+          service: homeassistant.turn_off
+          data:
+            entity_id: switch.some_ha_switch
+
+# Backlight
+output:
+  - platform: ledc
+    pin:
+      number: GPIO45
+      ignore_strapping_warning: true
+    id: ledc_gpio45
+    frequency: 100Hz
+
+light:
+  - platform: monochromatic
+    name: "Backlight"
+    id: backlight
+    output: ledc_gpio45
+    restore_mode: ALWAYS_ON
+    default_transition_length: 0s
+
+# Display (mipi_rgb: no cs_pin needed)
+display:
+  - platform: mipi_rgb
+    model: SEEED-INDICATOR-D1
+    id: my_display
+    lambda: |-
+      it.print(240, 240, id(arial24), TextAlign::CENTER, "Hello David!");
+
+# Touchscreen (with interrupt/reset; on_release from page)
+touchscreen:
+  - platform: ft5x06
+    id: my_touch
+#    interrupt_pin:
+#      pca9554: pca9554a_device  # Reference to your PCA9554 ID
+#      number: 6
+#      mode: INPUT
+#      inverted: true  # Active low for interrupt
+    transform:
+      mirror_x: true
+      mirror_y: true
+    on_release:
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+            - light.turn_on: backlight
+
+# LVGL (your dashboard + page idle/boot)
+lvgl:
+#  display: my_display
+#  touchscreen: my_touch
+  on_idle:
+    timeout: !lambda "return 10000;"  # 10s idle -> pause & backlight off
+    then:
+      - light.turn_off: backlight
+      - lvgl.pause:
+  top_layer:
+    widgets:
+      - obj:  # Boot screen
+          id: boot_screen
+          x: 0
+          y: 0
+          width: 100%
+          height: 100%
+          bg_color: 0xffffff
+          bg_opa: COVER
+          radius: 0
+          pad_all: 0
+          border_width: 0
+          widgets:
+            - image:
+                align: CENTER
+                src: boot_logo
+                y: -40
+            - spinner:
+                align: CENTER
+                y: 95
+                height: 50
+                width: 50
+                spin_time: 1s
+                arc_length: 60deg
+                arc_width: 8
+                indicator:
+                  arc_color: 0x18bcf2
+                  arc_width: 8
+  widgets:  # Dashboard widgets (ensure direct keys like 'label:', 'arc:', etc.)
+    - label:
+      id: clock_label
+      text: !lambda |-
+        auto time = id(ha_time).now();
+        return time.strftime("%I:%M %p");
+      font: arial24
+      align: center
+      pos: [200, 20]
+    - arc: # CO2 gauge
+      id: co2_gauge
+      value: !lambda return id(co2).state;
+      min: 400
+      max: 2000
+      pos: [50, 100]
+      size: [200, 200]
+    - slider: # HA brightness
+      id: brightness_slider
+      value: !lambda return id(ha_light_brightness).state;
+      min: 0
+      max: 100
+      pos: [50, 350]
+      on_value: !lambda |-
+        homeassistant.service({
+          "service": "light.turn_on",
+          "data": {
+            "entity_id": "light.in_wall_paddle_dimmer_500s",
+            "brightness_pct": x
+          }
+        });
+    - arc: # CO2 gauge
+      id: co2_gauge
+      value: !lambda return id(co2).state;
+      min: 400
+      max: 2000
+      pos: [50, 100]
+      size: [200, 200]
+    - slider: # HA brightness
+      id: brightness_slider
+      value: !lambda return id(ha_light_brightness).state;
+      min: 0
+      max: 100
+      pos: [50, 350]
+      on_value: !lambda |-
+        homeassistant.service({
+          "service": "light.turn_on",
+          "data": {
+            "entity_id": "light.in_wall_paddle_dimmer_500s",
+            "brightness_pct": x
+          }
+        });
+    - slider: # HA volume example
+      id: volume_slider
+      value: !lambda return id(ha_media_volume).state * 100;
+      min: 0
+      max: 100
+      pos: [50, 400]
+      on_value: !lambda |-
+        homeassistant.service({
+          "service": "media_player.volume_set",
+          "data": {
+            "entity_id": "media_player.living_room_speaker",
+            "volume_level": x / 100.0
+          }
+        });
+    - button: # Toggle HA light
+      id: toggle_button
+      text: "Toggle Light"
+      font: arial24
+      pos: [300, 100]
+      size: [150, 50]
+      on_click: !lambda |-
+        homeassistant.service({
+          "service": "light.toggle",
+          "data": {
+            "entity_id": "light.living_room_light"
+          }
+        });
+    - switch: # Tied to template switch
+      id: example_lvgl_switch
+      state: !lambda return id(example_switch).state;
+      pos: [300, 200]
+      on_turn_on: !lambda id(example_switch).turn_on();
+      on_turn_off: !lambda id(example_switch).turn_off();
+
+# Refresh dynamic widgets
+interval:
+  - interval: 1s
+    then:
+      - lvgl.widget.refresh: clock_label
+      - lvgl.widget.refresh: co2_gauge
+      - lvgl.widget.refresh: example_lvgl_switch
+
+# Import HA entities
+number:
+  - platform: homeassistant
+    id: ha_light_brightness
+    entity_id: light.in_wall_paddle_dimmer_500s
+    name: "HA Light Brightness"
+  - platform: homeassistant
+    id: ha_media_volume
+    entity_id: media_player.living_room_speaker  # Replace
+    name: "HA Media Volume"
+
+# Time from HA
+time:
+  - platform: homeassistant
+    id: ha_time
+
+# Fonts and boot logo
+packages:
+  - !include iaq-project/packages/display-fonts.yaml
+
+image:
+  - file: https://esphome.io/favicon-512x512.png
+    id: boot_logo
+    resize: 200x200
+    type: RGB565
+    transparency: alpha_channel
+
+homeassistant: {}

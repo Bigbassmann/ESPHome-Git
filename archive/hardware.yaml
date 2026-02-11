@@ -1,0 +1,27 @@
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+
+logger:
+  hardware_uart: UART0
+  level: INFO
+
+api:
+  encryption:
+    key: "UyQITDXTF7XjNZezIWepYVgih2+9XAMP2eM9a1ytlRU="
+
+ota:
+  - platform: esphome
+    password: "your_ota_password"
+
+web_server:
+  port: 80
+
+i2c:
+  sda: GPIO6
+  scl: GPIO7
+  id: bus_a
+  frequency: 100kHz
+
+captive_portal:

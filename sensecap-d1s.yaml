@@ -1,0 +1,1630 @@
+esphome:
+  name: sensecap-d1s
+  friendly_name: SenseCAP Indicator
+  min_version: 2024.6.0
+  on_boot:
+    priority: -10.0  # Run after LVGL and display are ready
+    then:
+      - lvgl.page.show: 
+          id: page_home
+      - lvgl.slider.update:
+          id: brightness_slider
+          value: !lambda 'return (int)(id(backlight).current_values.get_brightness() * 100);'    
+      
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: ESP32S3
+  flash_size: 8MB
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_ESPTOOLPY_FLASHSIZE_8MB: y
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: y
+      CONFIG_ESP32S3_DATA_CACHE_64KB: y
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM_RODATA: y
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+logger:
+  hardware_uart: UART0
+  level: DEBUG #VERY_VERBOSE
+
+api:
+
+ota:
+  - platform: esphome
+    password: "41def07295f8022fbb33225b9baa335a"
+
+font:
+  - file: "gfonts://Montserrat"
+    id: montserrat_18
+    size: 18
+  - file: "gfonts://Montserrat"
+    id: montserrat_20
+    size: 20
+  - file: "gfonts://Montserrat"
+    id: montserrat_24
+    size: 24
+  - file: "gfonts://Montserrat"
+    id: montserrat_28
+    size: 28
+  - file: "gfonts://Montserrat"
+    id: montserrat_32
+    size: 32
+  - file: "gfonts://Montserrat"
+    id: montserrat_48
+    size: 48
+  - file: "gfonts://Montserrat"
+    id: montserrat_64
+    size: 64
+
+wifi:
+#  ssid: !secret wifi_ssid
+#  password: !secret wifi_password
+  ap:
+    ssid: "SenseCAP Fallback"
+    password: "1234567890"
+
+captive_portal:
+
+web_server:
+  port: 80
+  include_internal: true
+
+safe_mode:
+  disabled: false
+
+# --- I2C BUS --- PCA9554 Expander I2C Address: 0x20, 16bit -and Touchscreen
+i2c:
+  - id: bus_a
+    sda: GPIO39
+    scl: GPIO40
+    scan: true  #false in docs
+#  - id: bus_b
+#    sda: GPIO20  #23
+#    scl: GPIO21   #22 
+#    GPIO18: pullup: true # Grove 1 INT pin with pullup Power Switch  
+
+# --- SPI BUS ---
+spi:
+  - id: lcd_spi
+    clk_pin: GPIO41
+    mosi_pin: GPIO48
+    miso_pin: GPIO47
+
+# --- PCA9554 IO EXPANDER --- GPIO39/40
+pca9554:
+  - id: pca9554a_device
+    address: 0x20
+    pin_count: 16
+
+# --- RP2040 UART FOR SENSOR PACKET TRANSPORT --- 2nd CPU
+uart:
+  - id: rp2040_serial
+    tx_pin: GPIO20  # TX from ESP32S3 to RP2040 RX RP_16
+    rx_pin: GPIO19  # RX to ESP32S3 from RP2040 TX RP_17
+    baud_rate: 115200
+
+#---UART from ESP32-S3 to RP2040 for logging/debug---
+# uart:
+#  - id: esp32s3_to_rp2040_uart
+#    tx_pin: GPIO18  # TX from ESP32S3 to RP2040 RX RP_15 - gpio16 in docs
+#    rx_pin: GPIO17  # RX to ESP32S3 from RP2040 TX RP_14 -  gpio17 in docs
+#    baud_rate: 115200
+
+#--Grove 1 I2C Port on D1S Baseboard---
+# i2c:
+#  - id: bus_b
+#    sda: GPIO20  #23
+#    scl: GPIO21   #22 
+#    GPIO18: pullup: true # Grove 1 INT pin with pullup Power Switch
+
+#--Grove 2 ADC Port on D1S Baseboard---
+# adc:
+#  - id: adc_grove2 
+#    pin: GPIO26  # ADC0 pin for Grove 2 Port
+#  - id: adc_grove2_2
+#    pin: GPIO27  # ADC1 pin for Grove 2 Port
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "Wi-Fi IP Address"
+      id: ip_sensor
+      entity_category: diagnostic
+    ssid:
+      name: "Wi-Fi SSID"
+      id: ssid_sensor
+      entity_category: diagnostic
+    bssid:
+      name: "Wi-Fi BSSID"
+      id: bssid_sensor
+      entity_category: diagnostic  
+
+text:
+  - platform: lvgl
+    id: wifi_ssid_text
+    widget: wifi_ssid_input
+    mode: text
+    internal: true
+  - platform: lvgl
+    id: wifi_pass_text
+    widget: wifi_pass_input
+    mode: password
+    internal: true
+
+# --- LVGL CORE ---
+lvgl:
+  bg_color: 0x101820  # Dark navy blue (almost black)
+  buffer_size: 50%
+  touchscreens:
+    - touchscreen_id: my_touch  # Use 'touchscreen_id:' to make it a map
+      long_press_time: 400ms
+      long_press_repeat_time: 100ms
+      
+  # Persistent bottom navigation buttons in top_layer
+  top_layer:
+    widgets:
+      - label:
+          id: date_label
+          text: "-- --- ----"
+          align: TOP_LEFT
+          x: 12
+          y: 8
+          text_font: montserrat_20
+          text_color: 0xFFFFFF
+
+      - label:
+          id: clock_label
+          text: "--:--"
+          align: TOP_RIGHT
+          x: -12
+          y: 8
+          text_font: montserrat_20
+          text_color: 0xFFFFFF
+
+      - button:
+          id: wifi_button
+          align: TOP_MID
+          y: 2
+          width: 36
+          height: 36
+          bg_color: 0x000000
+          border_width: 0
+          radius: 0
+          pad_all: 0
+          shadow_width: 0
+          on_press:
+            - lvgl.page.show:
+                id: page_admin
+          widgets:
+            - image:
+                id: wifi_icon
+                align: CENTER
+                src: icon_wifi_2_32
+
+      - button:
+          id: prev_button
+          align: BOTTOM_LEFT
+          width: 100
+          height: 50
+          on_press:
+            - logger.log: "Prev button pressed!"
+            - lvgl.page.previous: 
+                animation: OVER_LEFT  # Optional: Smooth left slide (defaults to NONE if omitted)
+                time: 200ms  # Optional: Animation duration (defaults to 50ms)
+          widgets:
+            - label:
+                text: "Prev"
+                align: CENTER
+      - button:
+          id: next_button
+          align: BOTTOM_RIGHT
+          width: 100
+          height: 50
+          on_press:
+            - logger.log: "Next button pressed!"
+            - lvgl.page.next: 
+                animation: OVER_RIGHT  # Optional: Smooth right slide
+                time: 200ms  # Optional
+          widgets:
+            - label:
+                text: "Next"
+                align: CENTER
+        
+packet_transport:
+  - platform: uart
+    uart_id: rp2040_serial
+    providers:
+      - name: d1-rp2040
+    
+# Import HA entities
+#number:
+#  - platform: homeassistant
+#    id: ha_light_brightness
+#    entity_id: light.in_wall_paddle_dimmer_500s
+#    name: "HA Light Brightness"
+#  - platform: homeassistant
+#    id: ha_media_volume
+#    entity_id: media_player.living_room_speaker  # Replace
+#    name: "HA Media Volume"
+
+# --- SENSORS FROM RP2040 ---
+sensor:
+  - platform: packet_transport # from RP2040 0x59
+    provider: d1-rp2040
+    id: voc
+    name: "VOC Index"
+    internal: false
+    accuracy_decimals: 0
+    icon: "mdi:weather-dust"
+    device_class: aqi
+
+  - platform: packet_transport  # from RP2040 0x62
+    provider: d1-rp2040
+    id: co2
+    name: "CO2"
+    internal: false
+    accuracy_decimals: 0
+    icon: "mdi:molecule-co2"
+    unit_of_measurement: "ppm"
+    device_class: carbon_dioxide
+
+  - platform: packet_transport
+    provider: d1-rp2040
+    id: temp
+    name: "Temperature"
+    internal: false
+    accuracy_decimals: 1
+    icon: "mdi:thermometer"
+    unit_of_measurement: "°C"
+    device_class: temperature
+
+  - platform: packet_transport
+    provider: d1-rp2040
+    id: humid
+    name: "Humidity"
+    internal: false
+    accuracy_decimals: 1
+    icon: "mdi:water-percent"
+    unit_of_measurement: "%"
+    device_class: humidity
+
+# --- INTERNAL TEMPERATURE + UPTIME ---
+  - platform: internal_temperature
+    id: internal_temp
+    name: "ESP Internal Temp"
+    update_interval: 30s
+    entity_category: diagnostic
+
+  - platform: uptime
+    id: uptime_sensor
+    name: "ESP Uptime"
+    update_interval: 10s
+    entity_category: diagnostic
+
+  - platform: wifi_signal
+    name: "Wi-Fi Signal"
+    id: wi_fi_signal
+    update_interval: 30s
+    entity_category: diagnostic
+
+# Example HA Sensors (imported from Home Assistant)
+  - platform: homeassistant
+    id: ha_outdoor_temp
+    entity_id: sensor.outdoor_temperature  # Replace with actual
+    name: "Outdoor Temperature"
+
+  - platform: homeassistant
+    id: ha_light_brightness
+    entity_id: light.in_wall_paddle_dimmer_500s
+    attribute: brightness  # Reads the brightness attribute (0-255 scale)
+    name: "HA Light Brightness"
+    unit_of_measurement: ""  # Optional: No unit, or set to "%" if you prefer brightness_pct
+    accuracy_decimals: 0     # Integer value
+
+# --- BACKLIGHT CONTROL ---
+output:
+  - platform: ledc
+    pin:
+      number: GPIO45
+      ignore_strapping_warning: true
+    id: ledc_gpio45
+    frequency: 25000Hz  # 100Hz default
+
+#---BUZZER GPIO19 PWM -----
+#  - platform: ledc
+#    pin:
+#      number: GPIO19
+#      ignore_strapping_warning: true
+#    id: buzzer_output
+#    frequency: 2000Hz  # 2kHz for buzzer tones
+
+image:
+  - file: https://esphome.io/favicon-512x512.png
+    id: boot_logo
+    resize: 200x200
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/co2.svg
+    id: icon_co2_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/co2.svg
+    id: icon_co2_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/tvoc.svg
+    id: icon_tvoc_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/tvoc.svg
+    id: icon_tvoc_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/temp.svg
+    id: icon_temp_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/temp.svg
+    id: icon_temp_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/humidity.svg
+    id: icon_humid_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/humidity.svg
+    id: icon_humid_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/wifi.svg
+    id: icon_wifi_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi.svg
+    id: icon_wifi_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_0.svg
+    id: icon_wifi_0
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_0.svg
+    id: icon_wifi_0_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_1.svg
+    id: icon_wifi_1
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_1.svg
+    id: icon_wifi_1_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_2.svg
+    id: icon_wifi_2
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_2.svg
+    id: icon_wifi_2_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_3.svg
+    id: icon_wifi_3
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_3.svg
+    id: icon_wifi_3_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_off.svg
+    id: icon_wifi_off
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/wifi_off.svg
+    id: icon_wifi_off_32
+    resize: 32x32
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/dim.svg
+    id: icon_dim_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/bright.svg
+    id: icon_bright_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/power.svg
+    id: icon_power_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/volume_up.svg
+    id: icon_vol_up_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/volume_down.svg
+    id: icon_vol_down_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+
+  - file: icon_s/onoff.svg
+    id: icon_onoff_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+
+light:
+  - platform: monochromatic
+    id: backlight
+    output: ledc_gpio45
+    restore_mode: ALWAYS_ON
+    default_transition_length: 0s
+    on_turn_on:
+      - light.control:
+          id: backlight
+          brightness: 50%  # Default to 50% brightness on power on
+
+# --- DISPLAY (MIPI RGB) ---
+display:
+  - platform: mipi_rgb
+    model: SEEED-INDICATOR-D1
+    id: my_display
+    invert_colors: true  # Toggle to false
+    update_interval: 0s
+#    color_order: GRB
+    draw_rounding: 2
+    auto_clear_enabled: false
+    use_axis_flips: true
+
+# --- TOUCHSCREEN (FT5x06) --- I2C 39/40
+touchscreen:
+  - platform: ft5x06
+    id: my_touch
+    transform:
+      mirror_x: true
+      mirror_y: true
+#      swap_xy: true  # Add this to test if coords are rotated
+    on_touch:
+      then:
+        - lambda: |-
+            // Log the first touch point (assuming single-touch)
+            if (!touches.empty()) {
+              ESP_LOGD("touch", "Touch detected at %d/%d!", touches[0].x, touches[0].y);
+            }
+        - lambda: |-
+            if (!touches.empty()) {
+              const int graph_left = 30;
+              const int graph_top = 60;
+              const int graph_w = 413;
+              const int graph_h = 200;
+              int tx = touches[0].x;
+              int ty = touches[0].y;
+              if (tx >= graph_left && tx <= (graph_left + graph_w) && ty >= graph_top && ty <= (graph_top + graph_h)) {
+                int idx = (int)roundf((tx - graph_left) / 7.0f);
+                if (idx < 0) idx = 0;
+                if (idx > 59) idx = 59;
+                float minv = id(graph_min);
+                float maxv = id(graph_max);
+                if (isnan(minv) || isnan(maxv) || minv == maxv) {
+                  id(graph_touch_valid) = false;
+                } else {
+                  int y = id(graph_points)[idx];
+                  float v = maxv - ((float)y / (float)graph_h) * (maxv - minv);
+                  id(graph_touch_value) = v;
+                  id(graph_touch_valid) = true;
+                }
+              } else {
+                id(graph_touch_valid) = false;
+              }
+            }
+        - lvgl.label.update:
+            id: graph_touch_label
+            text: !lambda |-
+              if (!id(graph_touch_valid)) return std::string("Tap: --");
+              char buf[32];
+              float v = id(graph_touch_value);
+              switch (id(graph_metric)) {
+                case 0: snprintf(buf, sizeof(buf), "Tap: %.1f F", v); break;
+                case 1: snprintf(buf, sizeof(buf), "Tap: %.0f%%", v); break;
+                case 2: snprintf(buf, sizeof(buf), "Tap: %.0f ppm", v); break;
+                case 3: snprintf(buf, sizeof(buf), "Tap: %.0f", v); break;
+                default: snprintf(buf, sizeof(buf), "Tap: %.1f", v); break;
+              }
+              return std::string(buf);
+        - if:
+            condition: lvgl.is_paused
+            then:
+              - logger.log: "Resuming LVGL from pause"
+              - lvgl.resume:
+              - light.turn_on: backlight
+              - lvgl.page.show: # page_home
+                  id: page_home
+
+#----- USER BUTTON (GPIO38) -----
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO38
+      inverted: true
+    name: "User Button"
+    id: user_button
+    on_multi_click:
+      - timing:
+          - ON for 50ms to 500ms
+          - OFF for at least 50ms
+        then:
+          - if:
+              condition:
+                lambda: 'return id(screen_off);'
+              then:
+                - lvgl.resume:
+                - light.turn_on: backlight
+                - lambda: 'id(screen_off) = false;'
+              else:
+                - lvgl.pause:
+                - light.turn_off: backlight
+                - lambda: 'id(screen_off) = true;'
+
+      - timing:
+          - ON for 10s to 20s
+        then:
+          - button.press: factory_reset_btn
+
+      - timing:
+          - ON for 3s to 9s
+        then:
+          - if:
+              condition:
+                lambda: 'return !id(screen_off);'
+              then:
+                - lvgl.pause:
+                - light.turn_off: backlight
+                - lambda: 'id(screen_off) = true;'
+
+#---- EXAMPLE HOME ASSISTANT INTEGRATIONS ---
+  - platform: homeassistant
+    id: ha_door_sensor
+    entity_id: binary_sensor.front_door  # Replace with actual
+    name: "Front Door Sensor"
+
+# Example Switches
+switch:
+  - platform: restart  # Restart device
+    name: "Restart Device"
+    id: restart_switch  # Add ID for button reference
+  - platform: template  # Virtual switch for HA
+    name: "Example Toggle Switch"
+    id: example_switch
+    optimistic: true
+    turn_on_action:
+      - homeassistant.service:
+          service: homeassistant.turn_on
+          data:
+            entity_id: switch.some_ha_switch  # Replace
+    turn_off_action:
+      - homeassistant.service:
+          service: homeassistant.turn_off
+          data:
+            entity_id: switch.some_ha_switch
+
+# --- GLOBALS FOR MIN/MAX ---
+globals:
+  - id: temp_min
+    type: float
+    initial_value: "9999"
+  - id: temp_max
+    type: float
+    initial_value: "-9999"
+
+  - id: humid_min
+    type: float
+    initial_value: "9999"
+  - id: humid_max
+    type: float
+    initial_value: "-9999"
+
+  - id: co2_min
+    type: float
+    initial_value: "9999"
+  - id: co2_max
+    type: float
+    initial_value: "-9999"
+
+  - id: voc_min
+    type: float
+    initial_value: "9999"
+  - id: voc_max
+    type: float
+    initial_value: "-9999"
+
+  - id: graph_metric
+    type: int
+    initial_value: "2"
+
+  - id: graph_period_min
+    type: int
+    initial_value: "360"
+
+  - id: graph_step_min
+    type: int
+    initial_value: "5"
+
+  - id: hist_index
+    type: int
+    initial_value: "0"
+
+  - id: temp_hist
+    type: std::vector<float>
+    initial_value: "std::vector<float>(1440, NAN)"
+
+  - id: humid_hist
+    type: std::vector<float>
+    initial_value: "std::vector<float>(1440, NAN)"
+
+  - id: co2_hist
+    type: std::vector<float>
+    initial_value: "std::vector<float>(1440, NAN)"
+
+  - id: voc_hist
+    type: std::vector<float>
+    initial_value: "std::vector<float>(1440, NAN)"
+
+  - id: graph_points
+    type: std::vector<int>
+    initial_value: "std::vector<int>(60, 100)"
+
+  - id: graph_cur
+    type: float
+    initial_value: "NAN"
+
+  - id: graph_min
+    type: float
+    initial_value: "NAN"
+
+  - id: graph_max
+    type: float
+    initial_value: "NAN"
+
+  - id: graph_touch_value
+    type: float
+    initial_value: "NAN"
+
+  - id: graph_touch_valid
+    type: bool
+    initial_value: "false"
+
+  - id: screen_off
+    type: bool
+    initial_value: "false"
+
+button:
+  - platform: factory_reset
+    id: factory_reset_btn
+    name: "Factory Reset"
+    internal: true
+
+script:
+  - id: graph_render
+    then:
+      - lambda: |-
+          const int HIST = 1440;
+          const int POINTS = 60;
+          const int GRAPH_H = 200;
+
+          if (id(temp_hist).size() != HIST) id(temp_hist).assign(HIST, NAN);
+          if (id(humid_hist).size() != HIST) id(humid_hist).assign(HIST, NAN);
+          if (id(co2_hist).size() != HIST) id(co2_hist).assign(HIST, NAN);
+          if (id(voc_hist).size() != HIST) id(voc_hist).assign(HIST, NAN);
+          if (id(graph_points).size() != POINTS) id(graph_points).assign(POINTS, GRAPH_H / 2);
+
+          std::vector<float> *src = nullptr;
+          switch (id(graph_metric)) {
+            case 0: src = &id(temp_hist); break;
+            case 1: src = &id(humid_hist); break;
+            case 2: src = &id(co2_hist); break;
+            case 3: src = &id(voc_hist); break;
+            default: src = &id(co2_hist); break;
+          }
+
+          int idx = id(hist_index) - 1;
+          if (idx < 0) idx += HIST;
+
+          int period = id(graph_period_min);
+          int step = id(graph_step_min);
+          if (step <= 0) step = 1;
+          int samples = period / step;
+          if (samples < 2) samples = 2;
+          if (samples > HIST) samples = HIST;
+
+          float minv = NAN;
+          float maxv = NAN;
+          for (int i = 0; i < samples; i++) {
+            int hidx = idx - (i * step);
+            while (hidx < 0) hidx += HIST;
+            float v = (*src)[hidx];
+            if (isnan(v)) continue;
+            if (isnan(minv) || v < minv) minv = v;
+            if (isnan(maxv) || v > maxv) maxv = v;
+          }
+
+          if (isnan(minv) || isnan(maxv)) {
+            minv = 0.0f;
+            maxv = 1.0f;
+          }
+          if (minv == maxv) {
+            minv -= 1.0f;
+            maxv += 1.0f;
+          }
+
+          float cur = (*src)[idx];
+          id(graph_cur) = cur;
+          id(graph_min) = minv;
+          id(graph_max) = maxv;
+          id(graph_touch_valid) = false;
+          for (int p = 0; p < POINTS; p++) {
+            float t = (float)p / (float)(POINTS - 1);
+            float sample_index_f = t * (float)(samples - 1);
+            int sample_index = (int)roundf(sample_index_f);
+            int hidx = idx - (sample_index * step);
+            while (hidx < 0) hidx += HIST;
+            float v = (*src)[hidx];
+            if (isnan(v)) v = minv;
+            float norm = (v - minv) / (maxv - minv);
+            int y = (int)roundf((1.0f - norm) * GRAPH_H);
+            if (y < 0) y = 0;
+            if (y > GRAPH_H) y = GRAPH_H;
+            id(graph_points)[p] = y;
+          }
+
+      - lvgl.label.update:
+          id: graph_title_label
+          text: !lambda |-
+            switch (id(graph_metric)) {
+              case 0: return std::string("Temperature");
+              case 1: return std::string("Humidity");
+              case 2: return std::string("CO2");
+              case 3: return std::string("TVOC");
+              default: return std::string("Graph");
+            }
+
+      - lvgl.label.update:
+          id: graph_current_label
+          text: !lambda |-
+            char buf[32];
+            float v = id(graph_cur);
+            if (isnan(v)) return std::string("Now: --");
+            switch (id(graph_metric)) {
+              case 0: snprintf(buf, sizeof(buf), "Now: %.1f F", v); break;
+              case 1: snprintf(buf, sizeof(buf), "Now: %.0f%%", v); break;
+              case 2: snprintf(buf, sizeof(buf), "Now: %.0f ppm", v); break;
+              case 3: snprintf(buf, sizeof(buf), "Now: %.0f", v); break;
+              default: snprintf(buf, sizeof(buf), "Now: %.1f", v); break;
+            }
+            return std::string(buf);
+
+      - lvgl.label.update:
+          id: graph_min_label
+          text: !lambda |-
+            char buf[32];
+            float v = id(graph_min);
+            if (isnan(v)) return std::string("Min: --");
+            switch (id(graph_metric)) {
+              case 0: snprintf(buf, sizeof(buf), "Min: %.1f F", v); break;
+              case 1: snprintf(buf, sizeof(buf), "Min: %.0f%%", v); break;
+              case 2: snprintf(buf, sizeof(buf), "Min: %.0f ppm", v); break;
+              case 3: snprintf(buf, sizeof(buf), "Min: %.0f", v); break;
+              default: snprintf(buf, sizeof(buf), "Min: %.1f", v); break;
+            }
+            return std::string(buf);
+
+      - lvgl.label.update:
+          id: graph_max_label
+          text: !lambda |-
+            char buf[32];
+            float v = id(graph_max);
+            if (isnan(v)) return std::string("Max: --");
+            switch (id(graph_metric)) {
+              case 0: snprintf(buf, sizeof(buf), "Max: %.1f F", v); break;
+              case 1: snprintf(buf, sizeof(buf), "Max: %.0f%%", v); break;
+              case 2: snprintf(buf, sizeof(buf), "Max: %.0f ppm", v); break;
+              case 3: snprintf(buf, sizeof(buf), "Max: %.0f", v); break;
+              default: snprintf(buf, sizeof(buf), "Max: %.1f", v); break;
+            }
+            return std::string(buf);
+      - lvgl.label.update:
+          id: graph_touch_label
+          text: !lambda |-
+            if (!id(graph_touch_valid)) return std::string("Tap: --");
+            char buf[32];
+            float v = id(graph_touch_value);
+            switch (id(graph_metric)) {
+              case 0: snprintf(buf, sizeof(buf), "Tap: %.1f F", v); break;
+              case 1: snprintf(buf, sizeof(buf), "Tap: %.0f%%", v); break;
+              case 2: snprintf(buf, sizeof(buf), "Tap: %.0f ppm", v); break;
+              case 3: snprintf(buf, sizeof(buf), "Tap: %.0f", v); break;
+              default: snprintf(buf, sizeof(buf), "Tap: %.1f", v); break;
+            }
+            return std::string(buf);
+      - if:
+          condition:
+            lambda: 'return id(graph_period_min) == 60;'
+          then:
+            - lvgl.widget.update:
+                id: graph_period_1h
+                bg_color: 0x2563EB
+                text_color: 0xFFFFFF
+          else:
+            - lvgl.widget.update:
+                id: graph_period_1h
+                bg_color: 0x1F2933
+                text_color: 0xC0C0C0
+
+      - if:
+          condition:
+            lambda: 'return id(graph_period_min) == 360;'
+          then:
+            - lvgl.widget.update:
+                id: graph_period_6h
+                bg_color: 0x2563EB
+                text_color: 0xFFFFFF
+          else:
+            - lvgl.widget.update:
+                id: graph_period_6h
+                bg_color: 0x1F2933
+                text_color: 0xC0C0C0
+
+      - if:
+          condition:
+            lambda: 'return id(graph_period_min) == 1440;'
+          then:
+            - lvgl.widget.update:
+                id: graph_period_24h
+                bg_color: 0x2563EB
+                text_color: 0xFFFFFF
+          else:
+            - lvgl.widget.update:
+                id: graph_period_24h
+                bg_color: 0x1F2933
+                text_color: 0xC0C0C0
+
+      - if:
+          condition:
+            lambda: 'return id(graph_step_min) == 1;'
+          then:
+            - lvgl.widget.update:
+                id: graph_step_1m
+                bg_color: 0x2563EB
+                text_color: 0xFFFFFF
+          else:
+            - lvgl.widget.update:
+                id: graph_step_1m
+                bg_color: 0x1F2933
+                text_color: 0xC0C0C0
+
+      - if:
+          condition:
+            lambda: 'return id(graph_step_min) == 5;'
+          then:
+            - lvgl.widget.update:
+                id: graph_step_5m
+                bg_color: 0x2563EB
+                text_color: 0xFFFFFF
+          else:
+            - lvgl.widget.update:
+                id: graph_step_5m
+                bg_color: 0x1F2933
+                text_color: 0xC0C0C0
+
+      - if:
+          condition:
+            lambda: 'return id(graph_step_min) == 15;'
+          then:
+            - lvgl.widget.update:
+                id: graph_step_15m
+                bg_color: 0x2563EB
+                text_color: 0xFFFFFF
+          else:
+            - lvgl.widget.update:
+                id: graph_step_15m
+                bg_color: 0x1F2933
+                text_color: 0xC0C0C0
+
+      - lvgl.widget.update:
+          id: graph_dot_0
+          x: 10
+          y: !lambda 'return 10 + id(graph_points)[0];'
+      - lvgl.widget.update:
+          id: graph_dot_1
+          x: 17
+          y: !lambda 'return 10 + id(graph_points)[1];'
+      - lvgl.widget.update:
+          id: graph_dot_2
+          x: 24
+          y: !lambda 'return 10 + id(graph_points)[2];'
+      - lvgl.widget.update:
+          id: graph_dot_3
+          x: 31
+          y: !lambda 'return 10 + id(graph_points)[3];'
+      - lvgl.widget.update:
+          id: graph_dot_4
+          x: 38
+          y: !lambda 'return 10 + id(graph_points)[4];'
+      - lvgl.widget.update:
+          id: graph_dot_5
+          x: 45
+          y: !lambda 'return 10 + id(graph_points)[5];'
+      - lvgl.widget.update:
+          id: graph_dot_6
+          x: 52
+          y: !lambda 'return 10 + id(graph_points)[6];'
+      - lvgl.widget.update:
+          id: graph_dot_7
+          x: 59
+          y: !lambda 'return 10 + id(graph_points)[7];'
+      - lvgl.widget.update:
+          id: graph_dot_8
+          x: 66
+          y: !lambda 'return 10 + id(graph_points)[8];'
+      - lvgl.widget.update:
+          id: graph_dot_9
+          x: 73
+          y: !lambda 'return 10 + id(graph_points)[9];'
+      - lvgl.widget.update:
+          id: graph_dot_10
+          x: 80
+          y: !lambda 'return 10 + id(graph_points)[10];'
+      - lvgl.widget.update:
+          id: graph_dot_11
+          x: 87
+          y: !lambda 'return 10 + id(graph_points)[11];'
+      - lvgl.widget.update:
+          id: graph_dot_12
+          x: 94
+          y: !lambda 'return 10 + id(graph_points)[12];'
+      - lvgl.widget.update:
+          id: graph_dot_13
+          x: 101
+          y: !lambda 'return 10 + id(graph_points)[13];'
+      - lvgl.widget.update:
+          id: graph_dot_14
+          x: 108
+          y: !lambda 'return 10 + id(graph_points)[14];'
+      - lvgl.widget.update:
+          id: graph_dot_15
+          x: 115
+          y: !lambda 'return 10 + id(graph_points)[15];'
+      - lvgl.widget.update:
+          id: graph_dot_16
+          x: 122
+          y: !lambda 'return 10 + id(graph_points)[16];'
+      - lvgl.widget.update:
+          id: graph_dot_17
+          x: 129
+          y: !lambda 'return 10 + id(graph_points)[17];'
+      - lvgl.widget.update:
+          id: graph_dot_18
+          x: 136
+          y: !lambda 'return 10 + id(graph_points)[18];'
+      - lvgl.widget.update:
+          id: graph_dot_19
+          x: 143
+          y: !lambda 'return 10 + id(graph_points)[19];'
+      - lvgl.widget.update:
+          id: graph_dot_20
+          x: 150
+          y: !lambda 'return 10 + id(graph_points)[20];'
+      - lvgl.widget.update:
+          id: graph_dot_21
+          x: 157
+          y: !lambda 'return 10 + id(graph_points)[21];'
+      - lvgl.widget.update:
+          id: graph_dot_22
+          x: 164
+          y: !lambda 'return 10 + id(graph_points)[22];'
+      - lvgl.widget.update:
+          id: graph_dot_23
+          x: 171
+          y: !lambda 'return 10 + id(graph_points)[23];'
+      - lvgl.widget.update:
+          id: graph_dot_24
+          x: 178
+          y: !lambda 'return 10 + id(graph_points)[24];'
+      - lvgl.widget.update:
+          id: graph_dot_25
+          x: 185
+          y: !lambda 'return 10 + id(graph_points)[25];'
+      - lvgl.widget.update:
+          id: graph_dot_26
+          x: 192
+          y: !lambda 'return 10 + id(graph_points)[26];'
+      - lvgl.widget.update:
+          id: graph_dot_27
+          x: 199
+          y: !lambda 'return 10 + id(graph_points)[27];'
+      - lvgl.widget.update:
+          id: graph_dot_28
+          x: 206
+          y: !lambda 'return 10 + id(graph_points)[28];'
+      - lvgl.widget.update:
+          id: graph_dot_29
+          x: 213
+          y: !lambda 'return 10 + id(graph_points)[29];'
+      - lvgl.widget.update:
+          id: graph_dot_30
+          x: 220
+          y: !lambda 'return 10 + id(graph_points)[30];'
+      - lvgl.widget.update:
+          id: graph_dot_31
+          x: 227
+          y: !lambda 'return 10 + id(graph_points)[31];'
+      - lvgl.widget.update:
+          id: graph_dot_32
+          x: 234
+          y: !lambda 'return 10 + id(graph_points)[32];'
+      - lvgl.widget.update:
+          id: graph_dot_33
+          x: 241
+          y: !lambda 'return 10 + id(graph_points)[33];'
+      - lvgl.widget.update:
+          id: graph_dot_34
+          x: 248
+          y: !lambda 'return 10 + id(graph_points)[34];'
+      - lvgl.widget.update:
+          id: graph_dot_35
+          x: 255
+          y: !lambda 'return 10 + id(graph_points)[35];'
+      - lvgl.widget.update:
+          id: graph_dot_36
+          x: 262
+          y: !lambda 'return 10 + id(graph_points)[36];'
+      - lvgl.widget.update:
+          id: graph_dot_37
+          x: 269
+          y: !lambda 'return 10 + id(graph_points)[37];'
+      - lvgl.widget.update:
+          id: graph_dot_38
+          x: 276
+          y: !lambda 'return 10 + id(graph_points)[38];'
+      - lvgl.widget.update:
+          id: graph_dot_39
+          x: 283
+          y: !lambda 'return 10 + id(graph_points)[39];'
+      - lvgl.widget.update:
+          id: graph_dot_40
+          x: 290
+          y: !lambda 'return 10 + id(graph_points)[40];'
+      - lvgl.widget.update:
+          id: graph_dot_41
+          x: 297
+          y: !lambda 'return 10 + id(graph_points)[41];'
+      - lvgl.widget.update:
+          id: graph_dot_42
+          x: 304
+          y: !lambda 'return 10 + id(graph_points)[42];'
+      - lvgl.widget.update:
+          id: graph_dot_43
+          x: 311
+          y: !lambda 'return 10 + id(graph_points)[43];'
+      - lvgl.widget.update:
+          id: graph_dot_44
+          x: 318
+          y: !lambda 'return 10 + id(graph_points)[44];'
+      - lvgl.widget.update:
+          id: graph_dot_45
+          x: 325
+          y: !lambda 'return 10 + id(graph_points)[45];'
+      - lvgl.widget.update:
+          id: graph_dot_46
+          x: 332
+          y: !lambda 'return 10 + id(graph_points)[46];'
+      - lvgl.widget.update:
+          id: graph_dot_47
+          x: 339
+          y: !lambda 'return 10 + id(graph_points)[47];'
+      - lvgl.widget.update:
+          id: graph_dot_48
+          x: 346
+          y: !lambda 'return 10 + id(graph_points)[48];'
+      - lvgl.widget.update:
+          id: graph_dot_49
+          x: 353
+          y: !lambda 'return 10 + id(graph_points)[49];'
+      - lvgl.widget.update:
+          id: graph_dot_50
+          x: 360
+          y: !lambda 'return 10 + id(graph_points)[50];'
+      - lvgl.widget.update:
+          id: graph_dot_51
+          x: 367
+          y: !lambda 'return 10 + id(graph_points)[51];'
+      - lvgl.widget.update:
+          id: graph_dot_52
+          x: 374
+          y: !lambda 'return 10 + id(graph_points)[52];'
+      - lvgl.widget.update:
+          id: graph_dot_53
+          x: 381
+          y: !lambda 'return 10 + id(graph_points)[53];'
+      - lvgl.widget.update:
+          id: graph_dot_54
+          x: 388
+          y: !lambda 'return 10 + id(graph_points)[54];'
+      - lvgl.widget.update:
+          id: graph_dot_55
+          x: 395
+          y: !lambda 'return 10 + id(graph_points)[55];'
+      - lvgl.widget.update:
+          id: graph_dot_56
+          x: 402
+          y: !lambda 'return 10 + id(graph_points)[56];'
+      - lvgl.widget.update:
+          id: graph_dot_57
+          x: 409
+          y: !lambda 'return 10 + id(graph_points)[57];'
+      - lvgl.widget.update:
+          id: graph_dot_58
+          x: 416
+          y: !lambda 'return 10 + id(graph_points)[58];'
+      - lvgl.widget.update:
+          id: graph_dot_59
+          x: 423
+          y: !lambda 'return 10 + id(graph_points)[59];'
+
+      - lvgl.line.update:
+          id: graph_line
+          points:
+            - x: 0
+              y: !lambda 'return id(graph_points)[0];'
+            - x: 7
+              y: !lambda 'return id(graph_points)[1];'
+            - x: 14
+              y: !lambda 'return id(graph_points)[2];'
+            - x: 21
+              y: !lambda 'return id(graph_points)[3];'
+            - x: 28
+              y: !lambda 'return id(graph_points)[4];'
+            - x: 35
+              y: !lambda 'return id(graph_points)[5];'
+            - x: 42
+              y: !lambda 'return id(graph_points)[6];'
+            - x: 49
+              y: !lambda 'return id(graph_points)[7];'
+            - x: 56
+              y: !lambda 'return id(graph_points)[8];'
+            - x: 63
+              y: !lambda 'return id(graph_points)[9];'
+            - x: 70
+              y: !lambda 'return id(graph_points)[10];'
+            - x: 77
+              y: !lambda 'return id(graph_points)[11];'
+            - x: 84
+              y: !lambda 'return id(graph_points)[12];'
+            - x: 91
+              y: !lambda 'return id(graph_points)[13];'
+            - x: 98
+              y: !lambda 'return id(graph_points)[14];'
+            - x: 105
+              y: !lambda 'return id(graph_points)[15];'
+            - x: 112
+              y: !lambda 'return id(graph_points)[16];'
+            - x: 119
+              y: !lambda 'return id(graph_points)[17];'
+            - x: 126
+              y: !lambda 'return id(graph_points)[18];'
+            - x: 133
+              y: !lambda 'return id(graph_points)[19];'
+            - x: 140
+              y: !lambda 'return id(graph_points)[20];'
+            - x: 147
+              y: !lambda 'return id(graph_points)[21];'
+            - x: 154
+              y: !lambda 'return id(graph_points)[22];'
+            - x: 161
+              y: !lambda 'return id(graph_points)[23];'
+            - x: 168
+              y: !lambda 'return id(graph_points)[24];'
+            - x: 175
+              y: !lambda 'return id(graph_points)[25];'
+            - x: 182
+              y: !lambda 'return id(graph_points)[26];'
+            - x: 189
+              y: !lambda 'return id(graph_points)[27];'
+            - x: 196
+              y: !lambda 'return id(graph_points)[28];'
+            - x: 203
+              y: !lambda 'return id(graph_points)[29];'
+            - x: 210
+              y: !lambda 'return id(graph_points)[30];'
+            - x: 217
+              y: !lambda 'return id(graph_points)[31];'
+            - x: 224
+              y: !lambda 'return id(graph_points)[32];'
+            - x: 231
+              y: !lambda 'return id(graph_points)[33];'
+            - x: 238
+              y: !lambda 'return id(graph_points)[34];'
+            - x: 245
+              y: !lambda 'return id(graph_points)[35];'
+            - x: 252
+              y: !lambda 'return id(graph_points)[36];'
+            - x: 259
+              y: !lambda 'return id(graph_points)[37];'
+            - x: 266
+              y: !lambda 'return id(graph_points)[38];'
+            - x: 273
+              y: !lambda 'return id(graph_points)[39];'
+            - x: 280
+              y: !lambda 'return id(graph_points)[40];'
+            - x: 287
+              y: !lambda 'return id(graph_points)[41];'
+            - x: 294
+              y: !lambda 'return id(graph_points)[42];'
+            - x: 301
+              y: !lambda 'return id(graph_points)[43];'
+            - x: 308
+              y: !lambda 'return id(graph_points)[44];'
+            - x: 315
+              y: !lambda 'return id(graph_points)[45];'
+            - x: 322
+              y: !lambda 'return id(graph_points)[46];'
+            - x: 329
+              y: !lambda 'return id(graph_points)[47];'
+            - x: 336
+              y: !lambda 'return id(graph_points)[48];'
+            - x: 343
+              y: !lambda 'return id(graph_points)[49];'
+            - x: 350
+              y: !lambda 'return id(graph_points)[50];'
+            - x: 357
+              y: !lambda 'return id(graph_points)[51];'
+            - x: 364
+              y: !lambda 'return id(graph_points)[52];'
+            - x: 371
+              y: !lambda 'return id(graph_points)[53];'
+            - x: 378
+              y: !lambda 'return id(graph_points)[54];'
+            - x: 385
+              y: !lambda 'return id(graph_points)[55];'
+            - x: 392
+              y: !lambda 'return id(graph_points)[56];'
+            - x: 399
+              y: !lambda 'return id(graph_points)[57];'
+            - x: 406
+              y: !lambda 'return id(graph_points)[58];'
+            - x: 413
+              y: !lambda 'return id(graph_points)[59];'
+# --- TIME (REQUIRED FOR CLOCKS) ---
+time:
+  - platform: homeassistant
+    id: ha_time
+# Refresh dynamic widgets
+interval:
+  - interval: 1s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(ha_time).now().is_valid();'
+          then:
+            - lvgl.label.update:
+                id: clock_label
+                text: !lambda 'return id(ha_time).now().strftime("%I:%M:%S %p");' 
+            - lvgl.label.update:
+                id: date_label
+                text: !lambda 'return id(ha_time).now().strftime("%d %b %Y");'          
+      # HOME PAGE LABELS (with force redraw)
+      - lvgl.label.update:
+          id: temp_label
+          text: !lambda |-
+            char buf[32];
+            float f_temp = (id(temp).state * 9.0 / 5.0) + 32.0;
+            snprintf(buf, sizeof(buf), "%.1f F", f_temp);
+            return std::string(buf);
+      - lambda: 'lv_obj_invalidate(id(temp_label));'
+      - lambda: 'lv_scr_load_anim(lv_scr_act(), LV_SCR_LOAD_ANIM_NONE, 0, 0, false);'
+
+      - lvgl.label.update:
+          id: humid_label
+          text: !lambda |-
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%.0f%%", id(humid).state);
+            return std::string(buf);
+      - lambda: 'lv_obj_invalidate(id(humid_label));'
+      - lambda: 'lv_scr_load_anim(lv_scr_act(), LV_SCR_LOAD_ANIM_NONE, 0, 0, false);'
+
+      - lvgl.label.update:
+          id: co2_label
+          text: !lambda |-
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%.0f", id(co2).state);
+            return std::string(buf);
+      - lambda: 'lv_obj_invalidate(id(co2_label));'
+      - lambda: 'lv_scr_load_anim(lv_scr_act(), LV_SCR_LOAD_ANIM_NONE, 0, 0, false);'
+
+      - lvgl.label.update:
+          id: voc_label
+          text: !lambda |-
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%.0f", id(voc).state);
+            return std::string(buf);
+      - lambda: 'lv_obj_invalidate(id(voc_label));'
+      - lambda: 'lv_scr_load_anim(lv_scr_act(), LV_SCR_LOAD_ANIM_NONE, 0, 0, false);'
+
+      - if:
+          condition:
+            lambda: 'return id(co2).state < 1000;'
+          then:
+            - lvgl.label.update:
+                id: co2_status_label
+                text: "Healthy AQ"
+            - lvgl.widget.update:
+                id: co2_status_label
+                text_color: 0x00C853
+          else:
+            - if:
+                condition:
+                  lambda: 'return id(co2).state < 2000;'
+                then:
+                  - lvgl.label.update:
+                      id: co2_status_label
+                      text: "Poor AQ"
+                  - lvgl.widget.update:
+                      id: co2_status_label
+                      text_color: 0xFFB300
+                else:
+                  - lvgl.label.update:
+                      id: co2_status_label
+                      text: "Unhealthy AQ"
+                  - lvgl.widget.update:
+                      id: co2_status_label
+                      text_color: 0xD50000
+
+      - if:
+          condition:
+            lambda: 'return id(voc).state < 100;'
+          then:
+            - lvgl.label.update:
+                id: voc_status_label
+                text: "Low"
+            - lvgl.widget.update:
+                id: voc_status_label
+                text_color: 0x00C853
+          else:
+            - if:
+                condition:
+                  lambda: 'return id(voc).state < 400;'
+                then:
+                  - lvgl.label.update:
+                      id: voc_status_label
+                      text: "Medium"
+                  - lvgl.widget.update:
+                      id: voc_status_label
+                      text_color: 0xFFB300
+                else:
+                  - lvgl.label.update:
+                      id: voc_status_label
+                      text: "High"
+                  - lvgl.widget.update:
+                      id: voc_status_label
+                      text_color: 0xD50000
+
+      - if:
+          condition:
+            lambda: |-
+              return (!id(ssid_sensor).state.empty()) && (id(ip_sensor).state != "0.0.0.0");
+          then:
+            - if:
+                condition:
+                  lambda: 'return id(wi_fi_signal).state >= -60;'
+                then:
+                  - lvgl.image.update:
+                      id: wifi_icon
+                      src: icon_wifi_3_32
+                else:
+                  - if:
+                      condition:
+                        lambda: 'return id(wi_fi_signal).state >= -70;'
+                      then:
+                        - lvgl.image.update:
+                            id: wifi_icon
+                            src: icon_wifi_2_32
+                      else:
+                        - if:
+                            condition:
+                              lambda: 'return id(wi_fi_signal).state >= -80;'
+                            then:
+                              - lvgl.image.update:
+                                  id: wifi_icon
+                                  src: icon_wifi_1_32
+                            else:
+                              - lvgl.image.update:
+                                  id: wifi_icon
+                                  src: icon_wifi_0_32
+          else:
+            - lvgl.image.update:
+                id: wifi_icon
+                src: icon_wifi_off_32
+
+
+      - lvgl.label.update:
+          id: wifi_ssid_label
+          text: !lambda |-
+            if (id(ssid_sensor).state.empty()) {
+              return "WiFi SSID: Disconnected";
+            } else {
+              return "WiFi SSID: " + id(ssid_sensor).state;
+            }
+      
+      - lvgl.label.update:
+          id: ip_label
+          text: !lambda |-
+            if (id(ip_sensor).state == "0.0.0.0") {
+              return "IP: None";
+            } else {
+              return "IP: " + id(ip_sensor).state;
+            }
+
+      - lvgl.label.update:
+          id: wifi_bssid_label
+          text: !lambda |-
+            if (id(bssid_sensor).state.empty()) {
+              return "WiFi BSSID: None";
+            } else {
+              return "WiFi BSSID: " + id(bssid_sensor).state;
+            }
+
+      - lvgl.label.update:
+          id: uptime_sensor_label
+          text: !lambda |-
+            if (isnan(id(uptime_sensor).state)) {
+              ESP_LOGD("admin_debug", "Uptime NaN - setting label to None");
+              return "Uptime: None";
+            } else {
+              char buf[32];
+              int seconds = (int)id(uptime_sensor).state;
+              int days = seconds / 86400;
+              int hours = (seconds / 3600) % 24;
+              int minutes = (seconds / 60) % 60;
+              int secs = seconds % 60;
+              snprintf(buf, sizeof(buf), "%dd %dh %dm %ds", days, hours, minutes, secs);
+              ESP_LOGD("admin_debug", "Updating uptime label to: %s", buf);
+              return "Uptime: " + std::string(buf);
+            }
+
+      - lvgl.label.update:
+          id: internal_temp_label
+          text: !lambda |-
+            char buf[32];
+            float temp_c = id(internal_temp).state;
+            if (isnan(temp_c)) {
+              ESP_LOGD("admin_debug", "Internal temp NaN - setting label to --");
+              return "Internal Temp: --";
+            } else {
+              float f_temp = (temp_c * 9.0 / 5.0) + 32.0;
+              snprintf(buf, sizeof(buf), "Internal Temp: %.1f °F", f_temp);
+              ESP_LOGD("admin_debug", "Updating internal temp label to: %s", buf);
+              return std::string(buf);
+            }
+
+      - lvgl.label.update:
+          id: wi_fi_signal_label  # Assuming this label is defined in your UI files
+          text: !lambda |-
+            if (isnan(id(wi_fi_signal).state)) {
+              return "WiFi Signal: None";
+            } else {
+              char buf[32];
+              snprintf(buf, sizeof(buf), "WiFi Signal: %.0f dBm", id(wi_fi_signal).state);
+              return std::string(buf);
+            }
+
+      - lvgl.slider.update:
+          id: brightness_slider
+          value: !lambda |-
+            auto brightness = id(backlight).current_values.get_brightness();
+            if (isnan(brightness)) {
+              ESP_LOGD("brightness_debug", "Brightness is NaN - setting slider to 0");
+              return 0;
+            } else {
+              int slider_val = (int)(brightness * 100);
+              ESP_LOGD("brightness_debug", "Current brightness: %.2f - Updating slider to %d", brightness, slider_val);
+              return slider_val;
+            }
+          animated: true
+
+  - interval: 60s
+    then:
+      - lambda: |-
+          const int HIST = 1440;
+          if (id(temp_hist).size() != HIST) id(temp_hist).assign(HIST, NAN);
+          if (id(humid_hist).size() != HIST) id(humid_hist).assign(HIST, NAN);
+          if (id(co2_hist).size() != HIST) id(co2_hist).assign(HIST, NAN);
+          if (id(voc_hist).size() != HIST) id(voc_hist).assign(HIST, NAN);
+
+          int idx = id(hist_index);
+          if (idx < 0 || idx >= HIST) idx = 0;
+
+          float temp_f = NAN;
+          if (!isnan(id(temp).state)) {
+            temp_f = (id(temp).state * 9.0f / 5.0f) + 32.0f;
+          }
+
+          id(temp_hist)[idx] = temp_f;
+          id(humid_hist)[idx] = id(humid).state;
+          id(co2_hist)[idx] = id(co2).state;
+          id(voc_hist)[idx] = id(voc).state;
+
+          if (!isnan(temp_f)) {
+            if (temp_f < id(temp_min)) id(temp_min) = temp_f;
+            if (temp_f > id(temp_max)) id(temp_max) = temp_f;
+          }
+          if (!isnan(id(humid).state)) {
+            if (id(humid).state < id(humid_min)) id(humid_min) = id(humid).state;
+            if (id(humid).state > id(humid_max)) id(humid_max) = id(humid).state;
+          }
+          if (!isnan(id(co2).state)) {
+            if (id(co2).state < id(co2_min)) id(co2_min) = id(co2).state;
+            if (id(co2).state > id(co2_max)) id(co2_max) = id(co2).state;
+          }
+          if (!isnan(id(voc).state)) {
+            if (id(voc).state < id(voc_min)) id(voc_min) = id(voc).state;
+            if (id(voc).state > id(voc_max)) id(voc_max) = id(voc).state;
+          }
+
+          id(hist_index) = (idx + 1) % HIST;
+      - script.execute: graph_render
+  
+
+# --- MODULAR UI SYSTEM ---
+packages:
+#  - !include iaq-project/packages/display-fonts.yaml
+#  - !include sensecap-ha/esphome/ui/ui_theme.yaml
+  - !include sensecap-ha/esphome/ui/ui_home.yaml
+  - !include sensecap-ha/esphome/ui/ui_graphs.yaml
+#  - !include sensecap-ha/esphome/ui/ui_air.yaml
+  - !include sensecap-ha/esphome/ui/ui_settings.yaml
+  - !include sensecap-ha/esphome/ui/ui_admin.yaml
+  - !include sensecap-ha/esphome/ui/ui_wifi.yaml
+#  - !include sensecap-ha/esphome/ui/ui_navigation.yaml
+#  - !include sensecap-ha/esphome/ui/ui_updates.yaml
+#  - !include sensecap-ha/esphome/ui/ui_sleep.yaml
+#  - !include sensecap-ha/esphome/ui/ui_analog_clock.yaml
+
+
+
+
+

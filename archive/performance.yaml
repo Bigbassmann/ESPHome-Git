@@ -1,0 +1,6 @@
+substitutions:
+  run_duration_default: "0"        # stay awake
+  sleep_duration_default: "0"      # no deep sleep
+  wifi_power_default: "20"         # max WiFi power
+  sensor_update_default: "5s"      # fast updates
+  ble_enabled_default: "true"

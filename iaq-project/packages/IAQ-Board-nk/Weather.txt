@@ -1,0 +1,3 @@
+More Accurate Trends: For better forecasting, track multiple points (e.g., an array of 3-6 readings over 3 hours) using a vector global and average the delta.
+Zambretti Algorithm: For advanced (e.g., 16 weather types), implement a full lambda based on pressure, trend, month, and wind (needs more sensors).
+Error Handling: Add checks for invalid readings (e.g., if delta >10 or < -10, return "Error - Sensor Fault").

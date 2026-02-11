@@ -1,0 +1,28 @@
+esphome:
+  name: esp32c3-mini-test
+  friendly_name: ESP32C3-mini-test
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+
+logger:
+  level: DEBUG
+  baud_rate: 0   # ✅ Required for USB-CDC
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  ap:
+    ssid: "ESP32C3-2A Fallback"
+    password: "12345678"
+
+api:
+
+ota:
+  - platform: esphome
+    password: "test"
+
+captive_portal:

@@ -1,0 +1,340 @@
+esphome:
+  name: sensecap-d1s
+  friendly_name: SenseCAP Indicator
+  min_version: 2024.6.0
+#  on_boot:
+#    priority: -100.0  # High priority to run after LVGL init
+#    then:
+#      - delay: 5s  # Show boot for 5s
+#      - lvgl.page.show: main_page  # Switch to dashboard
+
+esp32:
+  board: esp32-s3-devkitc-1  # sensecap_indicator # esp32-s3-devkitc-1
+  variant: ESP32S3
+  flash_size: 8MB
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_ESPTOOLPY_FLASHSIZE_8MB: y
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: y
+      CONFIG_ESP32S3_DATA_CACHE_64KB: y
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM_RODATA: y
+
+psram:
+  mode: octal
+  speed: 80MHz
+    
+logger:
+  hardware_uart: UART0
+  level: DEBUG #VERY_VERBOSE  # Set to highest to enable all runtime select options; lower if you want to restrict
+  #baud_rate: 0 # 115200  # Keep for debugging; set to 0 once stable to disable serial logs
+
+api:
+ota:
+  - platform: esphome
+    password: "41def07295f8022fbb33225b9baa335a"
+    
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "SenseCAP Fallback"
+    password: "fallback_pass"
+
+captive_portal:
+
+web_server:
+  port: 80
+  include_internal: true    
+
+i2c:
+  - id: bus_a
+    sda: GPIO39
+    scl: GPIO40
+    scan: True
+
+spi:
+  - id: lcd_spi
+    clk_pin: GPIO41 
+    mosi_pin: GPIO48 
+    miso_pin: GPIO47
+
+pca9554:
+  - id: pca9554a_device
+    address: 0x20
+    pin_count: 16
+
+uart:
+  - id: rp2040_serial
+    tx_pin: GPIO20
+    rx_pin: GPIO19
+    baud_rate: 115200
+
+packet_transport:
+  - platform: uart
+    uart_id: rp2040_serial
+    providers:
+      - name: d1-rp2040    
+
+sensor:
+  - platform: packet_transport
+    provider: d1-rp2040
+    id: voc
+    name: "VOC Index"
+    internal: False
+    accuracy_decimals: 0
+    icon: "mdi:weather-dust"
+    device_class: aqi
+  - platform: packet_transport
+    provider: d1-rp2040
+    id: co2
+    name: "CO2"
+    internal: False
+    accuracy_decimals: 0
+    icon: "mdi:molecule-co2"
+    unit_of_measurement: "ppm"
+    device_class: carbon_dioxide
+  - platform: packet_transport
+    provider: d1-rp2040
+    id: temp
+    name: "Temperature"
+    internal: False
+    accuracy_decimals: 1
+    icon: "mdi:thermometer"
+    unit_of_measurement: "°C"
+    device_class: temperature
+  - platform: packet_transport
+    provider: d1-rp2040
+    id: humid
+    name: "Humidity"
+    internal: False
+    accuracy_decimals: 1
+    icon: "mdi:water-percent"
+    unit_of_measurement: "%"
+    device_class: humidity
+
+output:
+  - platform: ledc
+    pin:
+      number: GPIO45
+      ignore_strapping_warning: true
+    id: ledc_gpio45
+    frequency: 25000Hz  #100Hz
+
+light:
+  - platform: monochromatic
+    name: "Backlight"
+    id: backlight
+    output: ledc_gpio45
+    restore_mode: ALWAYS_ON
+    default_transition_length: 0s
+
+display:
+  - platform: mipi_rgb
+    model: SEEED-INDICATOR-D1
+    id: my_display
+    invert_colors: true
+    update_interval: 1s
+    color_order: RGB
+    draw_rounding: 2
+    auto_clear_enabled: false
+    use_axis_flips: true
+
+touchscreen:
+  - platform: ft5x06
+    id: my_touch
+    transform:
+      mirror_x: true
+      mirror_y: true
+    on_release:
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - light.turn_on: backlight
+            - lvgl.page.show: page_home   # optional: return to home page
+    on_touch: 
+      then: 
+        - lvgl.page.next:        
+
+lvgl:
+  pages:
+    - id: page_home
+      widgets:
+        # --- CLOCK ---
+        - label:
+            id: clock_label
+            text: "--:--"
+            align: TOP_MID
+            y: 20
+            styles:
+            text_font: montserrat_48
+            text_color: 0xFFFFFF
+
+        # --- DATE ---
+        - label:
+            id: date_label
+            text: "-- --- ----"
+            align: TOP_MID
+            y: 90
+            styles:
+            text_font: montserrat_20
+            text_color: 0xCCCCCC
+
+        # --- TEMPERATURE TILE ---
+        - label:
+            id: temp_label
+            text: "Temp: -- °C"
+            align: LEFT_MID
+            x: 40
+            y: -40
+            styles:
+            text_font: montserrat_28
+
+        # --- HUMIDITY TILE ---
+        - label:
+            id: humid_label
+            text: "Humidity: -- %"
+            align: LEFT_MID
+            x: 40
+            y: 20
+            styles:
+            text_font: montserrat_28
+
+        # --- CO2 TILE ---
+        - label:
+            id: co2_label
+            text: "CO2: -- ppm"
+            align: RIGHT_MID
+            x: -40
+            y: -40
+            styles:
+            text_font: montserrat_28
+
+        # --- VOC TILE ---
+        - label:
+            id: voc_label
+            text: "VOC: --"
+            align: RIGHT_MID
+            x: -40
+            y: 20
+            styles:
+            text_font: montserrat_28
+
+    - id: page_air
+      widgets:
+        - label:
+            id: air_title
+            text: "Air Quality"
+            align: TOP_MID
+            y: 20
+            styles:
+            text_font: montserrat_32
+
+        - label:
+            id: co2_detail
+            text: "CO2: -- ppm"
+            align: CENTER
+            y: -20
+            styles:
+            text_font: montserrat_28
+
+        - label:
+            id: voc_detail
+            text: "VOC Index: --"
+            align: CENTER
+            y: 40
+            styles:
+            text_font: montserrat_28
+              
+
+interval:
+  - interval: 300s 
+    then: 
+      - light.turn_off: backlight 
+      - lvgl.pause:
+
+  - interval: 1s
+    then:
+      # --- CLOCK ---
+      - lvgl.label.update:
+          id: clock_label
+          text: !lambda |-
+            auto t = id(ha_time).now();
+            if (!t.is_valid()) return "??:??";
+            static char buf[6];
+            snprintf(buf, sizeof(buf), "%02d:%02d", t.hour, t.minute);
+            return buf;
+
+      # --- DATE ---
+      - lvgl.label.update:
+          id: date_label
+          text: !lambda |-
+            auto t = id(ha_time).now();
+            if (!t.is_valid()) return "-- --- ----";
+            static char buf[16];
+            snprintf(buf, sizeof(buf), "%04d-%02d-%02d", t.year, t.month, t.day_of_month);
+            return buf;
+
+      # --- TEMP ---
+      - lvgl.label.update:
+          id: temp_label
+          text: !lambda |-
+            static char buf[32];
+            snprintf(buf, sizeof(buf), "Temp: %.1f °C", id(temp).state);
+            return buf;
+
+      # --- HUMIDITY ---
+      - lvgl.label.update:
+          id: humid_label
+          text: !lambda |-
+            static char buf[32];
+            snprintf(buf, sizeof(buf), "Humidity: %.1f %%", id(humid).state);
+            return buf;
+
+      # --- CO2 ---
+      - lvgl.label.update:
+          id: co2_label
+          text: !lambda |-
+            static char buf[32];
+            snprintf(buf, sizeof(buf), "CO2: %.0f ppm", id(co2).state);
+            return buf;
+
+      # --- VOC ---
+      - lvgl.label.update:
+          id: voc_label
+          text: !lambda |-
+            static char buf[32];
+            snprintf(buf, sizeof(buf), "VOC: %.0f", id(voc).state);
+            return buf;
+
+      # --- AIR PAGE DETAILS ---
+      - lvgl.label.update:
+          id: co2_detail
+          text: !lambda |-
+            static char buf[32];
+            snprintf(buf, sizeof(buf), "CO2: %.0f ppm", id(co2).state);
+            return buf;
+
+      - lvgl.label.update:
+          id: voc_detail
+          text: !lambda |-
+            static char buf[32];
+            snprintf(buf, sizeof(buf), "VOC Index: %.0f", id(voc).state);
+            return buf;
+
+
+time:
+  - platform: homeassistant
+    id: ha_time
+
+packages:
+  - !include iaq-project/packages/display-fonts.yaml
+
+image:
+  - file: https://esphome.io/favicon-512x512.png
+    id: boot_logo
+    resize: 200x200
+    type: RGB565
+    transparency: alpha_channel

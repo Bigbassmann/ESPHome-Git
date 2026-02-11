@@ -1,0 +1,25 @@
+espnow:
+
+
+#sensor:
+ # - platform: template
+  #  name: "AQ Pressure Remote"
+   # id: espnow_pres_sensor # Optional ID for reference
+    #internal: true
+#    unit_of_measurement: hPa
+ #   lambda: 'return id(remote_pressure_global);'
+  #  update_interval: 60s # Match your original interval or adjust
+   # on_value:
+    #  then:
+     #   - espnow.broadcast:
+      #      data: !lambda |-
+       #       float pressure = id(espnow_pres_sensor).state;
+        #      std::vector<uint8_t> data_vec(sizeof(float));
+         #     memcpy(data_vec.data(), &pressure, sizeof(float));
+          #    return data_vec;
+
+globals:
+  - id: remote_pressure_global
+    type: float
+    restore_value: yes
+    initial_value: '0.0'

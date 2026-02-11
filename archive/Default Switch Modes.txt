@@ -1,0 +1,236 @@
+Default Switch Modes:
+- deep_sleep_prevent = ON (Stops ALL Deep Sleep)
+- use_gpio_wakeup = OFF (If ON, GPIO, else Timer)
+- force_deep_sleep = OFF (
+- adaptive_sleep_enable = OFF (Battery State)
+- force_sleep_ovrride = OFF (API Override)
+
+- script:dynamic_sleep_cycle
+- deep_sleep: deep_sleep_ctrl
+- interval: 10s
+
+Interval: (should check the various mode switches every 10s)
+
+# Force Sleep
+If force_deep_sleep = ON
+Then
+ If deep_sleep_prevent = ON, 
+   Then
+    deep_sleep_prevent Turn OFF
+    and
+    force_sleep_override Turn ON (API Override)
+      (should wait for API silence before killing)
+    and 
+    deep_sleep.enter: deep_sleep_ctrl (Enter Deep Sleep Mode - will check other switches for the mode type)
+ Else
+   No Sleeping (need a new mode)
+
+#
+
+# -------------------------------
+# Switches
+# -------------------------------
+switch:
+  - platform: template
+    name: "Use GPIO Wakeup"
+    id: use_gpio_wakeup
+    optimistic: true
+    restore_mode: ALWAYS_OFF
+    turn_on_action:
+      - logger.log: "Use GPIO Wakeup → ON"
+    turn_off_action:
+      - logger.log: "Use GPIO Wakeup → OFF"
+
+  - platform: template
+    name: "Prevent Deep Sleep"
+    id: deep_sleep_prevent
+    optimistic: true
+    restore_mode: ALWAYS_ON
+    turn_on_action:
+      - logger.log: "Prevent Deep Sleep → ON"
+      - deep_sleep.prevent: deep_sleep_ctrl
+      - switch.template.publish: 
+          id: deep_sleep_prevent
+          state: !lambda 'return true;'
+      - logger.log: "Force Deep Sleep Turned OFF"
+      - switch.turn_off: force_deep_sleep
+      - logger.log: "Adaptive Sleep Turned OFF"
+      - switch.turn_off: adaptive_sleep_enable
+      - logger.log: "Force API Sleep Override Turned OFF"
+      - switch.turn_off: force_api_sleep_override
+      - logger.log: "Use GPIO Wakeup PIN Turned OFF"
+      - switch.turn_off: use_gpio_wakeup
+    turn_off_action:
+      - logger.log: "Prevent Deep Sleep → OFF"
+      - deep_sleep.allow: deep_sleep_ctrl
+      - switch.template.publish: 
+          id: deep_sleep_ctrl
+          state: !lambda 'return false;'
+
+  - platform: template
+    name: "Force Deep Sleep"
+    id: force_deep_sleep
+    optimistic: true
+    restore_mode: ALWAYS_OFF
+    turn_on_action:
+      then:
+        - if:
+            condition:
+              switch.template.publish: 
+                id: deep_sleep_prevent
+                state: OFF
+            then:
+              - if:
+                  condition:
+                    switch.template.publish: 
+                      id: adaptive_sleep_enable
+                      state: ON
+                  then:
+                    - logger.log: "Adaptive Sleep Mode is Active"
+                    - script.execute: dynamic_sleep_cycle  # Later add the GPIO Switch Check
+                    - logger.log: "Force Deep Sleep → ON"
+                    - deep_sleep.enter:
+                        id: deep_sleep_ctrl
+                        sleep_duration: !lambda 'return (int)id(sleep_duration).state;'
+                  else:
+                    - logger.log: "Deep Sleep Set To Profile Settings"
+                    - sensor.template.publish:
+                        id: profile_run_time
+                        state: !lambda 'return (float)${run_time};'
+                    - sensor.template.publish:
+                        id: profile_sleep_time
+                        state: !lambda 'return (float)${sleep_time};'
+                    - deep_sleep.enter:
+                        id: deep_sleep_ctrl
+            else:
+              - switch.turn_off: force_deep_sleep
+              - logger.log: "Force Deep Sleep Turned OFF By Condition: Deep Sleep Prevent Is ON" 
+    turn_off_action:
+      - logger.log: "Force Deep Sleep → OFF"
+
+  - platform: template
+    name: "Adaptive Sleep Enable"
+    id: adaptive_sleep_enable
+    optimistic: true
+    restore_mode: ALWAYS_OFF
+    turn_on_action:
+      - logger.log: "Adaptive Sleep Enable → ON"
+      - switch.template.publish: 
+          id: adaptive_sleep_enable
+          state: !lambda 'return true;'
+    turn_off_action:
+      - logger.log: "Adaptive Sleep Enable → OFF"
+      - switch.template.publish: 
+          id: adaptive_sleep_enable
+          state: !lambda 'return false;'
+
+  - platform: template
+    name: "Force API Sleep Override"
+    id: force_api_sleep_override
+    optimistic: true
+    restore_mode: ALWAYS_OFF
+    turn_on_action:
+      - logger.log: "Force Sleep Override → ON"
+    turn_off_action:
+      - logger.log: "Force Sleep Override → OFF"    
+
+
+# -------------------------------
+# Deep Sleep
+# -------------------------------
+deep_sleep:
+  id: deep_sleep_ctrl
+  run_duration: ${run_time}s     # Initial default is the Profile Setting
+  sleep_duration: ${sleep_time}s # Initial default is the Profile Setting
+   #wakeup_pin:
+    # number: GPIO4
+     #inverted: true
+     #mode: INPUT_PULLUP
+   #wakeup_pin_mode: KEEP_AWAKE
+
+# -------------------------------
+# Script
+# -------------------------------
+script:
+  - id: dynamic_sleep_cycle
+    mode: restart
+    then:
+      - if:
+          condition:
+            switch.is_on: force_sleep_override
+          then:
+            - logger.log: "Force Sleep Override active → ignoring API connection and proceeding to deep sleep"
+      - logger.log: "Starting dynamic run cycle..."
+      - delay: !lambda 'return (int)id(run_duration).state * 1000;'
+      - logger.log: "Run duration complete. Preparing for sleep..."
+      - text_sensor.template.publish:
+          id: sleep_state
+          state: "Sleeping"
+      - lambda: |-
+          int base_sleep = (int)id(sleep_duration).state;
+          int sleep_time = base_sleep;
+          std::string mode_str = "Normal Mode";
+
+          if (id(adaptive_sleep_enable).state) {
+            float v = id(battery_voltage).state;
+            if (v < 3.3f) {
+              sleep_time = base_sleep * 2;
+              mode_str = "Low Battery Mode";
+            } else if (v > 3.8f) {
+              sleep_time = base_sleep / 2;
+              mode_str = "High Battery Mode";
+            }
+          } else {
+            mode_str = "Adaptive Disabled (Base Sleep)";
+          }
+
+          // Publish updated diagnostics
+          id(adaptive_sleep_mode).publish_state(mode_str);
+          id(adaptive_sleep_duration).publish_state((float)sleep_time);
+          id(deep_sleep_ctrl).set_sleep_duration(sleep_time);
+
+          std::string sources = "Timer";
+          if (id(use_gpio_wakeup).state) {
+            sources += " + GPIO4";
+          }
+          id(active_wakeup_sources).publish_state(sources);
+
+      - logger.log:
+          format: "Entering deep sleep for %d s (%s). Wakeup sources: %s"
+          args: [ 'int(id(adaptive_sleep_duration).state)', 'id(adaptive_sleep_mode).state.c_str()', 'id(active_wakeup_sources).state.c_str()' ]
+      - deep_sleep.enter:
+          id: deep_sleep_ctrl
+
+
+# -------------------------------
+# Interval Automation
+# -------------------------------
+interval:
+  - interval: 10s
+    then:
+      
+      - if:
+          condition:
+            switch.is_on: force_sleep_override
+          then:
+            - logger.log: "Force Sleep Override active → entering deep sleep despite API connection"
+            - script.execute: dynamic_sleep_cycle
+          else:
+            - logger.log: "Skipping deep sleep while OTA/API is active"
+            - if:
+                condition:
+                  switch.is_off: deep_sleep_prevent
+                then:
+                  - if:
+                      condition:
+                        switch.is_on: use_gpio_wakeup
+                      then:
+                        - logger.log: "GPIO wakeup mode → entering deep sleep immediately"
+                        - text_sensor.template.publish:
+                            id: active_wakeup_sources
+                            state: "GPIO4"
+                        - deep_sleep.enter:
+                            id: deep_sleep_ctrl
+                            sleep_duration: 0s
+                      else:
+                        - script.execute: dynamic_sleep_cycle

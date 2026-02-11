@@ -1,0 +1,30 @@
+binary_sensor:
+  - platform: template
+    name: "Internal Temp Alarm"
+    id: internal_temp_alarm
+    lambda: |-
+      if (isnan(id(sys_esp_temperature).state)) return false;
+      return id(sys_esp_temperature).state > id(max_internal_temp).state;
+
+  - platform: template
+    name: "Temperature Within Range"
+    id: temp_within_range
+    lambda: |-
+      return !isnan(id(fr_temp).state) &&
+             id(fr_temp).state >= id(min_temp).state &&
+             id(fr_temp).state <= id(max_temp).state;
+
+  - platform: template
+    name: "Humidity Within Range"
+    id: humidity_within_range
+    lambda: |-
+      return !isnan(id(fr_humidity).state) &&
+             id(fr_humidity).state >= id(min_humidity).state &&
+             id(fr_humidity).state <= id(max_humidity).state;
+
+  - platform: template
+    name: "Alarm Active"
+    id: alarm_active
+    lambda: |-
+      return (id(alarm_outside_temp_range).state && !id(temp_within_range).state) ||
+             (id(alarm_outside_humidity_range).state && !id(h

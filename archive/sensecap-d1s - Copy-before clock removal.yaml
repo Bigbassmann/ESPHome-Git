@@ -1,0 +1,1031 @@
+esphome:
+  name: sensecap-d1s
+  friendly_name: SenseCAP Indicator
+  min_version: 2024.6.0
+  on_boot:
+    priority: -10.0  # Run after LVGL and display are ready
+    then:
+      - lvgl.page.show: 
+          id: page_home
+      
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: ESP32S3
+  flash_size: 8MB
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_ESPTOOLPY_FLASHSIZE_8MB: y
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: y
+      CONFIG_ESP32S3_DATA_CACHE_64KB: y
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM_RODATA: y
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+logger:
+  hardware_uart: UART0
+  level: DEBUG  # VERY_VERBOSE
+
+api:
+
+ota:
+  - platform: esphome
+    password: "41def07295f8022fbb33225b9baa335a"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "SenseCAP Fallback"
+    password: "1234567890"
+
+captive_portal:
+
+web_server:
+  port: 80
+  include_internal: true
+
+# --- I2C BUS --- PCA9554 Expander I2C Address: 0x20, 16bit -and Touchscreen
+i2c:
+  - id: bus_a
+    sda: GPIO39
+    scl: GPIO40
+    scan: true  #false in docs
+#  - id: bus_b
+#    sda: GPIO20  #23
+#    scl: GPIO21   #22 
+#    GPIO18: pullup: true # Grove 1 INT pin with pullup Power Switch  
+
+# --- SPI BUS ---
+spi:
+  - id: lcd_spi
+    clk_pin: GPIO41
+    mosi_pin: GPIO48
+    miso_pin: GPIO47
+
+# --- PCA9554 IO EXPANDER --- GPIO39/40
+pca9554:
+  - id: pca9554a_device
+    address: 0x20
+    pin_count: 16
+
+# --- RP2040 UART FOR SENSOR PACKET TRANSPORT --- 2nd CPU
+uart:
+  - id: rp2040_serial
+    tx_pin: GPIO20  # TX from ESP32S3 to RP2040 RX RP_16
+    rx_pin: GPIO19  # RX to ESP32S3 from RP2040 TX RP_17
+    baud_rate: 115200
+
+#---UART from ESP32-S3 to RP2040 for logging/debug---
+# uart:
+#  - id: esp32s3_to_rp2040_uart
+#    tx_pin: GPIO18  # TX from ESP32S3 to RP2040 RX RP_15 - gpio16 in docs
+#    rx_pin: GPIO17  # RX to ESP32S3 from RP2040 TX RP_14 -  gpio17 in docs
+#    baud_rate: 115200
+
+#--Grove 1 I2C Port on D1S Baseboard---
+# i2c:
+#  - id: bus_b
+#    sda: GPIO20  #23
+#    scl: GPIO21   #22 
+#    GPIO18: pullup: true # Grove 1 INT pin with pullup Power Switch
+
+#--Grove 2 ADC Port on D1S Baseboard---
+# adc:
+#  - id: adc_grove2 
+#    pin: GPIO26  # ADC0 pin for Grove 2 Port
+#  - id: adc_grove2_2
+#    pin: GPIO27  # ADC1 pin for Grove 2 Port
+
+# --- LVGL CORE ---
+lvgl:
+  buffer_size: 50%
+  touchscreens:
+#    - my_touch
+    - touchscreen_id: my_touch  # Use 'touchscreen_id:' to make it a map
+      long_press_time: 400ms
+      long_press_repeat_time: 100ms
+  pages:
+    - id: page_home   #--ui_home.yaml
+      widgets:
+        - label:
+            id: clock_label     #--ui_home.yaml
+            text: "--:--"
+            align: TOP_MID
+            y: 20
+            text_font: montserrat_48
+            styles:
+              - style_bg
+        - label:
+            id: date_label       #--ui_home.yaml
+            text: "-- --- ----"
+            align: TOP_MID
+            y: 70
+            text_font: montserrat_20
+            styles:
+              - style_bg
+        - label:
+            id: temp_label       #--ui_home.yaml
+            text: "Temp: -- °C"
+            align: LEFT_MID
+            x: 40
+            y: -40
+            text_font: montserrat_28
+            styles:
+              - style_bg
+        - label:
+            id: humid_label       #--ui_home.yaml
+            text: "Humidity: -- %"
+            align: LEFT_MID
+            x: 40
+            y: 20
+            text_font: montserrat_28
+            styles:
+              - style_bg
+        - label:
+            id: co2_label        #--ui_home.yaml
+            text: "CO2: -- ppm"
+            align: RIGHT_MID
+            x: -40
+            y: -40
+            text_font: montserrat_28
+            styles:
+              - style_bg
+        - label:
+            id: voc_label       #--ui_home.yaml
+            text: "VOC: --"
+            align: RIGHT_MID
+            x: -40
+            y: 20
+            text_font: montserrat_28
+            styles:
+              - style_bg
+        - button:  # Large test button to confirm switches
+            id: test_switch
+            text: "Tap to Settings"
+            align: CENTER
+            width: 400
+            height: 200
+            styles:
+              - style_bg
+            on_press:
+              - logger.log: "Test switch pressed!"
+              - lvgl.page.show: 
+                  id: page_settings
+        - button:
+            id: nav_settings
+            text: "Settings"
+            align: BOTTOM_LEFT
+            x: 20
+            y: -40  # Lower to ensure on-screen
+            styles:
+              - style_bg
+            on_press:
+              - logger.log: "Nav to Settings pressed!"
+              - lvgl.page.show: 
+                  id: page_settings
+        - button:
+            id: nav_updates
+            text: "Updates"
+            align: BOTTOM_MID
+            x: 0
+            y: -40  # Lower to ensure on-screen
+            styles:
+              - style_bg
+            on_press:
+              - logger.log: "Nav to Updates pressed!"
+              - lvgl.page.show: 
+                  id: page_updates
+        - button:
+            id: nav_analog_clock
+            text: "Analog Clock"
+            align: BOTTOM_RIGHT
+            x: -20
+            y: -40  # Lower to ensure on-screen
+            styles:
+              - style_bg
+            on_press:
+              - logger.log: "Nav to Analog Clock pressed!"
+              - lvgl.page.show: 
+                  id: page_analog_clock
+        - button:
+            id: nav_air
+            text: "Air Quality"
+            align: BOTTOM_LEFT
+            x: 20
+            y: -80
+            styles:
+              - style_bg
+            on_press:
+              - logger.log: "Nav to Air pressed!"
+              - lvgl.page.show: 
+                  id: page_air
+        - button:
+            id: nav_admin
+            text: "Admin"
+            align: BOTTOM_RIGHT
+            x: -20
+            y: -80
+            styles:
+              - style_bg
+            on_press:
+              - logger.log: "Nav to Admin pressed!"
+              - lvgl.page.show: 
+                  id: page_admin
+
+    - id: page_settings  #--ui_settings.yaml
+      widgets:
+        - label:
+            id: settings_title   #--ui_settings.yaml
+            text: "Settings"
+            align: TOP_MID
+            y: 10
+            text_font: montserrat_32
+            styles:
+              - style_title
+        - slider:  # Fixed: Proper dictionary structure
+            id: brightness_slider
+            min_value: 0
+            max_value: 100  # Assumed from original; adjust if needed
+            align: CENTER
+            y: 40
+            value: !lambda |-
+              float val = id(ha_light_brightness).state;
+              return isnan(val) ? 0 : val / 2.55;
+            on_value:
+              then:
+                - light.turn_on:
+                    id: backlight
+                    brightness: !lambda return x / 100.0;
+                - homeassistant.service:
+                    service: light.turn_on
+                    data:
+                      entity_id: light.in_wall_paddle_dimmer_500s
+                      brightness: !lambda return x * 2.55;  # Or brightness_pct: !lambda return x;
+        - button:  # Back button to return to home
+            id: nav_home_settings
+            text: "Home"
+            align: BOTTOM_MID
+            y: -40  # Lower to ensure on-screen
+            styles:
+              - style_bg
+            on_press:
+              - logger.log: "Nav to Home pressed!"
+              - lvgl.page.show: 
+                  id: page_home
+
+    - id: page_updates   #--ui_updates.yaml
+      widgets:
+        - label:
+            id: updates_title    #--ui_updates.yaml
+            text: "Updates"
+            align: TOP_MID
+            y: 20
+            text_font: montserrat_32
+            styles:
+              - style_title
+        - label:
+            id: ota_status_label    #--ui_updates.yaml
+            text: "OTA: Idle"
+            align: CENTER
+            y: -20
+            text_font: montserrat_24
+            styles:
+              - style_subtitle
+        - button:
+            id: btn_check_updates    #--ui_updates.yaml
+            text: "Check for Updates"
+            align: CENTER
+            y: 40
+            styles:
+              - style_bg
+            on_press:
+              - homeassistant.service:
+                  service: esphome.sensecap_d1s_check_update
+        - button:  # Back button to return to home
+            id: nav_home_updates
+            text: "Home"
+            align: BOTTOM_MID
+            y: -40  # Lower to ensure on-screen
+            styles:
+              - style_bg
+            on_press:
+              - logger.log: "Nav to Home pressed!"
+              - lvgl.page.show: 
+                  id: page_home
+
+#    - id: page_graphs  #--ui_graphs.yaml
+#      widgets:
+#        - chart:
+#            id: temp_chart      #--ui_graphs.yaml
+#            type: line
+#            align: CENTER
+#            width: 440
+#            height: 300
+#            series:
+#              - id: temp_series      #--ui_graphs.yaml
+#                styles:
+#                  - style_graph_line
+    - id: page_analog_clock   #--ui_analog_clock.yaml
+      widgets:
+        - label:
+            id: analog_title     #--ui_analog_clock.yaml
+            text: "Analog Clock"
+            align: TOP_MID
+            y: 20
+            text_font: montserrat_32
+            styles:
+              - style_title
+        - obj: # clock container
+            height: SIZE_CONTENT
+            width: 240
+            align: CENTER
+            pad_all: 0
+            border_width: 0
+            bg_color: 0xFFFFFF
+            widgets:
+              - meter: # clock face
+                  height: 220
+                  width: 220
+                  align: CENTER
+                  bg_opa: TRANSP
+                  border_width: 0
+                  text_color: 0x000000
+                  scales:
+                    - range_from: 0 # minutes scale
+                      range_to: 60
+                      angle_range: 360
+                      rotation: 270
+                      ticks:
+                        width: 1
+                        count: 61
+                        length: 10
+                        color: 0x000000
+                      indicators:
+                        - line:
+                            id: minute_hand
+                            width: 3
+                            color: 0xa6a6a6
+                            r_mod: -4
+                            value: 0
+                    - range_from: 1 # hours scale for labels
+                      range_to: 12
+                      angle_range: 330
+                      rotation: 300
+                      ticks:
+                        width: 1
+                        count: 12
+                        length: 1
+                        major:
+                          stride: 1
+                          width: 4
+                          length: 10
+                          color: 0xC0C0C0
+                          label_gap: 12
+                    - range_from: 0 # hi-res hours scale for hand
+                      range_to: 720
+                      angle_range: 360
+                      rotation: 270
+                      ticks:
+                        count: 0
+                      indicators:
+                        - line:
+                            id: hour_hand
+                            width: 5
+                            color: 0xa6a6a6
+                            r_mod: -30
+                            value: 0
+              - label:
+                  styles: date_style
+                  id: day_label
+                  y: -30
+              - label:
+                  id: analog_date_label # Renamed to avoid duplicate
+                  styles: date_style
+                  y: 30
+        - button:  # Back button to return to home
+            id: nav_home_analog
+            text: "Home"
+            align: BOTTOM_MID
+            y: -40  # Lower to ensure on-screen
+            styles:
+              - style_bg
+            on_press:
+              - logger.log: "Nav to Home pressed!"
+              - lvgl.page.show: 
+                  id: page_home
+    - id: page_air   #--ui_air.yaml
+      widgets:
+        - label:
+            id: air_title   #--ui_air.yaml
+            text: "Air Quality"
+            align: TOP_MID
+            y: 20
+            text_font: montserrat_32
+            styles:
+              - style_title
+        - label:
+            id: co2_detail   #--ui_air.yaml
+            text: "CO2: -- ppm"
+            align: CENTER
+            y: -20
+            text_font: montserrat_28
+            styles:
+              - style_subtitle
+        - label:
+            id: voc_detail   #--ui_air.yaml
+            text: "VOC Index: --"
+            align: CENTER
+            y: 40
+            text_font: montserrat_28
+            styles:
+              - style_subtitle
+        - button:  # Back button to return to home
+            id: nav_home_air
+            text: "Home"
+            align: BOTTOM_MID
+            y: -40  # Lower to ensure on-screen
+            styles:
+              - style_bg
+            on_press:
+              - logger.log: "Nav to Home pressed!"
+              - lvgl.page.show: 
+                  id: page_home
+    - id: page_admin    #--ui_admin.yaml
+      widgets:
+        - label:
+            id: admin_title    #--ui_admin.yaml
+            text: "Admin Panel"
+            align: TOP_MID
+            y: 20
+            text_font: montserrat_32
+            styles:
+              - style_title
+        - label:
+            id: wifi_ssid_label    #--ui_admin.yaml
+            text: "WiFi: --"
+            align: LEFT_MID
+            x: 20
+            y: -40
+            text_font: montserrat_24
+            styles:
+              - style_subtitle
+        - label:
+            id: ip_label    #--ui_admin.yaml
+            text: "IP: --"
+            align: LEFT_MID
+            x: 20
+            y: 0
+            text_font: montserrat_24
+            styles:
+              - style_subtitle
+        - button:
+            id: btn_restart    #--ui_admin.yaml
+            text: "Restart Device"
+            align: CENTER
+            y: 40
+            styles:
+              - style_bg
+            on_press:
+              - switch.turn_on: restart_switch
+        - button:  # Back button to return to home
+            id: nav_home_admin
+            text: "Home"
+            align: BOTTOM_MID
+            y: -40  # Lower to ensure on-screen
+            styles:
+              - style_bg
+            on_press:
+              - logger.log: "Nav to Home pressed!"
+              - lvgl.page.show: 
+                  id: page_home
+  style_definitions:
+    - id: style_bg
+      bg_color: 0x101820
+      text_color: 0xFFFFFF  # White; change to 0xFF0000 for red test if invisible
+      border_color: 0x303F4F
+      radius: 12
+      pad_all: 6
+      border_width: 2
+      shadow_width: 0
+    - id: style_title
+      text_color: 0xFFFFFF
+      text_font: montserrat_32
+      bg_color: 0x101820
+    - id: style_subtitle
+      text_color: 0xFFFFFF  # Changed to white for visibility (was gray)
+      text_font: montserrat_24
+      bg_color: 0x101820
+    - id: style_graph_line
+      line_color: 0x00FF00
+      line_width: 2
+    - id: style_clock_container
+      bg_color: 0xFFFFFF
+      border_width: 0
+      radius: 150
+    - id: style_clock_hand_hour
+      line_color: 0x000000
+      line_width: 4
+    - id: style_clock_hand_minute
+      line_color: 0x000000
+      line_width: 3
+    - id: style_clock_hand_second
+      line_color: 0xFF4444
+      line_width: 2
+    - id: date_style
+      text_color: 0x000000
+      text_font: montserrat_20
+      bg_color: 0xFFFFFF
+      pad_all: 4
+      radius: 4
+      border_width: 1
+      border_color: 0x000000
+
+#    - id: page_air   #--ui_air.yaml
+#      widgets:
+#        - label:
+#            id: air_title   #--ui_air.yaml
+#            text: "Air Quality"
+#            align: TOP_MID
+#            y: 20
+#            text_font: montserrat_32
+#            styles:
+#              - style_title
+#        - label:
+#            id: co2_detail   #--ui_air.yaml
+#            text: "CO2: -- ppm"
+#            align: CENTER
+#            y: -20
+#            text_font: montserrat_28
+#            styles:
+#              - style_subtitle
+#        - label:
+#            id: voc_detail   #--ui_air.yaml
+#            text: "VOC Index: --"
+#            align: CENTER
+#            y: 40
+#            text_font: montserrat_28
+#            styles:
+#              - style_subtitle
+#    - id: page_admin    #--ui_admin.yaml
+#      widgets:
+#        - label:
+#            id: admin_title    #--ui_admin.yaml
+#            text: "Admin Panel"
+#            align: TOP_MID
+#            y: 20
+#            text_font: montserrat_32
+#            styles:
+#              - style_title
+#        - label:
+#            id: wifi_ssid_label    #--ui_admin.yaml
+#            text: "WiFi: --"
+#            align: LEFT_MID
+#            x: 20
+#            y: -40
+#            text_font: montserrat_24
+#            styles:
+#              - style_subtitle
+#        - label:
+#            id: ip_label    #--ui_admin.yaml
+#            text: "IP: --"
+#            align: LEFT_MID
+#            x: 20
+#            y: 0
+#            text_font: montserrat_24
+#            styles:
+#              - style_subtitle
+# ...(truncated 2346 characters)...  line_width: 4
+#    - id: style_clock_hand_second  #--ui_theme.yaml
+#      line_color: 0xFF4444
+#      line_width: 2
+
+  widgets:  # Dashboard widgets (ensure direct keys like 'label:', 'arc:', etc.)
+#    - label:
+#        id: clock_label
+#        text: !lambda |-
+#          auto time = id(ha_time).now();
+#          return time.strftime("%I:%M %p");
+#        text_font: arial24
+#        align: center
+#        x: 200
+#        y: 20
+#    - arc: # CO2 gauge
+#        id: co2_gauge
+#        value: !lambda return id(co2).state;
+        # min: 400
+        # max: 2000
+#        x: 50
+#        y: 100
+        # size: [200, 200]
+#    - slider: # HA brightness
+#        id: brightness_slider
+#        value: !lambda return id(ha_light_brightness).state;
+        # min: 0
+        # max: 100
+#        x: 50
+#        y: 350
+#        on_value: !lambda |-
+#          homeassistant.service({
+#            "service": "light.turn_on",
+#            "data": {
+#              "entity_id": "light.in_wall_paddle_dimmer_500s",
+#              "brightness_pct": x
+#            }
+#          });
+#    - arc: # CO2 gauge
+#        id: co2_gauge
+#        value: !lambda return id(co2).state;
+      #  min: 400
+      #  max: 2000
+#        x: 50
+#        y: 100
+      #  size: [200, 200]
+    - slider: # HA brightness
+        id: brightness_slider_lvgl
+        value: !lambda return id(ha_light_brightness).state;
+      #  min: 0
+      #  max: 100
+        x: 50
+        y: 350
+        on_value:
+          - homeassistant.service:
+              service: "light.turn_on"
+              data:
+                entity_id: "light.in_wall_paddle_dimmer_500s"
+          - homeassistant.service:
+              service: "light.set_brightness"
+              data:
+                entity_id: "light.in_wall_paddle_dimmer_500s"
+                brightness_pct: !lambda return x;
+#    - slider: # HA volume example
+#        id: volume_slider
+#        value: !lambda return id(ha_media_volume).state * 100;
+#        min: 0
+#        max: 100
+#        x: 50
+#        y: 400
+#        on_value: !lambda |-
+#          homeassistant.service({
+#            "service": "media_player.volume_set",
+#            "data": {
+#              "entity_id": "media_player.living_room_speaker",
+#              "volume_level": x / 100.0
+#            }
+#          });
+#    - button: # Toggle HA light
+#        id: toggle_button
+#        text: "Toggle Light"
+#        text_font: arial24
+#        x: 300
+#        y: 100
+#        size: [150, 50]
+#        on_click: !lambda |-
+#          homeassistant.service({
+#            "service": "light.toggle",
+#            "data": {
+#              "entity_id": "light.living_room_light"
+#            }
+#          });
+#    - switch: # Tied to template switch
+#        id: example_lvgl_switch
+#          - state: !lambda return id(example_switch).state;
+#        x: 300
+#        y: 200
+#            on_turn_on: !lambda id(example_switch).turn_on();
+#            on_turn_off: !lambda id(example_switch).turn_off();
+
+packet_transport:
+  - platform: uart
+    uart_id: rp2040_serial
+    providers:
+      - name: d1-rp2040
+
+# Import HA entities
+#number:
+#  - platform: homeassistant
+#    id: ha_light_brightness
+#    entity_id: light.in_wall_paddle_dimmer_500s
+#    name: "HA Light Brightness"
+#  - platform: homeassistant
+#    id: ha_media_volume
+#    entity_id: media_player.living_room_speaker  # Replace
+#    name: "HA Media Volume"
+
+# --- SENSORS FROM RP2040 ---
+sensor:
+  - platform: packet_transport # from RP2040 0x59
+    provider: d1-rp2040
+    id: voc
+    name: "VOC Index"
+    internal: false
+    accuracy_decimals: 0
+    icon: "mdi:weather-dust"
+    device_class: aqi
+
+  - platform: packet_transport  # from RP2040 0x62
+    provider: d1-rp2040
+    id: co2
+    name: "CO2"
+    internal: false
+    accuracy_decimals: 0
+    icon: "mdi:molecule-co2"
+    unit_of_measurement: "ppm"
+    device_class: carbon_dioxide
+
+  - platform: packet_transport
+    provider: d1-rp2040
+    id: temp
+    name: "Temperature"
+    internal: false
+    accuracy_decimals: 1
+    icon: "mdi:thermometer"
+    unit_of_measurement: "°C"
+    device_class: temperature
+
+  - platform: packet_transport
+    provider: d1-rp2040
+    id: humid
+    name: "Humidity"
+    internal: false
+    accuracy_decimals: 1
+    icon: "mdi:water-percent"
+    unit_of_measurement: "%"
+    device_class: humidity
+
+# --- INTERNAL TEMPERATURE + UPTIME ---
+  - platform: internal_temperature
+    id: internal_temp
+
+  - platform: uptime
+    id: uptime_sensor
+
+# Example HA Sensors (imported from Home Assistant)
+  - platform: homeassistant
+    id: ha_outdoor_temp
+    entity_id: sensor.outdoor_temperature  # Replace with actual
+    name: "Outdoor Temperature"
+
+  - platform: homeassistant
+    id: ha_light_brightness
+    entity_id: light.in_wall_paddle_dimmer_500s
+    attribute: brightness  # Reads the brightness attribute (0-255 scale)
+    name: "HA Light Brightness"
+    unit_of_measurement: ""  # Optional: No unit, or set to "%" if you prefer brightness_pct
+    accuracy_decimals: 0     # Integer value
+
+# --- BACKLIGHT CONTROL ---
+output:
+  - platform: ledc
+    pin:
+      number: GPIO45
+      ignore_strapping_warning: true
+    id: ledc_gpio45
+    frequency: 25000Hz  # 100Hz default
+
+#---BUZZER GPIO19 PWM -----
+#  - platform: ledc
+#    pin:
+#      number: GPIO19
+#      ignore_strapping_warning: true
+#    id: buzzer_output
+#    frequency: 2000Hz  # 2kHz for buzzer tones
+
+image:
+  - file: https://esphome.io/favicon-512x512.png
+    id: boot_logo
+    resize: 200x200
+    type: RGB565
+    transparency: alpha_channel
+
+light:
+  - platform: monochromatic
+    id: backlight
+    output: ledc_gpio45
+    restore_mode: ALWAYS_ON
+    default_transition_length: 0s
+    on_turn_on:
+      - light.control:
+          id: backlight
+          brightness: 50%  # Default to 50% brightness on power on
+
+# --- DISPLAY (MIPI RGB) ---
+display:
+  - platform: mipi_rgb
+    model: SEEED-INDICATOR-D1
+    id: my_display
+    invert_colors: false  # Toggle to false
+    update_interval: 0s
+    color_order: RGB
+    draw_rounding: 2
+    auto_clear_enabled: false
+    use_axis_flips: true
+
+# --- TOUCHSCREEN (FT5x06) --- I2C 39/40
+touchscreen:
+  - platform: ft5x06
+    id: my_touch
+    transform:
+      mirror_x: true
+      mirror_y: true
+#      swap_xy: true  # Add this to test if coords are rotated
+    on_touch:
+      then:
+        - lambda: |-
+            // Log the first touch point (assuming single-touch)
+            if (!touches.empty()) {
+              ESP_LOGD("touch", "Touch detected at %d/%d!", touches[0].x, touches[0].y);
+            }
+        - if:
+            condition: lvgl.is_paused
+            then:
+              - logger.log: "Resuming LVGL from pause"
+              - lvgl.resume:
+              - light.turn_on: backlight
+              - lvgl.page.show: # page_home
+                  id: page_home
+
+#----- USER BUTTON (GPIO38) -----
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO38
+      inverted: true
+    name: "User Button"
+    id: user_button
+    on_press:
+      then:
+        - homeassistant.service:  # Example: Toggle HA light
+            service: light.toggle
+            data:
+              entity_id: light.in_wall_paddle_dimmer_500s  # Replace
+
+#---- EXAMPLE HOME ASSISTANT INTEGRATIONS ---
+  - platform: homeassistant
+    id: ha_door_sensor
+    entity_id: binary_sensor.front_door  # Replace with actual
+    name: "Front Door Sensor"
+
+# Example Switches
+switch:
+  - platform: restart  # Restart device
+    name: "Restart Device"
+    id: restart_switch  # Add ID for button reference
+  - platform: template  # Virtual switch for HA
+    name: "Example Toggle Switch"
+    id: example_switch
+    optimistic: true
+    turn_on_action:
+      - homeassistant.service:
+          service: homeassistant.turn_on
+          data:
+            entity_id: switch.some_ha_switch  # Replace
+    turn_off_action:
+      - homeassistant.service:
+          service: homeassistant.turn_off
+          data:
+            entity_id: switch.some_ha_switch
+
+# --- GLOBALS FOR MIN/MAX ---
+globals:
+  - id: temp_min
+    type: float
+    initial_value: "9999"
+  - id: temp_max
+    type: float
+    initial_value: "-9999"
+
+  - id: humid_min
+    type: float
+    initial_value: "9999"
+  - id: humid_max
+    type: float
+    initial_value: "-9999"
+
+  - id: co2_min
+    type: float
+    initial_value: "9999"
+  - id: co2_max
+    type: float
+    initial_value: "-9999"
+
+  - id: voc_min
+    type: float
+    initial_value: "9999"
+  - id: voc_max
+    type: float
+    initial_value: "-9999"
+
+# --- TIME (REQUIRED FOR CLOCKS) ---
+time:
+  - platform: homeassistant
+    id: ha_time
+    on_time_sync:
+      - script.execute: time_update
+    on_time:
+      - minutes: '*'
+        seconds: 0
+        then:
+          - script.execute: time_update
+# Refresh dynamic widgets
+interval:
+  - interval: 1s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(ha_time).now().is_valid();'
+          then:
+            - lvgl.label.update:
+                id: clock_label
+                text: !lambda 'return id(ha_time).now().strftime("%H:%M");'
+            - lvgl.label.update:
+                id: date_label
+                text: !lambda 'return id(ha_time).now().strftime("%d %b %Y");'          
+      - lvgl.label.update:
+          id: temp_label
+          text: !lambda |-
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%.1f °C", id(temp).state);
+            return std::string(buf);
+      - lvgl.label.update:
+          id: humid_label
+          text: !lambda |-
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%.1f %", id(humid).state);
+            return std::string(buf);
+      - lvgl.label.update:
+          id: co2_label
+          text: !lambda |-
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%.0f ppm", id(co2).state);
+            return std::string(buf);
+      - lvgl.label.update:
+          id: voc_label
+          text: !lambda |-
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%.0f", id(voc).state);
+            return std::string(buf);
+      - lambda: |-
+          if (id(ha_time).now().is_valid()) {
+            auto t = id(ha_time).now();
+            int minute = t.minute;
+            int hour = (t.hour % 12) * 60 + t.minute;  // For 720 range
+            
+            lv_meter_set_indicator_value(id(clock_face), id(minute_hand), minute);
+            lv_meter_set_indicator_value(id(clock_face), id(hour_hand), hour);
+            
+            // Update day and date labels
+            static const char * const day_names[] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
+            id(day_label).set_text(day_names[t.day_of_week - 1]);
+            
+            static const char * const mon_names[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
+            char buf[8];
+            snprintf(buf, sizeof(buf), "%s %d", mon_names[t.month-1], t.day_of_month);
+            id(analog_date_label).set_text(buf);
+            
+            lv_obj_invalidate(id(clock_face));
+          }
+
+script:
+  - id: time_update
+    then:
+      - lvgl.indicator.update:
+          id: minute_hand
+          value: !lambda |-
+            return id(ha_time).now().minute;
+      - lvgl.indicator.update:
+          id: hour_hand
+          value: !lambda |-
+            auto now = id(ha_time).now();
+            return std::fmod(now.hour, 12) * 60 + now.minute;
+      - lvgl.label.update:
+          id: analog_date_label
+          text: !lambda |-
+            static const char * const mon_names[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+                                                     "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
+            static char date_buf[8];
+            auto now = id(ha_time).now();
+            snprintf(date_buf, sizeof(date_buf), "%s %2d", mon_names[now.month-1], now.day_of_month);
+            return date_buf;
+      - lvgl.label.update:
+          id: day_label
+          text: !lambda |-
+            static const char * const day_names[] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
+            return day_names[id(ha_time).now().day_of_week - 1];
+
+# --- MODULAR UI SYSTEM ---
+# packages:
+#  - !include iaq-project/packages/display-fonts.yaml
+#  - !include sensecap-ha/esphome/ui/ui_theme.yaml
+#  - !include sensecap-ha/esphome/ui/ui_home.yaml
+#  - !include sensecap-ha/esphome/ui/ui_graphs.yaml
+#  - !include sensecap-ha/esphome/ui/ui_air.yaml
+#  - !include sensecap-ha/esphome/ui/ui_settings.yaml
+#  - !include sensecap-ha/esphome/ui/ui_admin.yaml
+#  - !include sensecap-ha/esphome/ui/ui_navigation.yaml
+#  - !include sensecap-ha/esphome/ui/ui_updates.yaml
+#  - !include sensecap-ha/esphome/ui/ui_sleep.yaml
+#  - !include sensecap-ha/esphome/ui/ui_analog_clock.yaml

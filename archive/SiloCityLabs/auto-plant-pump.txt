@@ -1,0 +1,8 @@
+https://silocitylabs.com/post/2023/2023-10-28-esp32-garden/
+https://github.com/nkitanov/iaq_board/blob/master/ordering.md
+https://hobbystuff.co.uk/products/d1-mini-esp32-with-pins-cp2104-driver-wifi-bluetooth-dual-core-esp-32
+https://thingpulse.com/esp32-ultra-long-battery-life-with-espnow/
+https://docs.thingpulse.com/guides/esp32-color-kit-grande/
+https://devices.esphome.io/devices/Everything-Presence-One/
+https://devices.esphome.io/devices/Apollo-Automation-MSR-2/
+https://esp32io.com/tutorials/how-to-power-esp32

@@ -1,0 +1,6 @@
+substitutions:
+  run_duration_default: "20"
+  sleep_duration_default: "1800"   # 30 minutes
+  wifi_power_default: "5.0"
+  sensor_update_default: "120s"
+  ble_enabled_default: "false"

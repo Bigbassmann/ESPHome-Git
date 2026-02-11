@@ -1,0 +1,29 @@
+globals:
+  - id: sleep_cycle_counter
+    type: int
+    restore_value: yes
+    initial_value: '0'
+  - id: boot_loop_counter
+    type: int
+    restore_value: yes
+    initial_value: '0'
+  - id: wake_start_timestamp
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+  - id: last_eval_millis
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+  - id: eval_in_progress
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+  - id: last_valid_fr_temp
+    type: float
+    restore_value: no
+    initial_value: '0'
+  - id: last_valid_fr_humidity
+    type: float
+    restore_value: no
+    initial_value: '0'

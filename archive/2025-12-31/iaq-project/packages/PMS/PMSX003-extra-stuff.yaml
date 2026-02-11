@@ -1,0 +1,241 @@
+text_sensor:
+  - platform: template
+    name: "Air Quality Index (AQI)"
+    id: aqi
+    icon: mdi:air-filter
+
+
+switch:
+  - platform: gpio
+    name: "PMS7003_SET"
+    pin: 
+      number: GPIO26
+      mode: OUTPUT
+    restore_mode: ALWAYS_ON
+    id: pms_set
+
+# The bellow interval can be used if you want to turn on PMS dust sensor
+# for 10s each 1min. Can help for longetivity of the sensor, but I do not
+# use it. Sensors are cheap to replace if they fail.
+
+# interval:
+#   - interval: 60s
+#     then:
+#       - switch.turn_on: pms_set
+#       - delay: 10s
+#       - switch.turn_off: pms_set
+
+# This is a "helper" template sensor which is doing 30 sec moving average of PM2.5
+# I use it for sensing in automations controlling purifiers (with Home Assistant), 
+# in order to remove the outlier values and making the control more smooth
+  sensor:
+    - platform: template
+      name: "PM2.5 median"
+      id: pm2_5_median
+      icon: mdi:chemical-weapon
+      unit_of_measurement: µg/m³
+      lambda: |-
+        return id(pm2_5).state;
+      update_interval: 1s
+      filters:
+        - median:
+            window_size: 30
+            send_every: 30
+            send_first_at: 15
+
+sensor:
+    - platform: pmsx003
+      type: PMSX003
+      uart_id: pms
+      pm_1_0:
+        name: "PM 1 Concentration"
+        id: pm1
+      pm_2_5:
+        name: "PM 2.5 Concentration"
+        id: pm2_5
+        on_value:
+          - if:
+              condition:
+                sensor.in_range:
+                  id: pm2_5
+                  below: 10
+              then: 
+                - light.control:
+                    id: led1
+                    red: 0
+                    green: 1
+                    blue: 0
+          - if:
+              condition:
+                sensor.in_range:
+                  id: pm2_5
+                  above: 10
+                  below: 20
+              then: 
+                - light.control:
+                    id: led1
+                    red: 0
+                    green: 1
+                    blue: 1
+          - if:
+              condition:
+                sensor.in_range:
+                  id: pm2_5
+                  above: 20
+                  below: 30
+              then: 
+                - light.control:
+                    id: led1
+                    red: 1
+                    green: 1
+                    blue: 0
+          - if:
+              condition:
+                sensor.in_range:
+                  id: pm2_5
+                  above: 30
+                  below: 40
+              then: 
+                - light.control:
+                    id: led1
+                    red: 1
+                    green: 0
+                    blue: 1
+          - if:
+              condition:
+                sensor.in_range:
+                  id: pm2_5
+                  above: 40
+              then: 
+                - light.control:
+                    id: led1
+                    red: 1
+                    green: 0
+                    blue: 0
+          - lambda: |-
+              if(id(pm2_5).state > id(pm_max)) { id(pm_max) = id(pm2_5).state; }
+              if(id(pm2_5).state < id(pm_min)) { id(pm_min) = id(pm2_5).state; }
+      pm_10_0:
+        name: "PM 10 Concentration"
+        id: pm10
+
+
+- platform: template
+      name: "PM2.5 24h average"
+      id: pm2_5_avg
+      icon: mdi:chemical-weapon
+      unit_of_measurement: µg/m³
+      lambda: |-
+        return id(pm2_5).state;
+      update_interval: 60s
+      filters:
+        - sliding_window_moving_average:
+            window_size: 1440
+            send_every: 1
+      on_value:
+        - if:
+            condition:
+              sensor.in_range:
+                id: pm2_5_avg
+                below: 10
+            then: 
+              - light.control:
+                  id: led2
+                  red: 0
+                  green: 1
+                  blue: 0
+              - text_sensor.template.publish:
+                  id: aqi
+                  state: "Good"
+        - if:
+            condition:
+              sensor.in_range:
+                id: pm2_5_avg
+                above: 10
+                below: 20
+            then: 
+              - light.control:
+                  id: led2
+                  red: 0
+                  green: 1
+                  blue: 1
+              - text_sensor.template.publish:
+                  id: aqi
+                  state: "Fair"
+        - if:
+            condition:
+              sensor.in_range:
+                id: pm2_5_avg
+                above: 20
+                below: 25
+            then: 
+              - light.control:
+                  id: led2
+                  red: 1
+                  green: 1
+                  blue: 0
+              - text_sensor.template.publish:
+                  id: aqi
+                  state: "Moderate"                  
+        - if:
+            condition:
+              sensor.in_range:
+                id: pm2_5_avg
+                above: 25
+                below: 50
+            then: 
+              - light.control:
+                  id: led2
+                  red: 1
+                  green: 0
+                  blue: 1
+              - text_sensor.template.publish:
+                  id: aqi
+                  state: "Poor"                  
+        - if:
+            condition:
+              sensor.in_range:
+                id: pm2_5_avg
+                above: 50
+                below: 75
+            then: 
+              - light.control:
+                  id: led2
+                  red: 1
+                  green: 0
+                  blue: 0
+              - text_sensor.template.publish:
+                  id: aqi
+                  state: "Very Poor"                  
+        - if:
+            condition:
+              sensor.in_range:
+                id: pm2_5_avg
+                above: 75
+            then: 
+              - light.control:
+                  id: led2
+                  red: 1
+                  green: 0
+                  blue: 0
+              - text_sensor.template.publish:
+                  id: aqi
+                  state: "Extremely Poor"                      
+
+# This is a "helper" template sensor which is doing 30 sec moving average of PM2.5
+# I use it for sensing in automations controlling purifiers (with Home Assistant), 
+# in order to remove the outlier values and making the control more smooth
+    - platform: template
+      name: "PM2.5 median"
+      id: pm2_5_median
+      icon: mdi:chemical-weapon
+      unit_of_measurement: µg/m³
+      lambda: |-
+        return id(pm2_5).state;
+      update_interval: 1s
+      filters:
+        - median:
+            window_size: 30
+            send_every: 30
+            send_first_at: 15
+

@@ -1,0 +1,14 @@
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  id: wifi_1
+  output_power: 8.5
+  ap:
+    ssid: "${friendly_name} Fallback Hotspot"
+    password: "fallbackpass"
+
+  on_connect:
+    - delay: 5s
+    - ble.disable:
+  on_disconnect:
+    - ble.enable:

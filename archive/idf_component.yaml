@@ -1,0 +1,5 @@
+## idf_component.yml
+## Place this file in the root of your ESP-IDF project to add the MAX17048 component dependency.
+
+dependencies:
+  npwh/max17048: "^0.0.2"

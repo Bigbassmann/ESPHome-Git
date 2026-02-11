@@ -1,0 +1,32 @@
+esphome:
+  name: esp32-aitrip-mini-6
+  friendly_name: esp32-aitrip-mini-6
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "qsZ/BTUpFaDueF0MmmMn0r1qWMPRekEeoGfMptaHEDU="
+
+ota:
+  - platform: esphome
+    password: "ef21b2ae419d6bb0015ef65a4322efbc"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp32-Aitrip-Mini-6"
+    password: "et1B1tbRTNI5"
+
+captive_portal:
+    

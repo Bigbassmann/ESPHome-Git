@@ -1,0 +1,32 @@
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 64x48"
+    address: 0x3D
+    brightness: 100%
+    rotation: 270
+    id: display2
+    update_interval: 1s  # Redraw every second for dynamic test
+    lambda: |-
+      it.clear();  // Clear the screen before drawing
+
+      // Draw a simple border to test full screen
+      it.rectangle(0, 0, it.get_width(), it.get_height(), WHITE);
+
+      // Test font sizes
+      it.print(2, 2, id(arial10), TextAlign::TOP_LEFT, "Arial 10pt Test");
+      it.print(2, 15, id(arial), TextAlign::TOP_LEFT, "Arial 15pt Test");
+      it.print(2, 35, id(arial30), TextAlign::TOP_LEFT, "30pt");
+
+      // Optional: Show current time if time component is available
+      if (id(sntp_time).now().is_valid()) {
+        auto time = id(sntp_time).now();
+        char time_str[20];
+        sprintf(time_str, "%02d:%02d:%02d", time.hour, time.minute, time.second);
+        it.print(it.get_width() / 2, it.get_height() - 10, id(arial), TextAlign::CENTER_BOTTOM, time_str);
+      } else {
+        it.print(it.get_width() / 2, it.get_height() - 10, id(arial), TextAlign::CENTER_BOTTOM, "No Time");
+      }
+
+      // Draw some shapes to test pixel rendering
+      it.circle(10, 10, 5, WHITE);
+      it.line(0, 0, it.get_width(), it.get_height(), WHITE);

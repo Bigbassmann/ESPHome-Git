@@ -1,0 +1,27 @@
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 64x48"
+    address: 0x3D
+    brightness: 100%
+    rotation: 270
+    id: display2
+    update_interval: 1s  # Refresh every second for testing; change to never later if static
+    lambda: |-
+      it.clear();
+
+      // Draw a border around the entire screen
+      it.rectangle(0, 0, it.get_width(), it.get_height(), COLOR_ON);
+
+      // Test font sizes and alignment
+      it.print(2, 2, id(arial), TextAlign::TOP_LEFT, "Display Test");
+      it.print(2, 20, id(arial30), TextAlign::TOP_LEFT, "BIG");
+      it.print(2, 45, id(arial10), TextAlign::TOP_LEFT, "Small text");
+
+      // Draw some graphics to verify pixels
+      it.line(0, 0, it.get_width(), it.get_height(), COLOR_ON);  // Diagonal line
+      it.circle(it.get_width() / 2, it.get_height() / 2, 10, COLOR_ON);  // Circle in center
+
+      // Optional: Show dynamic info (uncomment if you have uptime sensor defined)
+      // char buf[32];
+      // sprintf(buf, "Uptime: %.0fs", id(esp_uptime).state);
+      // it.print(2, 35, id(arial10), TextAlign::TOP_LEFT, buf);

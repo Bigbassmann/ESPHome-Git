@@ -1,0 +1,22 @@
+# max17048.yaml - Reusable package for MAX17048 fuel gauge in ESPHome (ESP-IDF framework)
+# Include this in your main YAML like:
+# packages:
+#   fuel_gauge: !include max17048.yaml
+# Ensure your main YAML has esp32: framework: type: esp-idf
+
+packages:
+  board: !include Board-AITrip-ESP32-C3-FN4-Super-Mini.yaml  # Nested package for board-specific pinouts (e.g., I2C pins)
+
+external_components:
+  - source:
+      type: local
+      path: custom_components/max17048_sensor
+
+max17048_sensor:
+  i2c_id: bus_a  # Matches your board package's I2C bus ID
+  voltage:
+    name: "${device_name} Battery Voltage"
+  soc:
+    name: "${device_name} Battery SOC"
+  rate:
+    name: "${device_name} Battery Charge Rate"

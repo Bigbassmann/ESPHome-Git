@@ -1,0 +1,106 @@
+PDS Switch on, turned off and kept turning on
+FSO Switch On - turn off quickly - seems to go to sleep
+FDS switch ON - Stays on
+ASE Switch ON - Stays On
+Last Awake Time
+- 21:13:20
+- 21:15:21
+- 21:17:21
+- 21:19:22
+-- Every 2 minutes
+
+Adapt Sleep Duration - 90s
+AS Mode - Normal Mode
+
+Sleep State not working - Pending
+
+Turn off ASE Switch - Stays off at update
+FSO Switch is Still ON
+Profile Run Time 30s
+Profile Off Time 90s
+- 21:19:22 - Last
+- 21:21:22
+- 21:23:16
+Set Sleep Duration to 30s - went back to 90s
+- 21:25:16 - SD went back to 90s
+Set Run Duration to 10s
+- 21:27:14 - RD went back to 30s
+- 21:29:15
+
+Turned on PDS Switch - 
+- 21:31:15 - FSO Switch stays on with PDS switch
+Turned off FDS Switch
+- 21:33:16 - FDS Stays off, and PDS Stays on
+- 21:35:17
+Switches do not have any effect:
+
+Put line
+# sleep_duration: 0s
+Back online
+Kept Deep Sleep wake up pin disabled
+  # wakeup_pin:
+   #  number: GPIO4
+   #  inverted: true
+   #  mode: INPUT_PULLUP
+  # wakeup_pin_mode: KEEP_AWAKE
+Set AS Duration to 120
+Set P Runtime to 60s and Sleep Time to 120s
+
+PDS Switch ON
+- 21:47:34
+- 21:50:28
+- 21:53:26 - seems to be following Profile even though the PDS Switch is ON
+
+substitutions:
+  mode: debug
+  logger_level: DEBUG
+  wifi_psm: none
+  wifi_power: "18"
+  run_time: "30"
+  sleep_time: "90"
+  heartbeat: "1"
+
+# -------------------------------
+# Deep Sleep
+# -------------------------------
+deep_sleep:
+  id: deep_sleep_ctrl
+  run_duration: ${run_time}s
+  sleep_duration: ${sleep_time}s
+  # wakeup_pin:
+   #  number: GPIO4
+   #  inverted: true
+   #  mode: INPUT_PULLUP
+  # wakeup_pin_mode: KEEP_AWAKE
+
+# -------------------------------
+# Interval Automation
+# -------------------------------
+interval:
+  - interval: 10s
+    then:
+      
+      - if:
+          condition:
+            switch.is_on: force_sleep_override
+          then:
+            - logger.log: "Force Sleep Override active → entering deep sleep despite API connection"
+            - script.execute: dynamic_sleep_cycle
+          else:
+            - logger.log: "Skipping deep sleep while OTA/API is active"
+            - if:
+                condition:
+                  switch.is_off: deep_sleep_prevent
+                then:
+                  - if:
+                      condition:
+                        switch.is_on: use_gpio_wakeup
+                      then:
+                        - logger.log: "GPIO wakeup mode → entering deep sleep immediately"
+                        - text_sensor.template.publish:
+                            id: active_wakeup_sources
+                            state: "GPIO4"
+                        - deep_sleep.enter:
+                            id: deep_sleep_ctrl
+                            # sleep_duration: 0s
+

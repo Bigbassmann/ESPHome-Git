@@ -1,0 +1,8 @@
+substitutions:
+
+  # Default values (Balanced Mode)
+  run_duration_default: "120"
+  sleep_duration_default: "240"
+  wifi_power_default: "8.5"
+  sensor_update_default: "30s"
+  ble_enabled_default: "false"

@@ -1,0 +1,25 @@
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 64x48"
+    address: 0x3D
+    brightness: 100%
+    rotation: 270
+    id: display2
+    lambda: |-
+      if (id(display_on) && id(button_mode) < 8) {
+          it.printf(0, 0, id(arial), "%.1f C", id(temp).state);
+          it.printf(0, 20, id(arial), "%.0f %%", id(hum).state);
+          it.printf(0, 40, id(arial), "%.0f h", id(press).state);
+      }
+
+
+font:
+  - file: "fonts/Arial.ttf"
+    id: arial
+    size: 15
+  - file: "fonts/Arial.ttf"
+    id: arial30
+    size: 30
+  - file: "fonts/Arial.ttf"
+    id: arial10
+    size: 10

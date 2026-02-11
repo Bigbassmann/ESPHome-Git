@@ -1,0 +1,33 @@
+espnow:
+  on_receive:
+    then:
+      - lambda: |-
+          std::string sender_str = format_mac_address_pretty(info.src_addr);
+          if (size == sizeof(float)) {
+            float pressure;
+            memcpy(&pressure, data, sizeof(float));
+            id(received_pressure_global) = pressure;
+            id(espnow_pressure_display).update();
+            id(display1).update(); // updated display on change
+            ESP_LOGI("espnow", "Received pressure: %.2f from %s", pressure, sender_str.c_str());
+          }
+
+globals:
+  - id: received_pressure_global
+    type: float
+    restore_value: yes # Optional: Persist across reboots
+#    initial_value: '0.0' # Matches sender's initial state 
+
+sensor:
+  - platform: template
+    name: "AQ Pressure Rec'd"
+    id: espnow_pressure_display
+#    internal: true
+    unit_of_measurement: hPa
+    lambda: |-
+      if (isnan(id(received_pressure_global))) {
+        ESP_LOGW("pressure", "Received NAN pressure, defaulting to 0.0");
+        return 0.0;
+      }
+      return id(received_pressure_global);
+    update_interval: 30s

@@ -1,0 +1,47 @@
+1. ESP-NOW (Direct Device-to-Device, Recommended for ESP32)
+ESP-NOW is a low-latency, low-power wireless protocol built into ESPHome for ESP32 devices, enabling peer-to-peer communication without Wi-Fi infrastructure or a broker. Using the packet_transport: espnow platform, you can directly reference a remote sensor's value as if it were local.
+
+Requirements: ESP32 on all devices; configure MAC addresses as peers; optional shared encryption key for security. Devices must be in range (~100m line-of-sight).
+Setup:
+On the provider device (sensor source):
+
+espnow:
+  peers:
+    - "AA:BB:CC:DD:EE:FF"  # Consumer's MAC address
+
+packet_transport:
+  platform: espnow
+  peer_address: "AA:BB:CC:DD:EE:FF"  # Or broadcast: "FF:FF:FF:FF:FF:FF"
+  encryption:
+    key: "YourSecretKey123"  # Optional
+  providers:
+    name: my-provider  # Unique provider name
+  sensors:
+    remote_temp:  # Local sensor being shared
+      sensor:
+        platform: bme280  # Example sensor
+        id: remote_temp
+        name: "Remote Temp"
+
+# On the consumer device (references the remote sensor):
+
+espnow:
+  peers:
+    - "11:22:33:44:55:66"  # Provider's MAC address
+
+packet_transport:
+  platform: espnow
+  encryption:
+    key: "YourSecretKey123"  # Match provider
+  providers:
+    my-provider  # Matches provider's name
+  sensors:
+    my_temp_copy:
+      platform: packet_transport
+      provider: my-provider
+      remote_id: remote_temp  # References the provider's sensor ID
+      name: "Copied Remote Temp"
+      unit_of_measurement: "°C"
+
+How it works: The provider shares the sensor automatically. The consumer treats my_temp_copy as a local sensor, with values synced in real-time/low-latency. Use in lambdas, automations, or displays on the consumer.
+Limitations: ESP32-only; requires manual MAC config; broadcast mode increases traffic.

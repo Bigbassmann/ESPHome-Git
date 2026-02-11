@@ -1,0 +1,436 @@
+esphome:
+  name: xiao-c3-test
+  friendly_name: XIAO-C3-Test
+
+  on_boot:
+    priority: -100
+    then:
+      - lambda: |-
+          id(sleep_allowed) = false;
+          id(ha_state_received) = false;
+          id(safe_boot_state_received) = false;
+          ESP_LOGW("sleep", "[BOOT] Deep sleep PREVENTED at boot. Evaluating initial states...");
+
+      - lambda: |-
+          bool raw_level = gpio_get_level(GPIO_NUM_4);
+          ESP_LOGI("safe_boot", "[BOOT] Raw GPIO4 level: %s", raw_level ? "HIGH" : "LOW");
+
+      - lambda: |-
+          ESP_LOGI("safe_boot", "[BOOT] Safe Boot Pin at boot: %s",
+                   id(safe_boot_pin).state ? "ON (SAFE MODE — pin LOW)" : "OFF (Normal Mode — pin HIGH)");
+
+      - lambda: |-
+          ESP_LOGI("override", "[BOOT] HA Override at boot: %s",
+                   id(ha_deep_sleep_override).state ? "ON (blocking)" : "OFF (not blocking)");
+
+    # New: Immediate initial evaluation
+      - lambda: |-
+          bool safe_mode_on   = id(safe_boot_pin).state;                  // Immediate (local pin)
+          bool ha_override_on = id(ha_deep_sleep_override).state;        // Best available now
+
+          // Force flags as "received" since we're trusting initial values
+          id(safe_boot_state_received) = true;
+          id(ha_state_received) = true;
+
+          if (!safe_mode_on && !ha_override_on) {
+            id(sleep_allowed) = true;
+            ESP_LOGI("sleep", "[BOOT] Initial states GOOD → Deep sleep ALLOWED immediately.");
+          } else {
+            id(sleep_allowed) = false;
+            ESP_LOGW("sleep", "[BOOT] Initial states BLOCK sleep — reasons:%s%s",
+                     safe_mode_on ? " SAFE_MODE_ON" : "",
+                     ha_override_on ? " HA_OVERRIDE_ON" : "");
+          }
+
+      - if:
+          condition:
+            lambda: 'return id(sleep_allowed);'
+          then:
+            - deep_sleep.allow: deep_sleep_1
+          else:
+            - deep_sleep.prevent: deep_sleep_1
+
+      - lambda: |-
+            ESP_LOGI("phase4_5", "[BOOT] Phase 4.5 boot complete — initial check done.");
+  
+  
+  
+  #on_boot:
+  #  priority: -100
+ #   then:
+  #    - lambda: |-
+     #     id(sleep_allowed) = false;
+      #    id(ha_state_received) = false;
+   #       id(safe_boot_state_received) = false;
+     #     ESP_LOGW("sleep", "[BOOT] Deep sleep PREVENTED at boot. Waiting for Safe Boot + HA override states.");
+#
+     # - lambda: |-
+    #      bool raw_level = gpio_get_level(GPIO_NUM_4);
+     #     ESP_LOGI("safe_boot", "[BOOT] Raw GPIO4 level: %s", raw_level ? "HIGH" : "LOW");
+#
+   #   - lambda: |-
+     #     ESP_LOGI("safe_boot", "[BOOT] Safe Boot Pin at boot (pre-sync): %s",
+    #               id(safe_boot_pin).state ? "ON (SAFE MODE — pin LOW)" : "OFF (Normal Mode — pin HIGH)");
+#
+    #  - lambda: |-
+   #       ESP_LOGI("override", "[BOOT] HA Override at boot (pre-sync): %s",
+   #                id(ha_deep_sleep_override).state ? "ON (blocking)" : "OFF (not blocking)");
+#
+    #  - lambda: |-
+    #      ESP_LOGI("phase4_5", "[BOOT] Phase 4.5 boot complete — entering SYNC phase (sleep blocked until both Safe Boot + HA override confirmed).");
+
+esp32:
+  board: seeed_xiao_esp32c3
+  framework:
+    type: esp-idf
+
+logger:
+  level: DEBUG
+  baud_rate: 0
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  power_save_mode: none
+  use_address: 192.168.158.180
+  ap:
+    ssid: "XIAO-C3-Test Fallback"
+    password: "12345678"
+
+api:
+
+ota:
+  - platform: esphome
+    password: "test"
+
+captive_portal:
+
+mdns:
+  disabled: false
+
+web_server:
+  port: 80
+  include_internal: true
+
+# ============================================================
+#  Deep Sleep (automatic + manual, official actions)
+# ============================================================
+deep_sleep:
+  id: deep_sleep_1
+  run_duration: 480s
+  sleep_duration: 240s
+
+# ============================================================
+#  Globals
+# ============================================================
+globals:
+  - id: sleep_allowed
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+  - id: ha_state_received
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+  - id: safe_boot_state_received
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+# ============================================================
+#  SAFE-BOOT PIN + HA override
+# ============================================================
+binary_sensor:
+  - platform: gpio
+    id: safe_boot_pin
+    pin:
+      number: GPIO4
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Safe Boot Pin"
+    internal: true
+
+    on_press:
+      then:
+        - lambda: |-
+            bool raw_level = gpio_get_level(GPIO_NUM_4);
+            id(safe_boot_state_received) = true;
+            ESP_LOGW("safe_boot", "[EDGE] Safe Boot pressed → SAFE MODE ON. Raw GPIO4=%s",
+                     raw_level ? "HIGH" : "LOW");
+
+            id(sleep_allowed) = false;
+            ESP_LOGW("sleep", "[EDGE] Safe Boot ON → Deep sleep BLOCKED.");
+        - deep_sleep.prevent: deep_sleep_1
+
+    on_release:
+      then:
+        - lambda: |-
+            bool raw_level = gpio_get_level(GPIO_NUM_4);
+            id(safe_boot_state_received) = true;
+            ESP_LOGW("safe_boot", "[EDGE] Safe Boot released → SAFE MODE OFF. Raw GPIO4=%s",
+                     raw_level ? "HIGH" : "LOW");
+
+            bool safe_mode_on    = id(safe_boot_pin).state;
+            bool ha_override_on  = id(ha_deep_sleep_override).state;
+            bool ha_known        = id(ha_state_received);
+
+            if (ha_known && !safe_mode_on && !ha_override_on) {
+              id(sleep_allowed) = true;
+              ESP_LOGI("sleep", "[EDGE] Deep sleep ALLOWED — Safe Mode OFF AND HA override OFF AND HA known.");
+            } else {
+              id(sleep_allowed) = false;
+              ESP_LOGW("sleep", "[EDGE] Deep sleep BLOCKED after Safe Boot release — reasons:%s%s%s",
+                       safe_mode_on ? " SAFE_MODE_ON" : "",
+                       ha_override_on ? " HA_OVERRIDE_ON" : "",
+                       (!ha_known) ? " HA_NOT_SYNCED" : "");
+            }
+        - if:
+            condition:
+              lambda: 'return id(sleep_allowed);'
+            then:
+              - deep_sleep.allow: deep_sleep_1
+            else:
+              - deep_sleep.prevent: deep_sleep_1
+
+  - platform: homeassistant
+    id: ha_deep_sleep_override
+    entity_id: input_boolean.xiao_c3_test_deep_sleep_override
+    internal: true
+
+    on_state:
+      then:
+        - lambda: |-
+            bool ha_state = id(ha_deep_sleep_override).state;
+            id(ha_state_received) = true;
+
+            ESP_LOGI("override", "[HA] HA override state changed → %s",
+                     ha_state ? "ON (blocking)" : "OFF (not blocking)");
+
+            id(local_override_switch).publish_state(ha_state);
+
+            bool safe_mode_on = id(safe_boot_pin).state;
+            bool ha_known     = id(ha_state_received);
+
+            if (ha_known && !safe_mode_on && !ha_state) {
+              id(sleep_allowed) = true;
+              ESP_LOGI("sleep", "[HA] Deep sleep ALLOWED — Safe Mode OFF AND HA override OFF AND HA known.");
+            } else {
+              id(sleep_allowed) = false;
+              ESP_LOGW("sleep", "[HA] Deep sleep BLOCKED after HA override change — reasons:%s%s%s",
+                       safe_mode_on ? " SAFE_MODE_ON" : "",
+                       ha_state ? " HA_OVERRIDE_ON" : "",
+                       (!ha_known) ? " HA_NOT_SYNCED" : "");
+            }
+        - if:
+            condition:
+              lambda: 'return id(sleep_allowed);'
+            then:
+              - deep_sleep.allow: deep_sleep_1
+            else:
+              - deep_sleep.prevent: deep_sleep_1
+
+# ============================================================
+#  Sensors (merged)
+# ============================================================
+sensor:
+  - platform: template
+    id: safe_boot_state_diag
+    name: "Safe Boot State (Diag)"
+    lambda: |-
+      return id(safe_boot_pin).state;
+
+  - platform: template
+    id: ha_override_state_diag
+    name: "HA Override State (Diag)"
+    lambda: |-
+      return id(ha_deep_sleep_override).state;
+
+  - platform: uptime
+    name: "ESP Uptime"
+    id: esp_uptime
+    update_interval: 30s
+
+  - platform: wifi_signal
+    name: "Wi-Fi Signal"
+    update_interval: 30s
+
+  - platform: template
+    name: "ESP Reset Reason (Raw)"
+    id: esp_reset_reason_raw
+    entity_category: diagnostic
+    accuracy_decimals: 0
+    lambda: |-
+      return (float)esp_reset_reason();
+
+  - platform: aht10
+    variant: AHT20
+    id: aht20_sensor
+    temperature:
+      name: "${devicename} Temperature"
+      id: fr_temp
+      unit_of_measurement: "°F"
+      accuracy_decimals: 1
+      filters:
+        - lambda: |-
+            if (isnan(x)) return NAN;
+            return x * (9.0/5.0) + 32.0;
+    humidity:
+      name: "${devicename} Humidity"
+      id: fr_humidity
+      accuracy_decimals: 1
+    update_interval: 30s
+
+# ============================================================
+#  Text Sensors
+# ============================================================
+text_sensor:
+  - platform: template
+    name: "ESP Reset Reason"
+    id: esp_reset_reason_text
+    entity_category: diagnostic
+    lambda: |-
+      switch (esp_reset_reason()) {
+        case ESP_RST_POWERON:    return {"Power On"};
+        case ESP_RST_EXT:        return {"External Reset"};
+        case ESP_RST_SW:         return {"Software Reset"};
+        case ESP_RST_PANIC:      return {"Panic"};
+        case ESP_RST_INT_WDT:    return {"Interrupt WDT"};
+        case ESP_RST_TASK_WDT:   return {"Task WDT"};
+        case ESP_RST_WDT:        return {"Other WDT"};
+        case ESP_RST_DEEPSLEEP:  return {"Deep Sleep Wake"};
+        case ESP_RST_BROWNOUT:   return {"Brownout"};
+        case ESP_RST_SDIO:       return {"SDIO"};
+        default:                 return {"Unknown"};
+      }
+
+  - platform: wifi_info
+    ip_address:
+      name: "IP Address"
+    ssid:
+      name: "Connected SSID"
+    bssid:
+      name: "Connected BSSID"
+
+# ============================================================
+#  Local override + manual deep sleep
+# ============================================================
+switch:
+  - platform: template
+    name: "Deep Sleep Override (Local)"
+    id: local_override_switch
+    restore_mode: ALWAYS_ON #ALWAYS_OFF
+
+    turn_on_action:
+      - lambda: |-
+          ESP_LOGI("override", "[LOCAL] Local override switch turned ON → requesting HA override ON.");
+      - homeassistant.service:
+          service: input_boolean.turn_on
+          data:
+            entity_id: input_boolean.xiao_c3_test_deep_sleep_override
+
+    turn_off_action:
+      - lambda: |-
+          ESP_LOGI("override", "[LOCAL] Local override switch turned OFF → requesting HA override OFF.");
+      - homeassistant.service:
+          service: input_boolean.turn_off
+          data:
+            entity_id: input_boolean.xiao_c3_test_deep_sleep_override
+
+  - platform: template
+    name: "Manual Deep Sleep Trigger"
+    id: manual_deep_sleep_trigger
+
+    turn_on_action:
+      - lambda: |-
+          bool safe_mode_on    = id(safe_boot_pin).state;
+          bool ha_override_on  = id(ha_deep_sleep_override).state;
+          bool ha_known        = id(ha_state_received);
+
+          id(sleep_allowed) = (ha_known && !safe_mode_on && !ha_override_on);
+
+          if (id(sleep_allowed)) {
+            ESP_LOGW("sleep", "[MANUAL] Conditions satisfied → entering deep sleep NOW.");
+          } else {
+            ESP_LOGW("sleep", "[MANUAL] Manual trigger IGNORED — reasons:%s%s%s",
+                     safe_mode_on ? " SAFE_MODE_ON" : "",
+                     ha_override_on ? " HA_OVERRIDE_ON" : "",
+                     (!ha_known) ? " HA_NOT_SYNCED" : "");
+          }
+ #     - if:
+  #        condition:
+   #         lambda: 'return id(sleep_allowed);'
+    #      then:
+      #      - deep_sleep.enter: deep_sleep_1
+       #   else:
+        #    - deep_sleep.prevent: deep_sleep_1
+
+# ============================================================
+#  I2C BUS
+# ============================================================
+i2c:
+  sda: GPIO6
+  scl: GPIO7
+  scan: true
+
+# ============================================================
+#  Heartbeat + continuous diagnostics
+# ============================================================
+interval:
+  # Existing 10s heartbeat for diagnostics
+  - interval: 10s
+    then:
+      - lambda: |-
+          bool raw_level       = gpio_get_level(GPIO_NUM_4);
+          bool safe_mode_on    = id(safe_boot_pin).state;
+          bool ha_override_on  = id(ha_deep_sleep_override).state;
+          bool allowed         = id(sleep_allowed);
+          bool ha_known        = id(ha_state_received);
+
+          ESP_LOGD("safe_boot", "[HEARTBEAT] Raw GPIO4 level: %s",
+                   raw_level ? "HIGH" : "LOW");
+          ESP_LOGD("safe_boot", "[HEARTBEAT] Safe Boot Pin state: %s",
+                   safe_mode_on ? "ON (SAFE MODE)" : "OFF (Normal Mode)");
+          ESP_LOGD("override", "[HEARTBEAT] HA Override state: %s",
+                   ha_override_on ? "ON" : "OFF");
+          ESP_LOGD("sleep", "[HEARTBEAT] sleep_allowed=%s, ha_known=%s, safe_boot_state=%s",
+                   allowed ? "true" : "false",
+                   ha_known ? "true" : "false",
+                   safe_mode_on ? "ON" : "OFF");
+
+      - if:
+          condition:
+            lambda: 'return id(sleep_allowed);'
+          then:
+            - lambda: |-
+                ESP_LOGD("phase4_5", "[HEARTBEAT] Deep sleep ALLOWED (AND-gate satisfied, states synced).");
+          else:
+            - lambda: |-
+                ESP_LOGD("phase4_5", "[HEARTBEAT] Deep sleep PREVENTED (Safe Mode, HA override, or state not yet synced).");
+
+  # New 240s automatic deep sleep trigger (Option A)
+  - interval: 240s
+    then:
+      - lambda: |-
+          bool safe_mode_on    = id(safe_boot_pin).state;
+          bool ha_override_on  = id(ha_deep_sleep_override).state;
+          bool ha_known        = id(ha_state_received);
+
+          id(sleep_allowed) = (ha_known && !safe_mode_on && !ha_override_on);
+
+          if (id(sleep_allowed)) {
+            ESP_LOGW("sleep", "[AUTO] 240s run window expired → conditions satisfied, requesting deep sleep.");
+          } else {
+            ESP_LOGW("sleep", "[AUTO] 240s run window expired → automatic sleep BLOCKED — reasons:%s%s%s",
+                     safe_mode_on ? " SAFE_MODE_ON" : "",
+                     ha_override_on ? " HA_OVERRIDE_ON" : "",
+                     (!ha_known) ? " HA_NOT_SYNCED" : "");
+          }
+      - if:
+          condition:
+            lambda: 'return id(sleep_allowed);'
+          then:
+            - deep_sleep.enter: deep_sleep_1
+          else:
+            - deep_sleep.prevent: deep_sleep_1
