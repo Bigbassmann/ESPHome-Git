@@ -1,0 +1,9 @@
+﻿lvgl:
+  pages:
+    - id: page_boot
+      widgets:
+        - label:
+            text: "Starting..."
+            align: CENTER
+            text_font: montserrat_32
+            text_color: 0xFFFFFF

@@ -1,0 +1,76 @@
+esphome:
+  name: d1-rp2040
+  friendly_name: d1-rp2040
+
+#rp2040:
+#  board: rpipico
+#  platform_version: https://github.com/maxgerhardt/platform-raspberrypi.git#5e87ae34ca025274df25b3303e9e9cb6c120123c
+#  framework:
+#    version: 3.9.4
+
+#raspberry_pi_pico:
+#  board: rpi_pico
+#  platform_version: https://github.com/maxgerhardt/platform-raspberrypi.git#5e87ae34ca025274df25b3303e9e9cb6c120123c
+#  framework:
+#    version: 3.9.4   
+
+#raspberry_pi_pico:
+#  board: rpi_pico  # Or 'seeed_xiao_rp2040' if using Seeed's board def
+#  variant: rp2040  # Optional, but recommended for clarity
+#  framework:
+#    type: esp-idf     
+
+#raspberry_pi_pico:
+#  board: rpi_pico
+#  platform_version: https://github.com/maxgerhardt/platform-raspberrypi.git#5e87ae34ca025274df25b3303e9e9cb6c120123c
+#  framework:
+#    version: 3.9.4
+
+rp2040:
+  board: rpipico
+#  platform_version: https://github.com/maxgerhardt/platform-raspberrypi.git#5e87ae34ca025274df25b3303e9e9cb6c120123c
+  framework:
+    version: 3.9.4    
+
+# Enable logging
+logger:
+
+uart:
+  - id: esp32s3_serial
+    tx_pin: GPIO17
+    rx_pin: GPIO16
+    baud_rate: 115200
+
+i2c:
+  - sda: GPIO20
+    scl: GPIO21
+
+sensor:
+  - platform: sgp4x
+    voc:
+      id: voc
+      name: "VOC Index"
+  - platform: scd4x
+    co2:
+      id: co2
+      name: "CO2"
+    temperature:
+      id: temp
+      name: "Temperature"
+    humidity:
+      id: humid
+      name: "Humidity"
+
+power_supply:
+  - id: 'sensor_supply1'
+    pin: GPIO18
+    enable_on_boot: True
+
+packet_transport:
+  - platform: uart
+    uart_id: esp32s3_serial
+    sensors: 
+      - id: voc
+      - id: co2
+      - id: temp
+      - id: humid

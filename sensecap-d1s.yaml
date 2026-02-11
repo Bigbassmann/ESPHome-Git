@@ -6,10 +6,12 @@
     priority: 180  # -100    # -10.0  # Run after LVGL and display are ready
     then:
       - lambda: 'id(last_interaction_ms) = millis();'
-      - lvgl.page.show: 
-          id: page_home
       - lambda: 'id(boot_ready) = false;'
+      - lvgl.page.show:
+          id: page_boot
       - delay: 8s
+      - lvgl.page.show:
+          id: page_home
       - lambda: 'id(boot_ready) = true;'
       - logger.log: "Boot gate enabled: runtime UI updates active"
       
@@ -903,6 +905,7 @@ packages:
   - !include packages/sensecap/sensecap_indicator_hw.yaml
   - !include packages/sensecap/sensecap_indicator_display.yaml
   - !include packages/sensecap/sensecap_indicator_lvgl.yaml
+  - !include packages/sensecap/ui_boot.yaml
   - !include packages/sensecap/ui_runtime_topbar.yaml
   - !include packages/sensecap/sensecap_indicator_sensors.yaml
   - !include packages/sensecap/sensecap_indicator_inputs.yaml
@@ -927,6 +930,7 @@ packages:
 #  - !include sensecap-ha/esphome/ui/ui_updates.yaml
 #  - !include sensecap-ha/esphome/ui/ui_sleep.yaml
 #  - !include sensecap-ha/esphome/ui/ui_analog_clock.yaml
+
 
 
 
