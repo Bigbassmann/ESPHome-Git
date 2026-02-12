@@ -3,7 +3,7 @@
     then:
       - if:
           condition:
-            lambda: 'return id(boot_ready);'
+            lambda: 'return id(boot_ready) && !id(screen_off);'
           then:
             - if:
                 condition:

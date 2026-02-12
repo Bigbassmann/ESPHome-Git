@@ -1,13 +1,12 @@
-﻿# SenseCAP Indicator LVGL core + top layer
+# SenseCAP Indicator LVGL core + top layer
 lvgl:
-  bg_color: 0x101820  # Dark navy blue (almost black)
+  bg_color: 0x101820
   buffer_size: 50%
   touchscreens:
-    - touchscreen_id: my_touch  # Use 'touchscreen_id:' to make it a map
+    - touchscreen_id: my_touch
       long_press_time: 400ms
       long_press_repeat_time: 100ms
 
-  # Persistent bottom navigation buttons in top_layer
   top_layer:
     widgets:
       - label:
@@ -50,10 +49,11 @@ lvgl:
       - button:
           id: prev_button
           align: BOTTOM_LEFT
-          width: 100
+          x: 4
+          y: -2
+          width: 96
           height: 50
           on_press:
-            - logger.log: "Prev button pressed!"
             - script.execute: nav_prev_main
           widgets:
             - label:
@@ -61,12 +61,41 @@ lvgl:
                 align: CENTER
 
       - button:
-          id: next_button
-          align: BOTTOM_RIGHT
-          width: 100
+          id: home_button
+          align: BOTTOM_MID
+          x: -58
+          y: -2
+          width: 108
           height: 50
           on_press:
-            - logger.log: "Next button pressed!"
+            - script.execute: nav_show_home_user
+          widgets:
+            - label:
+                text: "Home"
+                align: CENTER
+
+      - button:
+          id: menu_button
+          align: BOTTOM_MID
+          x: 58
+          y: -2
+          width: 108
+          height: 50
+          on_press:
+            - script.execute: nav_show_menu_user
+          widgets:
+            - label:
+                text: "Menu"
+                align: CENTER
+
+      - button:
+          id: next_button
+          align: BOTTOM_RIGHT
+          x: -4
+          y: -2
+          width: 96
+          height: 50
+          on_press:
             - script.execute: nav_next_main
           widgets:
             - label:

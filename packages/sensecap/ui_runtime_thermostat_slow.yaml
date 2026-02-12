@@ -1,0 +1,90 @@
+interval:
+  - interval: 5s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(boot_ready) && !id(screen_off);'
+          then:
+            - lvgl.label.update:
+                id: tstat_mode_label
+                text: !lambda |-
+                  if (id(ha_tstat_mode).state.empty()) return std::string("--");
+                  return id(ha_tstat_mode).state;
+
+            - lvgl.label.update:
+                id: tstat_fan_mode_label
+                text: !lambda |-
+                  if (id(ha_tstat_fan_mode).state.empty()) return std::string("--");
+                  return id(ha_tstat_fan_mode).state;
+
+            - lvgl.label.update:
+                id: tstat_current_label
+                text: !lambda |-
+                  if (isnan(id(ha_tstat_current_temp).state)) return std::string("--");
+                  char buf[24];
+                  snprintf(buf, sizeof(buf), "%.1f F", id(ha_tstat_current_temp).state);
+                  return std::string(buf);
+
+            - lvgl.label.update:
+                id: tstat_target_label
+                text: !lambda |-
+                  if (isnan(id(ha_tstat_target_temp).state)) return std::string("--");
+                  char buf[24];
+                  snprintf(buf, sizeof(buf), "%.1f F", id(ha_tstat_target_temp).state);
+                  return std::string(buf);
+
+            - lvgl.slider.update:
+                id: tstat_target_slider
+                value: !lambda |-
+                  if (isnan(id(ha_tstat_target_temp).state)) return 68;
+                  int t = (int) roundf(id(ha_tstat_target_temp).state);
+                  if (t < 50) t = 50;
+                  if (t > 85) t = 85;
+                  return t;
+                animated: false
+
+            - lvgl.widget.update: {id: tstat_off_btn, bg_color: 0x374151}
+            - lvgl.widget.update: {id: tstat_heat_btn, bg_color: 0x374151}
+            - lvgl.widget.update: {id: tstat_cool_btn, bg_color: 0x374151}
+            - lvgl.widget.update: {id: tstat_auto_btn, bg_color: 0x374151}
+            - lvgl.widget.update: {id: tstat_fan_auto_btn, bg_color: 0x374151}
+            - lvgl.widget.update: {id: tstat_fan_on_btn, bg_color: 0x374151}
+            - lvgl.widget.update: {id: tstat_fan_circ_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_tstat_mode).state == "off";'
+                then:
+                  - lvgl.widget.update: {id: tstat_off_btn, bg_color: 0x166534}
+            - if:
+                condition:
+                  lambda: 'return id(ha_tstat_mode).state == "heat";'
+                then:
+                  - lvgl.widget.update: {id: tstat_heat_btn, bg_color: 0x166534}
+            - if:
+                condition:
+                  lambda: 'return id(ha_tstat_mode).state == "cool";'
+                then:
+                  - lvgl.widget.update: {id: tstat_cool_btn, bg_color: 0x166534}
+            - if:
+                condition:
+                  lambda: 'return id(ha_tstat_mode).state == "auto";'
+                then:
+                  - lvgl.widget.update: {id: tstat_auto_btn, bg_color: 0x166534}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_tstat_fan_mode).state == "auto";'
+                then:
+                  - lvgl.widget.update: {id: tstat_fan_auto_btn, bg_color: 0x0F766E}
+            - if:
+                condition:
+                  lambda: 'return id(ha_tstat_fan_mode).state == "on" || id(ha_tstat_fan_mode).state == "low" || id(ha_tstat_fan_mode).state == "medium" || id(ha_tstat_fan_mode).state == "high";'
+                then:
+                  - lvgl.widget.update: {id: tstat_fan_on_btn, bg_color: 0x0F766E}
+            - if:
+                condition:
+                  lambda: 'return id(ha_tstat_fan_mode).state == "circulation" || id(ha_tstat_fan_mode).state == "circulate";'
+                then:
+                  - lvgl.widget.update: {id: tstat_fan_circ_btn, bg_color: 0x0F766E}
+

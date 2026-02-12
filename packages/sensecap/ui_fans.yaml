@@ -37,10 +37,7 @@
             height: 48
             bg_color: 0x374151
             on_press:
-              - homeassistant.service:
-                  service: fan.turn_off
-                  data:
-                    entity_id: fan.in_wall_fan_speed_control_500s
+              - script.execute: fan_fr_off
         - button:
             id: fr_fan_low_btn
             text: "LOW"
@@ -52,11 +49,7 @@
             height: 48
             bg_color: 0x374151
             on_press:
-              - homeassistant.service:
-                  service: fan.set_percentage
-                  data:
-                    entity_id: fan.in_wall_fan_speed_control_500s
-                    percentage: "33"
+              - script.execute: fan_fr_low
         - button:
             id: fr_fan_med_btn
             text: "MED"
@@ -68,11 +61,7 @@
             height: 48
             bg_color: 0x374151
             on_press:
-              - homeassistant.service:
-                  service: fan.set_percentage
-                  data:
-                    entity_id: fan.in_wall_fan_speed_control_500s
-                    percentage: "66"
+              - script.execute: fan_fr_med
         - button:
             id: fr_fan_high_btn
             text: "HIGH"
@@ -84,11 +73,7 @@
             height: 48
             bg_color: 0x374151
             on_press:
-              - homeassistant.service:
-                  service: fan.set_percentage
-                  data:
-                    entity_id: fan.in_wall_fan_speed_control_500s
-                    percentage: "100"
+              - script.execute: fan_fr_high
 
         - label:
             text: "MBR Fan"
@@ -125,10 +110,7 @@
             height: 48
             bg_color: 0x374151
             on_press:
-              - homeassistant.service:
-                  service: fan.turn_off
-                  data:
-                    entity_id: fan.mbr_fan_light
+              - script.execute: fan_mbr_off
         - button:
             id: mbr_fan_low_btn
             text: "LOW"
@@ -140,11 +122,7 @@
             height: 48
             bg_color: 0x374151
             on_press:
-              - homeassistant.service:
-                  service: fan.set_percentage
-                  data:
-                    entity_id: fan.mbr_fan_light
-                    percentage: "33"
+              - script.execute: fan_mbr_low
         - button:
             id: mbr_fan_med_btn
             text: "MED"
@@ -156,11 +134,7 @@
             height: 48
             bg_color: 0x374151
             on_press:
-              - homeassistant.service:
-                  service: fan.set_percentage
-                  data:
-                    entity_id: fan.mbr_fan_light
-                    percentage: "66"
+              - script.execute: fan_mbr_med
         - button:
             id: mbr_fan_high_btn
             text: "HIGH"
@@ -172,11 +146,7 @@
             height: 48
             bg_color: 0x374151
             on_press:
-              - homeassistant.service:
-                  service: fan.set_percentage
-                  data:
-                    entity_id: fan.mbr_fan_light
-                    percentage: "100"
+              - script.execute: fan_mbr_high
         - button:
             id: mbr_fan_dir_btn
             text: "DIR"
@@ -188,21 +158,7 @@
             height: 48
             bg_color: 0x374151
             on_press:
-              - if:
-                  condition:
-                    lambda: 'return id(ha_mbr_fan_dir).state == "forward";'
-                  then:
-                    - homeassistant.service:
-                        service: fan.set_direction
-                        data:
-                          entity_id: fan.mbr_fan_light
-                          direction: reverse
-                  else:
-                    - homeassistant.service:
-                        service: fan.set_direction
-                        data:
-                          entity_id: fan.mbr_fan_light
-                          direction: forward
+              - script.execute: fan_mbr_toggle_dir
 
         - label:
             text: "Attic Fans"
@@ -220,19 +176,7 @@
             height: 56
             bg_color: 0x374151
             on_press:
-              - if:
-                  condition:
-                    lambda: 'return id(ha_attic_fan_on).state;'
-                  then:
-                    - homeassistant.service:
-                        service: switch.turn_off
-                        data:
-                          entity_id: switch.attic_fan
-                  else:
-                    - homeassistant.service:
-                        service: switch.turn_on
-                        data:
-                          entity_id: switch.attic_fan
+              - script.execute: fan_attic_low_toggle
             widgets:
               - label:
                   text: "Attic Low"
@@ -256,19 +200,7 @@
             height: 56
             bg_color: 0x374151
             on_press:
-              - if:
-                  condition:
-                    lambda: 'return id(ha_attic_fan2_on).state;'
-                  then:
-                    - homeassistant.service:
-                        service: switch.turn_off
-                        data:
-                          entity_id: switch.attic_fan_2
-                  else:
-                    - homeassistant.service:
-                        service: switch.turn_on
-                        data:
-                          entity_id: switch.attic_fan_2
+              - script.execute: fan_attic_high_toggle
             widgets:
               - label:
                   text: "Attic High"
@@ -283,8 +215,3 @@
                   x: -10
                   text_font: montserrat_20
                   text_color: 0xFCA5A5
-
-
-
-
-

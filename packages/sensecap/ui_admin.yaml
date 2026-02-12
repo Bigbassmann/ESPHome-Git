@@ -1,4 +1,4 @@
-lvgl:
+﻿lvgl:
   pages:
     - id: page_admin
       widgets:
@@ -56,7 +56,6 @@ lvgl:
             y: 240
             text_font: montserrat_24
             text_color: 0xFFFFFF
-            bg_color: 0xFF0000   # TEMPORARY red background - remove after test
 
         - label:
             id: internal_temp_label
@@ -66,17 +65,58 @@ lvgl:
             y: 280
             text_font: montserrat_24
             text_color: 0xFFFFFF
-            bg_color: 0xFF0000   # TEMPORARY red background - remove after test
 
         - button:
-            id: btn_restart
-            text: "Restart"
+            id: btn_overrides
+            text: "Overrides"
             text_color: 0xFFFFFF
             border_color: 0x303F4F
             align: BOTTOM_MID
-            y: -20
+            x: -120
+            y: -125
+            width: 110
+            height: 36
             on_press:
-              - switch.turn_on: restart_switch
+              - script.execute: nav_show_overrides_user
+
+        - button:
+            id: btn_fans
+            text: "Fans"
+            text_color: 0xFFFFFF
+            border_color: 0x303F4F
+            align: BOTTOM_MID
+            x: 0
+            y: -125
+            width: 110
+            height: 36
+            on_press:
+              - script.execute: nav_show_fans_user
+
+        - button:
+            id: btn_thermostat
+            text: "Thermostat"
+            text_color: 0xFFFFFF
+            border_color: 0x303F4F
+            align: BOTTOM_MID
+            x: 120
+            y: -125
+            width: 110
+            height: 36
+            on_press:
+              - script.execute: nav_show_thermostat_user
+
+        - button:
+            id: btn_lighting
+            text: "Lighting"
+            text_color: 0xFFFFFF
+            border_color: 0x303F4F
+            align: BOTTOM_MID
+            x: -120
+            y: -80
+            width: 110
+            height: 36
+            on_press:
+              - script.execute: nav_show_lighting_user
 
         - button:
             id: btn_wifi_setup
@@ -84,8 +124,24 @@ lvgl:
             text_color: 0xFFFFFF
             border_color: 0x303F4F
             align: BOTTOM_MID
-            x: 0  # 20
-            y: -60
+            x: 0
+            y: -80
+            width: 110
+            height: 36
             on_press:
               - lvgl.page.show:
                   id: page_wifi
+
+        - button:
+            id: btn_restart
+            text: "Restart"
+            text_color: 0xFFFFFF
+            border_color: 0x303F4F
+            align: BOTTOM_MID
+            x: 120
+            y: -80
+            width: 110
+            height: 36
+            on_press:
+              - switch.turn_on: restart_switch
+

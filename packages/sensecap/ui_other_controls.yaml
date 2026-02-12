@@ -1,0 +1,65 @@
+lvgl:
+  pages:
+    - id: page_other_controls
+      widgets:
+        - label:
+            id: other_controls_title
+            text: "Other Controls"
+            align: TOP_MID
+            y: 40
+            text_font: montserrat_32
+            text_color: 0xFFFFFF
+
+        - button:
+            id: door_lock_btn
+            align: TOP_MID
+            y: 130
+            width: 420
+            height: 88
+            bg_color: 0x374151
+            radius: 10
+            border_width: 0
+            on_press:
+              then:
+                - lambda: |-
+                    uint32_t now = millis();
+                    id(last_interaction_ms) = now;
+                    id(last_auto_scroll_ms) = now;
+                - if:
+                    condition:
+                      lambda: 'return id(ha_front_door_lock_state).state == "locked";'
+                    then:
+                      - homeassistant.service:
+                          service: lock.unlock
+                          data:
+                            entity_id: lock.front_door
+                    else:
+                      - homeassistant.service:
+                          service: lock.lock
+                          data:
+                            entity_id: lock.front_door
+            widgets:
+              - image:
+                  id: door_lock_icon_locked
+                  align: LEFT_MID
+                  x: 18
+                  src: icon_lock_24
+              - image:
+                  id: door_lock_icon_unlocked
+                  align: LEFT_MID
+                  x: 18
+                  src: icon_unlock_24
+                  hidden: true
+              - label:
+                  text: "Door Lock"
+                  align: LEFT_MID
+                  x: 56
+                  text_font: montserrat_24
+                  text_color: 0xFFFFFF
+              - label:
+                  id: door_lock_state
+                  text: "--"
+                  align: RIGHT_MID
+                  x: -14
+                  text_font: montserrat_24
+                  text_color: 0xFFFFFF

@@ -1,9 +1,9 @@
-﻿interval:
+interval:
   - interval: 1s
     then:
       - if:
           condition:
-            lambda: 'return id(boot_ready);'
+            lambda: 'return id(boot_ready) && !id(screen_off);'
           then:
             - lvgl.slider.update:
                 id: sleep_timeout_slider
@@ -94,6 +94,7 @@
                 condition:
                   lambda: |-
                     if (!id(display_sleep_enabled)) return false;
+                    if (id(display_idle_scroll_enabled)) return false;
                     if (id(screen_off)) return false;
                     uint32_t now = millis();
                     uint32_t elapsed = now - id(last_interaction_ms);
@@ -103,3 +104,5 @@
                   - lvgl.pause:
                   - light.turn_off: backlight
                   - lambda: 'id(screen_off) = true;'
+
+

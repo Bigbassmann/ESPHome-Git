@@ -1,4 +1,4 @@
-﻿esphome:
+esphome:
   name: sensecap-d1s
   friendly_name: SenseCAP Indicator
   min_version: 2024.6.0
@@ -12,13 +12,20 @@
       - delay: 10s   # 8s
       - lvgl.page.show:
           id: page_home
+      - light.turn_on:
+          id: backlight
+          brightness: 50%
+      - lvgl.slider.update:
+          id: brightness_slider
+          value: 50
+          animated: false
       - delay: 5s   # 2s
       - lambda: 'id(boot_ready) = true;'
       - logger.log: "Boot gate enabled: runtime UI updates active"
       
 logger:
   hardware_uart: UART0
-  level: DEBUG   # DEBUG #VERY_VERBOSE
+  level: INFO   # Reduced to improve runtime stability
 
 api:
 
@@ -77,7 +84,7 @@ switch:
 binary_sensor:
   - platform: homeassistant
     id: ha_door_sensor
-    entity_id: binary_sensor.front_door  # Replace with actual
+    entity_id: binary_sensor.front_door
     name: "Front Door Sensor"
 
   - platform: homeassistant
@@ -162,6 +169,36 @@ binary_sensor:
     entity_id: switch.attic_fan_2
     internal: true
 
+  - platform: homeassistant
+    id: ha_all_lights_toggle
+    entity_id: input_boolean.all_lights_toggle
+    internal: true
+
+  - platform: homeassistant
+    id: ha_outdoor_lights_toggle
+    entity_id: input_boolean.outdoor_lights_toggle
+    internal: true
+
+  - platform: homeassistant
+    id: ha_mbr_lights_on
+    entity_id: light.mbr_lights
+    internal: true
+
+  - platform: homeassistant
+    id: ha_fr_lights_on
+    entity_id: light.in_wall_paddle_dimmer_500s
+    internal: true
+
+  - platform: homeassistant
+    id: ha_library_lights_on
+    entity_id: light.library_lights
+    internal: true
+
+  - platform: homeassistant
+    id: ha_living_room_lights_on
+    entity_id: light.living_room_lights
+    internal: true
+
 sensor:
   - platform: homeassistant
     id: ha_fr_fan_pct
@@ -174,11 +211,64 @@ sensor:
     entity_id: fan.mbr_fan_light
     attribute: percentage
     internal: true
+
+  - platform: homeassistant
+    id: ha_fr_lights_brightness
+    entity_id: light.in_wall_paddle_dimmer_500s
+    attribute: brightness
+    internal: true
+
+  - platform: homeassistant
+    id: ha_tstat_current_temp
+    entity_id: climate.thermostat
+    attribute: current_temperature
+    internal: true
+
+  - platform: homeassistant
+    id: ha_tstat_target_temp
+    entity_id: climate.thermostat
+    attribute: temperature
+    internal: true
+
 text_sensor:
   - platform: homeassistant
     id: ha_mbr_fan_dir
     entity_id: fan.mbr_fan_light
     attribute: direction
+    internal: true
+
+  - platform: homeassistant
+    id: ha_tstat_mode
+    entity_id: climate.thermostat
+    internal: true
+
+  - platform: homeassistant
+    id: ha_tstat_fan_mode
+    entity_id: climate.thermostat
+    attribute: fan_mode
+    internal: true
+
+  - platform: homeassistant
+    id: ha_front_door_lock_state
+    entity_id: lock.front_door
+    internal: true
+
+  - platform: homeassistant
+    id: ha_mbr_lights_brightness_txt
+    entity_id: light.mbr_lights
+    attribute: brightness
+    internal: true
+
+  - platform: homeassistant
+    id: ha_library_lights_brightness_txt
+    entity_id: light.library_lights
+    attribute: brightness
+    internal: true
+
+  - platform: homeassistant
+    id: ha_living_room_lights_brightness_txt
+    entity_id: light.living_room_lights
+    attribute: brightness
     internal: true
 # --- GLOBALS FOR MIN/MAX ---
 globals:
@@ -272,15 +362,9 @@ globals:
   - id: screen_off
     type: bool
     initial_value: "false"
-
-  - id: display_sleep_enabled
-    type: bool
-    initial_value: "true"
-
   - id: display_sleep_timeout_s
     type: int
     initial_value: "60"
-
   - id: last_interaction_ms
     type: uint32_t
     initial_value: "0"
@@ -288,10 +372,13 @@ globals:
   - id: last_auto_scroll_ms
     type: uint32_t
     initial_value: "0"
-
   - id: nav_page_index
     type: int
     initial_value: "0"
+
+  - id: ui_menu_active
+    type: bool
+    initial_value: "false"
 
   - id: display_idle_scroll_enabled
     type: bool
@@ -305,7 +392,7 @@ script:
     then:
       - if:
           condition:
-            lambda: 'return id(nav_page_index) <= 0;'
+            lambda: 'return id(nav_page_index) == 0;'
           then:
             - lvgl.page.show:
                 id: page_home
@@ -317,15 +404,46 @@ script:
                 id: page_settings
       - if:
           condition:
-            lambda: 'return id(nav_page_index) >= 2;'
+            lambda: 'return id(nav_page_index) == 2;'
           then:
             - lvgl.page.show:
                 id: page_admin
+      - if:
+          condition:
+            lambda: 'return id(nav_page_index) == 3;'
+          then:
+            - lvgl.page.show:
+                id: page_overrides
+      - if:
+          condition:
+            lambda: 'return id(nav_page_index) == 4;'
+          then:
+            - lvgl.page.show:
+                id: page_fans
+      - if:
+          condition:
+            lambda: 'return id(nav_page_index) == 5;'
+          then:
+            - lvgl.page.show:
+                id: page_thermostat
+      - if:
+          condition:
+            lambda: 'return id(nav_page_index) == 6;'
+          then:
+            - lvgl.page.show:
+                id: page_lighting
+      - if:
+          condition:
+            lambda: 'return id(nav_page_index) == 7;'
+          then:
+            - lvgl.page.show:
+                id: page_other_controls
 
   - id: nav_show_home_user
     then:
       - lambda: |-
           id(nav_page_index) = 0;
+          id(ui_menu_active) = false;
           uint32_t now = millis();
           id(last_interaction_ms) = now;
           id(last_auto_scroll_ms) = now;
@@ -336,6 +454,7 @@ script:
     then:
       - lambda: |-
           id(nav_page_index) = 1;
+          id(ui_menu_active) = false;
           uint32_t now = millis();
           id(last_interaction_ms) = now;
           id(last_auto_scroll_ms) = now;
@@ -346,16 +465,83 @@ script:
     then:
       - lambda: |-
           id(nav_page_index) = 2;
+          id(ui_menu_active) = false;
           uint32_t now = millis();
           id(last_interaction_ms) = now;
           id(last_auto_scroll_ms) = now;
       - lvgl.page.show:
           id: page_admin
 
+  - id: nav_show_overrides_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 3;
+          id(ui_menu_active) = false;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_overrides
+
+  - id: nav_show_fans_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 4;
+          id(ui_menu_active) = false;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_fans
+
+  - id: nav_show_thermostat_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 5;
+          id(ui_menu_active) = false;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_thermostat
+
+  - id: nav_show_lighting_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 6;
+          id(ui_menu_active) = false;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_lighting
+
+  - id: nav_show_other_controls_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 7;
+          id(ui_menu_active) = false;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_other_controls
+
+  - id: nav_show_menu_user
+    then:
+      - lambda: |-
+          id(ui_menu_active) = true;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_menu
+
   - id: nav_next_main
     then:
       - lambda: |-
-          id(nav_page_index) = (id(nav_page_index) + 1) % 3;
+          if (id(ui_menu_active)) return;
+          id(nav_page_index) = (id(nav_page_index) + 1) % 8;
           uint32_t now = millis();
           id(last_interaction_ms) = now;
           id(last_auto_scroll_ms) = now;
@@ -364,7 +550,8 @@ script:
   - id: nav_prev_main
     then:
       - lambda: |-
-          id(nav_page_index) = (id(nav_page_index) + 2) % 3;
+          if (id(ui_menu_active)) return;
+          id(nav_page_index) = (id(nav_page_index) + 7) % 8;
           uint32_t now = millis();
           id(last_interaction_ms) = now;
           id(last_auto_scroll_ms) = now;
@@ -373,10 +560,10 @@ script:
   - id: nav_next_idle
     then:
       - lambda: |-
-          id(nav_page_index) = (id(nav_page_index) + 1) % 3;
+          if (id(ui_menu_active)) return;
+          id(nav_page_index) = (id(nav_page_index) + 1) % 8;
           id(last_auto_scroll_ms) = millis();
       - script.execute: nav_show_current
-
   - id: graph_render
     then:
       - lambda: |-
@@ -1039,13 +1226,36 @@ packages:
   - !include packages/sensecap/ui_admin.yaml
   - !include packages/sensecap/ui_runtime_admin.yaml
   - !include packages/sensecap/ui_runtime_fans_overrides_slow.yaml
+  - !include packages/sensecap/ui_actions_fans_overrides.yaml
+  - !include packages/sensecap/ui_runtime_lighting_slow.yaml
+  - !include packages/sensecap/ui_actions_lighting.yaml
   - !include packages/sensecap/ui_overrides.yaml
   - !include packages/sensecap/ui_fans.yaml
+  - !include packages/sensecap/ui_lighting.yaml
+  - !include packages/sensecap/ui_thermostat.yaml
+  - !include packages/sensecap/ui_runtime_thermostat_slow.yaml
+  - !include packages/sensecap/ui_other_controls.yaml
+  - !include packages/sensecap/ui_runtime_other_controls.yaml
+  - !include packages/sensecap/ui_menu.yaml
   - !include packages/sensecap/ui_wifi_lvgl.yaml
 #  - !include sensecap-ha/esphome/ui/ui_navigation.yaml
 #  - !include sensecap-ha/esphome/ui/ui_updates.yaml
 #  - !include sensecap-ha/esphome/ui/ui_sleep.yaml
 #  - !include sensecap-ha/esphome/ui/ui_analog_clock.yaml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -3,7 +3,7 @@
     then:
       - if:
           condition:
-            lambda: 'return id(boot_ready);'
+            lambda: 'return id(boot_ready) && !id(screen_off);'
           then:
             - lvgl.label.update:
                 id: wifi_ssid_label
@@ -71,3 +71,10 @@
                     snprintf(buf, sizeof(buf), "WiFi Signal: %.0f dBm", id(wi_fi_signal).state);
                     return std::string(buf);
                   }
+
+
+            - lvgl.label.update:
+                id: wifi_status_label
+                text: !lambda |-
+                  if (id(ip_sensor).state == "0.0.0.0") return std::string("Status: Disconnected");
+                  return std::string("Status: Connected");

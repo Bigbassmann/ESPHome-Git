@@ -138,3 +138,15 @@ image:
     resize: 24x24
     type: RGB565
     transparency: alpha_channel
+
+
+  - file: icon_s/lock.svg
+    id: icon_lock_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
+  - file: icon_s/unlock.svg
+    id: icon_unlock_24
+    resize: 24x24
+    type: RGB565
+    transparency: alpha_channel
