@@ -1,4 +1,4 @@
-# SenseCAP Indicator LVGL core + top layer
+﻿# SenseCAP Indicator LVGL core + top layer
 lvgl:
   bg_color: 0x101820  # Dark navy blue (almost black)
   buffer_size: 50%
@@ -40,8 +40,7 @@ lvgl:
           pad_all: 0
           shadow_width: 0
           on_press:
-            - lvgl.page.show:
-                id: page_admin
+            - script.execute: nav_show_admin_user
           widgets:
             - image:
                 id: wifi_icon
@@ -55,13 +54,12 @@ lvgl:
           height: 50
           on_press:
             - logger.log: "Prev button pressed!"
-            - lvgl.page.previous:
-                animation: OVER_LEFT  # Optional: Smooth left slide (defaults to NONE if omitted)
-                time: 200ms  # Optional: Animation duration (defaults to 50ms)
+            - script.execute: nav_prev_main
           widgets:
             - label:
                 text: "Prev"
                 align: CENTER
+
       - button:
           id: next_button
           align: BOTTOM_RIGHT
@@ -69,9 +67,7 @@ lvgl:
           height: 50
           on_press:
             - logger.log: "Next button pressed!"
-            - lvgl.page.next:
-                animation: OVER_RIGHT  # Optional: Smooth right slide
-                time: 200ms  # Optional
+            - script.execute: nav_next_main
           widgets:
             - label:
                 text: "Next"

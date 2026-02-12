@@ -7,16 +7,18 @@
     then:
       - lambda: 'id(last_interaction_ms) = millis();'
       - lambda: 'id(boot_ready) = false;'
-      - delay: 8s
+      - lvgl.page.show:
+          id: page_boot
+      - delay: 10s   # 8s
       - lvgl.page.show:
           id: page_home
-      - delay: 2s
+      - delay: 5s   # 2s
       - lambda: 'id(boot_ready) = true;'
       - logger.log: "Boot gate enabled: runtime UI updates active"
       
 logger:
   hardware_uart: UART0
-  level: DEBUG #VERY_VERBOSE
+  level: DEBUG   # DEBUG #VERY_VERBOSE
 
 api:
 
@@ -150,11 +152,34 @@ binary_sensor:
           format: "HA sync: mbr_motion_off -> %s"
           args: ['x ? "ON" : "OFF"']
 
+  - platform: homeassistant
+    id: ha_attic_fan_on
+    entity_id: switch.attic_fan
+    internal: true
+
+  - platform: homeassistant
+    id: ha_attic_fan2_on
+    entity_id: switch.attic_fan_2
+    internal: true
 
 sensor:
+  - platform: homeassistant
+    id: ha_fr_fan_pct
+    entity_id: fan.in_wall_fan_speed_control_500s
+    attribute: percentage
+    internal: true
 
+  - platform: homeassistant
+    id: ha_mbr_fan_pct
+    entity_id: fan.mbr_fan_light
+    attribute: percentage
+    internal: true
 text_sensor:
-
+  - platform: homeassistant
+    id: ha_mbr_fan_dir
+    entity_id: fan.mbr_fan_light
+    attribute: direction
+    internal: true
 # --- GLOBALS FOR MIN/MAX ---
 globals:
   - id: boot_ready
@@ -260,7 +285,98 @@ globals:
     type: uint32_t
     initial_value: "0"
 
+  - id: last_auto_scroll_ms
+    type: uint32_t
+    initial_value: "0"
+
+  - id: nav_page_index
+    type: int
+    initial_value: "0"
+
+  - id: display_idle_scroll_enabled
+    type: bool
+    initial_value: "false"
+
+  - id: display_idle_scroll_s
+    type: int
+    initial_value: "30"
 script:
+  - id: nav_show_current
+    then:
+      - if:
+          condition:
+            lambda: 'return id(nav_page_index) <= 0;'
+          then:
+            - lvgl.page.show:
+                id: page_home
+      - if:
+          condition:
+            lambda: 'return id(nav_page_index) == 1;'
+          then:
+            - lvgl.page.show:
+                id: page_settings
+      - if:
+          condition:
+            lambda: 'return id(nav_page_index) >= 2;'
+          then:
+            - lvgl.page.show:
+                id: page_admin
+
+  - id: nav_show_home_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 0;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_home
+
+  - id: nav_show_settings_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 1;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_settings
+
+  - id: nav_show_admin_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 2;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_admin
+
+  - id: nav_next_main
+    then:
+      - lambda: |-
+          id(nav_page_index) = (id(nav_page_index) + 1) % 3;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - script.execute: nav_show_current
+
+  - id: nav_prev_main
+    then:
+      - lambda: |-
+          id(nav_page_index) = (id(nav_page_index) + 2) % 3;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - script.execute: nav_show_current
+
+  - id: nav_next_idle
+    then:
+      - lambda: |-
+          id(nav_page_index) = (id(nav_page_index) + 1) % 3;
+          id(last_auto_scroll_ms) = millis();
+      - script.execute: nav_show_current
+
   - id: graph_render
     then:
       - lambda: |-
@@ -904,6 +1020,7 @@ packages:
   - !include packages/sensecap/sensecap_indicator_hw.yaml
   - !include packages/sensecap/sensecap_indicator_display.yaml
   - !include packages/sensecap/sensecap_indicator_lvgl.yaml
+  - !include packages/sensecap/ui_boot.yaml
   - !include packages/sensecap/ui_runtime_topbar.yaml
   - !include packages/sensecap/sensecap_indicator_sensors.yaml
   - !include packages/sensecap/sensecap_indicator_inputs.yaml
@@ -921,13 +1038,15 @@ packages:
 #  - !include packages/sensecap/ui_settings_full.yaml
   - !include packages/sensecap/ui_admin.yaml
   - !include packages/sensecap/ui_runtime_admin.yaml
-#  - !include packages/sensecap/ui_overrides.yaml
-#  - !include packages/sensecap/ui_fans.yaml
+  - !include packages/sensecap/ui_runtime_fans_overrides_slow.yaml
+  - !include packages/sensecap/ui_overrides.yaml
+  - !include packages/sensecap/ui_fans.yaml
   - !include packages/sensecap/ui_wifi_lvgl.yaml
 #  - !include sensecap-ha/esphome/ui/ui_navigation.yaml
 #  - !include sensecap-ha/esphome/ui/ui_updates.yaml
 #  - !include sensecap-ha/esphome/ui/ui_sleep.yaml
 #  - !include sensecap-ha/esphome/ui/ui_analog_clock.yaml
+
 
 
 
