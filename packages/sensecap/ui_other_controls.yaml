@@ -29,15 +29,17 @@ lvgl:
                     condition:
                       lambda: 'return id(ha_front_door_lock_state).state == "locked";'
                     then:
-                      - homeassistant.service:
-                          service: lock.unlock
-                          data:
-                            entity_id: lock.front_door
+                      - homeassistant.service: {service: lock.unlock, data: {entity_id: lock.front_door_lock}}
+                    #  - homeassistant.service:
+                    #      action: lock.unlock   # was service:
+                    #      target:               # was data:
+                    #        entity_id: lock.front_door_lock
                     else:
-                      - homeassistant.service:
-                          service: lock.lock
-                          data:
-                            entity_id: lock.front_door
+                      - homeassistant.service: {service: lock.lock, data: {entity_id: lock.front_door_lock}}
+                    #  - homeassistant.service:
+                    #      action: lock.lock      # was service:
+                    #      target:                # was data:
+                    #        entity_id: lock.front_door_lock
             widgets:
               - image:
                   id: door_lock_icon_locked
@@ -49,7 +51,7 @@ lvgl:
                   align: LEFT_MID
                   x: 18
                   src: icon_unlock_24
-                  hidden: true
+                #  hidden: true
               - label:
                   text: "Door Lock"
                   align: LEFT_MID

@@ -25,7 +25,7 @@ esphome:
       
 logger:
   hardware_uart: UART0
-  level: INFO   # Reduced to improve runtime stability
+  level: DEBUG   # Reduced to improve runtime stability
 
 api:
 
@@ -199,6 +199,16 @@ binary_sensor:
     entity_id: light.living_room_lights
     internal: true
 
+  - platform: homeassistant
+    id: ha_fr_fan_on
+    entity_id: fan.in_wall_fan_speed_control_500s
+    internal: true
+
+  - platform: homeassistant
+    id: ha_mbr_fan_on
+    entity_id: fan.mbr_fan_light
+    internal: true
+
 sensor:
   - platform: homeassistant
     id: ha_fr_fan_pct
@@ -250,7 +260,7 @@ text_sensor:
 
   - platform: homeassistant
     id: ha_front_door_lock_state
-    entity_id: lock.front_door
+    entity_id: lock.front_door_lock
     internal: true
 
   - platform: homeassistant
@@ -358,10 +368,12 @@ globals:
   - id: graph_touch_valid
     type: bool
     initial_value: "false"
-
   - id: screen_off
     type: bool
     initial_value: "false"
+  - id: display_sleep_enabled
+    type: bool
+    initial_value: "true"
   - id: display_sleep_timeout_s
     type: int
     initial_value: "60"

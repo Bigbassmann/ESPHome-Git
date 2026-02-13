@@ -1,9 +1,9 @@
 interval:
-  - interval: 5s
+  - interval: 2s
     then:
       - if:
           condition:
-            lambda: 'return id(boot_ready) && !id(screen_off);'
+            lambda: 'return id(boot_ready) && !id(screen_off) && id(nav_page_index) == 5;'
           then:
             - lvgl.label.update:
                 id: tstat_mode_label
@@ -41,7 +41,7 @@ interval:
                   if (t < 50) t = 50;
                   if (t > 85) t = 85;
                   return t;
-                animated: false
+                animated: true  # false
 
             - lvgl.widget.update: {id: tstat_off_btn, bg_color: 0x374151}
             - lvgl.widget.update: {id: tstat_heat_btn, bg_color: 0x374151}

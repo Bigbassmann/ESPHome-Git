@@ -891,12 +891,12 @@ lvgl:
               - lambda: 'id(graph_step_min) = 15;'
               - script.execute: graph_render
 
-        - button:
-            id: nav_home_graphs
-            text: "Home"
-            align: BOTTOM_MID
-            y: -20
-            text_font: montserrat_20
-            on_press:
-              - lvgl.page.show:
-                  id: page_home
+#        - button:
+#            id: nav_home_graphs
+#            text: "Home"
+#            align: BOTTOM_MID
+#            y: -20
+#            text_font: montserrat_20
+#            on_press:
+#              - lvgl.page.show:
+#                  id: page_home

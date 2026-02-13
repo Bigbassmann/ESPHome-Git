@@ -1,9 +1,9 @@
-﻿interval:
-  - interval: 5s
+interval:
+  - interval: 2s
     then:
       - if:
           condition:
-            lambda: 'return id(boot_ready) && !id(screen_off);'
+            lambda: 'return id(boot_ready) && !id(screen_off) && (id(nav_page_index) == 3 || id(nav_page_index) == 4);'
           then:
             - if:
                 condition:
@@ -104,7 +104,7 @@
             - lvgl.label.update:
                 id: fr_fan_status
                 text: !lambda |-
-                  if (isnan(id(ha_fr_fan_pct).state) || id(ha_fr_fan_pct).state <= 0.0f) return std::string("OFF");
+                  if (!id(ha_fr_fan_on).state) return std::string("OFF");
                   char buf[24];
                   snprintf(buf, sizeof(buf), "%.0f%%", id(ha_fr_fan_pct).state);
                   return std::string(buf);
@@ -112,13 +112,13 @@
             - lvgl.widget.update:
                 id: fr_fan_status
                 text_color: !lambda |-
-                  if (isnan(id(ha_fr_fan_pct).state) || id(ha_fr_fan_pct).state <= 0.0f) return lv_color_hex(0xFCA5A5);
+                  if (!id(ha_fr_fan_on).state) return lv_color_hex(0xFCA5A5);
                   return lv_color_hex(0xD1FAE5);
 
             - lvgl.label.update:
                 id: mbr_fan_status
                 text: !lambda |-
-                  if (isnan(id(ha_mbr_fan_pct).state) || id(ha_mbr_fan_pct).state <= 0.0f) return std::string("OFF");
+                  if (!id(ha_mbr_fan_on).state) return std::string("OFF");
                   char buf[24];
                   snprintf(buf, sizeof(buf), "%.0f%%", id(ha_mbr_fan_pct).state);
                   return std::string(buf);
@@ -126,7 +126,7 @@
             - lvgl.widget.update:
                 id: mbr_fan_status
                 text_color: !lambda |-
-                  if (isnan(id(ha_mbr_fan_pct).state) || id(ha_mbr_fan_pct).state <= 0.0f) return lv_color_hex(0xFCA5A5);
+                  if (!id(ha_mbr_fan_on).state) return lv_color_hex(0xFCA5A5);
                   return lv_color_hex(0xD1FAE5);
 
             - lvgl.label.update:
@@ -137,7 +137,7 @@
 
             - if:
                 condition:
-                  lambda: 'return isnan(id(ha_fr_fan_pct).state) || id(ha_fr_fan_pct).state <= 0.0f;'
+                  lambda: 'return !id(ha_fr_fan_on).state;'
                 then:
                   - lvgl.widget.update: {id: fr_fan_off_btn, bg_color: 0x166534}
                   - lvgl.widget.update: {id: fr_fan_low_btn, bg_color: 0x374151}
@@ -169,7 +169,7 @@
 
             - if:
                 condition:
-                  lambda: 'return isnan(id(ha_mbr_fan_pct).state) || id(ha_mbr_fan_pct).state <= 0.0f;'
+                  lambda: 'return !id(ha_mbr_fan_on).state;'
                 then:
                   - lvgl.widget.update: {id: mbr_fan_off_btn, bg_color: 0x166534}
                   - lvgl.widget.update: {id: mbr_fan_low_btn, bg_color: 0x374151}

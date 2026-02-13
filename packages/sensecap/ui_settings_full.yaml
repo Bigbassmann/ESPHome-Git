@@ -1,11 +1,23 @@
-﻿lvgl:
+﻿# label: Settings: align: TOP_MID, y: 40
+# label: Idle Timed Scroll: align:  , y: 
+# button: Auto Scroll: align:  y:
+# label: Idel Delay: align:  y:   
+# slider: Idle Delay: align:  , y:  , Seconds:  
+# label: Display Sleep: align; CENTER y: 165 
+# button: Sleep: align; CENTER y: 205 
+# label: Sleep Timeout: align: CENTER  y: 260  
+# slider: Sleep Timeout: align; CENTER  y: 300   , Seconds: align: CENTER, y: 332
+# label: Display Brightness: align: CENTER  y: 60 
+# slider: Brightness: align: CENTER y: 100 , Dim Icon: align; CENTER, y: 80 Bright Icon: align: CENTER, y: 80     
+
+lvgl:
   pages:
     - id: page_settings
       widgets:
         - label: { id: settings_title, text: "Settings", align: TOP_MID, y: 40, text_font: montserrat_32, text_color: 0xFFFFFF }
         - label: { id: brightness_label, text: "Display Brightness", align: CENTER, y: 60, text_font: montserrat_24, text_color: 0xFFFFFF }
         - image: { align: CENTER, x: -140, y: 80, src: icon_dim_24 }
-        - label: { text: "Dim", align: CENTER, x: -140, y: 120, text_font: montserrat_18, text_color: 0x808080 }
+        # - label: { text: "Dim", align: CENTER, x: -140, y: 120, text_font: montserrat_18, text_color: 0x808080 }
         - slider:
             id: brightness_slider
             align: CENTER
@@ -25,7 +37,7 @@
                       if (x == 0) return 0.0f;
                       return x / 100.0f;
         - image: { align: CENTER, x: 140, y: 80, src: icon_bright_24 }
-        - label: { text: "Bright", align: CENTER, x: 140, y: 120, text_font: montserrat_18, text_color: 0xFFFFFF }
+      #  - label: { text: "Bright", align: CENTER, x: 140, y: 120, text_font: montserrat_18, text_color: 0xFFFFFF }
 
         - label: { id: sleep_title, text: "Display Sleep", align: CENTER, y: 165, text_font: montserrat_24, text_color: 0xFFFFFF }
         - button:

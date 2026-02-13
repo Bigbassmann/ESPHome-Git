@@ -1,9 +1,9 @@
 interval:
-  - interval: 8s
+  - interval: 2s
     then:
       - if:
           condition:
-            lambda: 'return id(boot_ready) && !id(screen_off);'
+            lambda: 'return id(boot_ready) && !id(screen_off) && id(nav_page_index) == 6;'
           then:
             - if:
                 condition:

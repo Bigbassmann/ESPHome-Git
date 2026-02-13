@@ -3,7 +3,7 @@ interval:
     then:
       - if:
           condition:
-            lambda: 'return id(boot_ready) && !id(screen_off);'
+            lambda: 'return id(boot_ready) && !id(screen_off) && id(nav_page_index) == 1;'
           then:
             - lvgl.slider.update:
                 id: sleep_timeout_slider

@@ -1,3 +1,15 @@
+# label: Settings:               align: TOP_MID, y: 32
+# label: Idle Timed Scroll:      align: CENTER,  y: 76
+# button: Auto Scroll:           align: TOP_MID  y: 106
+# label: Idle Delay:             align: TOP_MID  y: 153  
+# slider: Idle Delay:            align: TOP_MID  y: 178 Seconds: x:148 y: 178
+# label: Display Sleep:          align: TOP_MID  y: 230
+# button: Sleep:                 align: TOP_MID  y: 260
+# label: Sleep Timeout:          align: TOP_MID  y: 308  
+# slider: Sleep Timeout:         align: TOP_MID  y: 332 Seconds: x:148 y: 332
+# label: Display Brightness:     align: TOP_MID  y: 370
+# slider: Brightness:            align: TOP_MID  y: 400 Dim Icon: x: -148 y: 398 Bright Icon: x: 148 y: 398
+
 lvgl:
   pages:
     - id: page_settings
@@ -13,16 +25,16 @@ lvgl:
         - label:
             id: idle_scroll_title
             text: "Idle Timed Scroll"
-            align: CENTER
-            y: 52
+            align: TOP_MID
+            y: 76
             text_font: montserrat_22
             text_color: 0xFFFFFF
 
         - button:
             id: idle_scroll_enable_btn
-            align: CENTER
-            y: 82
-            width: 220
+            align: TOP_MID
+            y: 106
+            width: 260
             height: 40
             bg_color: 0x374151
             radius: 8
@@ -51,16 +63,16 @@ lvgl:
         - label:
             id: idle_scroll_timeout_label
             text: "Idle Delay"
-            align: CENTER
-            y: 120
+            align: TOP_MID
+            y: 154
             text_font: montserrat_20
             text_color: 0xFFFFFF
 
         - slider:
             id: idle_scroll_timeout_slider
-            align: CENTER
-            y: 140
-            width: 280
+            align: TOP_MID
+            y: 178
+            width: 300
             height: 16
             min_value: 15
             max_value: 300
@@ -78,24 +90,25 @@ lvgl:
         - label:
             id: idle_scroll_timeout_value
             text: "30s"
-            align: CENTER
-            y: 160
+            align: TOP_MID
+            x: 148
+            y: 178 # 200
             text_font: montserrat_18
             text_color: 0xC0C0C0
 
         - label:
             id: sleep_title
             text: "Display Sleep"
-            align: CENTER
-            y: 188
+            align: TOP_MID
+            y: 230
             text_font: montserrat_22
             text_color: 0xFFFFFF
 
         - button:
             id: sleep_enable_btn
-            align: CENTER
-            y: 216
-            width: 220
+            align: TOP_MID
+            y: 260
+            width: 260
             height: 40
             bg_color: 0x374151
             radius: 8
@@ -131,16 +144,16 @@ lvgl:
         - label:
             id: sleep_timeout_label
             text: "Sleep Timeout"
-            align: CENTER
-            y: 254
+            align: TOP_MID
+            y: 308
             text_font: montserrat_20
             text_color: 0xFFFFFF
 
         - slider:
             id: sleep_timeout_slider
-            align: CENTER
-            y: 274
-            width: 280
+            align: TOP_MID
+            y: 332
+            width: 300
             height: 16
             min_value: 15
             max_value: 300
@@ -158,30 +171,31 @@ lvgl:
         - label:
             id: sleep_timeout_value
             text: "60s"
-            align: CENTER
-            y: 294
+            align: TOP_MID
+            x: 148
+            y: 332  # 354
             text_font: montserrat_18
             text_color: 0xC0C0C0
 
         - label:
             id: brightness_label
             text: "Display Brightness"
-            align: CENTER
-            y: 316
+            align: TOP_MID
+            y: 370  # 376
             text_font: montserrat_22
             text_color: 0xFFFFFF
 
         - image:
-            align: CENTER
-            x: -132
-            y: 340
+            align: TOP_MID
+            x: -148
+            y: 398  # 404
             src: icon_dim_24
 
         - slider:
             id: brightness_slider
-            align: CENTER
-            y: 344
-            width: 220
+            align: TOP_MID
+            y: 400  # 406
+            width: 240
             height: 18
             min_value: 0
             max_value: 100
@@ -201,7 +215,7 @@ lvgl:
                       return x / 100.0f;
 
         - image:
-            align: CENTER
-            x: 132
-            y: 340
+            align: TOP_MID
+            x: 148
+            y: 398 # 404
             src: icon_bright_24
