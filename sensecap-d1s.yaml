@@ -14,13 +14,7 @@ esphome:
       - delay: 30s   # boot page minimum active time
       - lvgl.page.show:
           id: page_home
-      - light.turn_on:
-          id: backlight
-          brightness: 50%
-      - lvgl.slider.update:
-          id: brightness_slider
-          value: 50
-          animated: false
+      - script.execute: apply_display_brightness
       - delay: 10s  # 5s   # 2s
       - lambda: |-
           uint32_t now = millis();
@@ -446,10 +440,28 @@ globals:
     type: int
     restore_value: true
     initial_value: "30"
+  - id: display_brightness_pct
+    type: int
+    restore_value: true
+    initial_value: "50"
   - id: tstat_runtime_syncing
     type: bool
     initial_value: "false"
 script:
+  - id: apply_display_brightness
+    then:
+      - lambda: |-
+          if (id(display_brightness_pct) < 0 || id(display_brightness_pct) > 100) id(display_brightness_pct) = 50;
+      - light.control:
+          id: backlight
+          state: ON
+          brightness: !lambda |-
+            if (id(display_brightness_pct) <= 0) return 0.0f;
+            return id(display_brightness_pct) / 100.0f;
+      - lvgl.slider.update:
+          id: brightness_slider
+          value: !lambda 'return id(display_brightness_pct);'
+          animated: false
   - id: nav_show_current
     then:
       - if:
@@ -1357,6 +1369,7 @@ packages:
 #  - !include sensecap-ha/esphome/ui/ui_updates.yaml
 #  - !include sensecap-ha/esphome/ui/ui_sleep.yaml
 #  - !include sensecap-ha/esphome/ui/ui_analog_clock.yaml
+
 
 
 

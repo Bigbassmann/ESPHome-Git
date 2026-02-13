@@ -1,4 +1,4 @@
-﻿# SenseCAP Indicator display + touch + backlight
+# SenseCAP Indicator display + touch + backlight
 output:
   - platform: ledc
     pin:
@@ -13,10 +13,7 @@ light:
     output: ledc_gpio45
     restore_mode: ALWAYS_ON
     default_transition_length: 0s
-    on_turn_on:
-      - light.control:
-          id: backlight
-          brightness: 50%  # Default to 50% brightness on power on
+
 
 # --- DISPLAY (MIPI RGB) ---
 display:
@@ -94,5 +91,5 @@ touchscreen:
             then:
               - logger.log: "Resuming LVGL from pause"
               - lvgl.resume:
-              - light.turn_on: backlight
+              - script.execute: apply_display_brightness
               - script.execute: nav_show_home_user

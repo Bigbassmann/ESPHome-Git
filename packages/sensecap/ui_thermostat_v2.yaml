@@ -114,7 +114,7 @@ lvgl:
         - label:
             text: "Current"
             align: TOP_MID
-            x: -10
+            x: -15
             y: 166
             text_font: montserrat_18
             text_color: 0x9CA3AF
@@ -123,7 +123,7 @@ lvgl:
             id: tstat2_current_value
             text: "--"
             align: TOP_MID
-            x: -10
+            x: -15
             y: 190
             text_font: montserrat_24
             text_color: 0xE5E7EB
@@ -131,7 +131,7 @@ lvgl:
         - label:
             text: "Target"
             align: TOP_MID
-            x: -10
+            x: -15
             y: 222
             text_font: montserrat_18
             text_color: 0x9CA3AF
@@ -140,7 +140,7 @@ lvgl:
             id: tstat2_target_value
             text: "--"
             align: TOP_MID
-            x: -10
+            x: -15
             y: 246
             text_font: montserrat_24
             text_color: 0xFFFFFF
@@ -148,7 +148,7 @@ lvgl:
         - label:
             text: "Humidity"
             align: TOP_MID
-            x: -10
+            x: -15
             y: 280
             text_font: montserrat_18
             text_color: 0x9CA3AF
@@ -157,7 +157,7 @@ lvgl:
             id: tstat2_humidity_value
             text: "--"
             align: TOP_MID
-            x: -10
+            x: -15
             y: 304
             text_font: montserrat_20
             text_color: 0x9CA3AF

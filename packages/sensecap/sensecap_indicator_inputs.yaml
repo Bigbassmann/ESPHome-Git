@@ -1,4 +1,4 @@
-﻿# SenseCAP Indicator inputs + factory reset
+# SenseCAP Indicator inputs + factory reset
 button:
   - platform: factory_reset
     id: factory_reset_btn
@@ -40,10 +40,11 @@ binary_sensor:
                 lambda: 'return id(screen_off);'
               then:
                 - lvgl.resume:
-                - light.turn_on: backlight
+                - script.execute: apply_display_brightness
                 - lambda: |-
                     id(screen_off) = false;
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
                     id(nav_page_index) = 0;
                 - script.execute: nav_show_home_user
+
