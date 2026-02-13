@@ -9,7 +9,7 @@ esphome:
       - lambda: 'id(boot_ready) = false;'
       - lvgl.page.show:
           id: page_boot
-      - delay: 10s   # 8s
+      - delay: 30s   # boot page minimum active time
       - lvgl.page.show:
           id: page_home
       - light.turn_on:
@@ -19,7 +19,7 @@ esphome:
           id: brightness_slider
           value: 50
           animated: false
-      - delay: 5s   # 2s
+      - delay: 10s  # 5s   # 2s
       - lambda: |-
           uint32_t now = millis();
           id(last_interaction_ms) = now;
@@ -1351,6 +1351,9 @@ packages:
 #  - !include sensecap-ha/esphome/ui/ui_updates.yaml
 #  - !include sensecap-ha/esphome/ui/ui_sleep.yaml
 #  - !include sensecap-ha/esphome/ui/ui_analog_clock.yaml
+
+
+
 
 
 
