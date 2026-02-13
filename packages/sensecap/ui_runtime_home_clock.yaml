@@ -1,0 +1,13 @@
+interval:
+  - interval: 1s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(boot_ready) && !id(screen_off) && id(ha_time).now().is_valid();'
+          then:
+            - lvgl.label.update:
+                id: home_clock_digital
+                text: !lambda 'return id(ha_time).now().strftime("%I:%M:%S %p");'
+            - lvgl.label.update:
+                id: home_clock_date
+                text: !lambda 'return id(ha_time).now().strftime("%d %b %Y");'

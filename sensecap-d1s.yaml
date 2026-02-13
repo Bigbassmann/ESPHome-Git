@@ -253,6 +253,12 @@ text_sensor:
     internal: true
 
   - platform: homeassistant
+    id: ha_tstat_hvac_action
+    entity_id: climate.thermostat
+    attribute: hvac_action
+    internal: true
+
+  - platform: homeassistant
     id: ha_tstat_fan_mode
     entity_id: climate.thermostat
     attribute: fan_mode
@@ -437,7 +443,7 @@ script:
             lambda: 'return id(nav_page_index) == 5;'
           then:
             - lvgl.page.show:
-                id: page_thermostat
+                id: page_thermostat_v2
       - if:
           condition:
             lambda: 'return id(nav_page_index) == 6;'
@@ -515,7 +521,17 @@ script:
           id(last_interaction_ms) = now;
           id(last_auto_scroll_ms) = now;
       - lvgl.page.show:
-          id: page_thermostat
+          id: page_thermostat_v2
+
+  - id: nav_show_home_clock_user
+    then:
+      - lambda: |-
+          id(ui_menu_active) = false;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_home_clock
 
   - id: nav_show_lighting_user
     then:
@@ -1230,6 +1246,8 @@ packages:
 #  - !include sensecap-ha/esphome/ui/ui_theme.yaml
   - !include packages/sensecap/ui_home.yaml
   - !include packages/sensecap/ui_runtime_home.yaml
+  - !include packages/sensecap/ui_home_clock.yaml
+  - !include packages/sensecap/ui_runtime_home_clock.yaml
   - !include packages/sensecap/ui_graphs.yaml
 #  - !include sensecap-ha/esphome/ui/ui_air.yaml
   - !include packages/sensecap/ui_settings_minimal.yaml
@@ -1244,7 +1262,7 @@ packages:
   - !include packages/sensecap/ui_overrides.yaml
   - !include packages/sensecap/ui_fans.yaml
   - !include packages/sensecap/ui_lighting.yaml
-  - !include packages/sensecap/ui_thermostat.yaml
+  - !include packages/sensecap/ui_thermostat_v2.yaml
   - !include packages/sensecap/ui_runtime_thermostat_slow.yaml
   - !include packages/sensecap/ui_other_controls.yaml
   - !include packages/sensecap/ui_runtime_other_controls.yaml
@@ -1254,6 +1272,10 @@ packages:
 #  - !include sensecap-ha/esphome/ui/ui_updates.yaml
 #  - !include sensecap-ha/esphome/ui/ui_sleep.yaml
 #  - !include sensecap-ha/esphome/ui/ui_analog_clock.yaml
+
+
+
+
 
 
 

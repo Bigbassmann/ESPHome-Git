@@ -6,85 +6,90 @@ interval:
             lambda: 'return id(boot_ready) && !id(screen_off) && id(nav_page_index) == 5;'
           then:
             - lvgl.label.update:
-                id: tstat_mode_label
+                id: tstat2_hvac_action_label
                 text: !lambda |-
-                  if (id(ha_tstat_mode).state.empty()) return std::string("--");
-                  return id(ha_tstat_mode).state;
+                  if (id(ha_tstat_hvac_action).state.empty()) {
+                    if (id(ha_tstat_mode).state.empty()) return std::string("--");
+                    return id(ha_tstat_mode).state;
+                  }
+                  return id(ha_tstat_hvac_action).state;
 
             - lvgl.label.update:
-                id: tstat_fan_mode_label
+                id: tstat2_fan_state_label
                 text: !lambda |-
                   if (id(ha_tstat_fan_mode).state.empty()) return std::string("--");
                   return id(ha_tstat_fan_mode).state;
 
             - lvgl.label.update:
-                id: tstat_current_label
+                id: tstat2_current_label
                 text: !lambda |-
-                  if (isnan(id(ha_tstat_current_temp).state)) return std::string("--");
-                  char buf[24];
-                  snprintf(buf, sizeof(buf), "%.1f F", id(ha_tstat_current_temp).state);
+                  if (isnan(id(ha_tstat_current_temp).state)) return std::string("Current: --");
+                  char buf[32];
+                  snprintf(buf, sizeof(buf), "Current: %.1f F", id(ha_tstat_current_temp).state);
                   return std::string(buf);
 
             - lvgl.label.update:
-                id: tstat_target_label
+                id: tstat2_target_label
                 text: !lambda |-
-                  if (isnan(id(ha_tstat_target_temp).state)) return std::string("--");
-                  char buf[24];
-                  snprintf(buf, sizeof(buf), "%.1f F", id(ha_tstat_target_temp).state);
+                  if (isnan(id(ha_tstat_target_temp).state)) return std::string("Target: --");
+                  char buf[32];
+                  snprintf(buf, sizeof(buf), "Target: %.1f F", id(ha_tstat_target_temp).state);
                   return std::string(buf);
 
-            - lvgl.slider.update:
-                id: tstat_target_slider
+            - lvgl.label.update:
+                id: tstat2_humidity_label
+                text: !lambda |-
+                  if (isnan(id(humid).state)) return std::string("Humidity: --");
+                  char buf[32];
+                  snprintf(buf, sizeof(buf), "Humidity: %.0f%%", id(humid).state);
+                  return std::string(buf);
+
+            - lvgl.arc.update:
+                id: tstat2_target_arc
                 value: !lambda |-
                   if (isnan(id(ha_tstat_target_temp).state)) return 68;
                   int t = (int) roundf(id(ha_tstat_target_temp).state);
                   if (t < 50) t = 50;
                   if (t > 85) t = 85;
                   return t;
-                animated: true  # false
-
-            - lvgl.widget.update: {id: tstat_off_btn, bg_color: 0x374151}
-            - lvgl.widget.update: {id: tstat_heat_btn, bg_color: 0x374151}
-            - lvgl.widget.update: {id: tstat_cool_btn, bg_color: 0x374151}
-            - lvgl.widget.update: {id: tstat_auto_btn, bg_color: 0x374151}
-            - lvgl.widget.update: {id: tstat_fan_auto_btn, bg_color: 0x374151}
-            - lvgl.widget.update: {id: tstat_fan_on_btn, bg_color: 0x374151}
-            - lvgl.widget.update: {id: tstat_fan_circ_btn, bg_color: 0x374151}
+                animated: true
 
             - if:
                 condition:
-                  lambda: 'return id(ha_tstat_mode).state == "off";'
+                  lambda: 'return id(ha_tstat_mode).state == "off" || id(ha_tstat_hvac_action).state == "off" || id(ha_tstat_hvac_action).state.empty();'
                 then:
-                  - lvgl.widget.update: {id: tstat_off_btn, bg_color: 0x166534}
-            - if:
-                condition:
-                  lambda: 'return id(ha_tstat_mode).state == "heat";'
-                then:
-                  - lvgl.widget.update: {id: tstat_heat_btn, bg_color: 0x166534}
-            - if:
-                condition:
-                  lambda: 'return id(ha_tstat_mode).state == "cool";'
-                then:
-                  - lvgl.widget.update: {id: tstat_cool_btn, bg_color: 0x166534}
-            - if:
-                condition:
-                  lambda: 'return id(ha_tstat_mode).state == "auto";'
-                then:
-                  - lvgl.widget.update: {id: tstat_auto_btn, bg_color: 0x166534}
+                  - lvgl.widget.update: {id: tstat2_state_arc_off, hidden: false}
+                  - lvgl.widget.update: {id: tstat2_state_arc_heat, hidden: true}
+                  - lvgl.widget.update: {id: tstat2_state_arc_cool, hidden: true}
 
             - if:
                 condition:
-                  lambda: 'return id(ha_tstat_fan_mode).state == "auto";'
+                  lambda: 'return id(ha_tstat_hvac_action).state == "heating" || id(ha_tstat_mode).state == "heat";'
                 then:
-                  - lvgl.widget.update: {id: tstat_fan_auto_btn, bg_color: 0x0F766E}
+                  - lvgl.widget.update: {id: tstat2_state_arc_off, hidden: true}
+                  - lvgl.widget.update: {id: tstat2_state_arc_heat, hidden: false}
+                  - lvgl.widget.update: {id: tstat2_state_arc_cool, hidden: true}
+
             - if:
                 condition:
-                  lambda: 'return id(ha_tstat_fan_mode).state == "on" || id(ha_tstat_fan_mode).state == "low" || id(ha_tstat_fan_mode).state == "medium" || id(ha_tstat_fan_mode).state == "high";'
+                  lambda: 'return id(ha_tstat_hvac_action).state == "cooling" || id(ha_tstat_mode).state == "cool";'
                 then:
-                  - lvgl.widget.update: {id: tstat_fan_on_btn, bg_color: 0x0F766E}
-            - if:
-                condition:
-                  lambda: 'return id(ha_tstat_fan_mode).state == "circulation" || id(ha_tstat_fan_mode).state == "circulate";'
-                then:
-                  - lvgl.widget.update: {id: tstat_fan_circ_btn, bg_color: 0x0F766E}
+                  - lvgl.widget.update: {id: tstat2_state_arc_off, hidden: true}
+                  - lvgl.widget.update: {id: tstat2_state_arc_heat, hidden: true}
+                  - lvgl.widget.update: {id: tstat2_state_arc_cool, hidden: false}
+
+            - lvgl.dropdown.update:
+                id: tstat2_mode_dropdown
+                selected_index: !lambda |-
+                  if (id(ha_tstat_mode).state == "heat") return 1;
+                  if (id(ha_tstat_mode).state == "cool") return 2;
+                  if (id(ha_tstat_mode).state == "auto") return 3;
+                  return 0;
+
+            - lvgl.dropdown.update:
+                id: tstat2_fan_dropdown
+                selected_index: !lambda |-
+                  if (id(ha_tstat_fan_mode).state == "on" || id(ha_tstat_fan_mode).state == "low" || id(ha_tstat_fan_mode).state == "medium" || id(ha_tstat_fan_mode).state == "high") return 1;
+                  if (id(ha_tstat_fan_mode).state == "circulation" || id(ha_tstat_fan_mode).state == "circulate") return 2;
+                  return 0;
 

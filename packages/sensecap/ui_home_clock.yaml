@@ -1,0 +1,100 @@
+lvgl:
+  pages:
+    - id: page_home_clock
+      widgets:
+        - label:
+            text: "Home Clock"
+            align: TOP_MID
+            y: 40
+            text_font: montserrat_32
+            text_color: 0xFFFFFF
+
+        - obj:
+            id: home_clock_face
+            align: TOP_MID
+            y: 86
+            width: 280
+            height: 280
+            radius: 140
+            bg_color: 0x0F172A
+            border_color: 0x64748B
+            border_width: 3
+            pad_all: 0
+            widgets:
+              - label:
+                  text: "12"
+                  align: TOP_MID
+                  y: 10
+                  text_font: montserrat_22
+                  text_color: 0xE5E7EB
+              - label:
+                  text: "3"
+                  align: RIGHT_MID
+                  x: -12
+                  text_font: montserrat_22
+                  text_color: 0xE5E7EB
+              - label:
+                  text: "6"
+                  align: BOTTOM_MID
+                  y: -10
+                  text_font: montserrat_22
+                  text_color: 0xE5E7EB
+              - label:
+                  text: "9"
+                  align: LEFT_MID
+                  x: 12
+                  text_font: montserrat_22
+                  text_color: 0xE5E7EB
+              - line:
+                  id: home_clock_hour_hand
+                  points:
+                    - x: 140
+                      y: 140
+                    - x: 175
+                      y: 114
+                  line_width: 5
+                  line_color: 0xF59E0B
+                  rounded: true
+              - line:
+                  id: home_clock_minute_hand
+                  points:
+                    - x: 140
+                      y: 140
+                    - x: 210
+                      y: 140
+                  line_width: 3
+                  line_color: 0x93C5FD
+                  rounded: true
+              - line:
+                  id: home_clock_second_hand
+                  points:
+                    - x: 140
+                      y: 140
+                    - x: 140
+                      y: 76
+                  line_width: 2
+                  line_color: 0xEF4444
+                  rounded: true
+              - obj:
+                  align: CENTER
+                  width: 12
+                  height: 12
+                  radius: 6
+                  bg_color: 0xFFFFFF
+                  border_width: 0
+
+        - label:
+            id: home_clock_digital
+            text: "--:--:--"
+            align: BOTTOM_MID
+            y: -68
+            text_font: montserrat_28
+            text_color: 0xFFFFFF
+
+        - label:
+            id: home_clock_date
+            text: "-- --- ----"
+            align: BOTTOM_MID
+            y: -38
+            text_font: montserrat_20
+            text_color: 0x9CA3AF

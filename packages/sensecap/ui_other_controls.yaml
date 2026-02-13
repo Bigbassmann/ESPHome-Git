@@ -51,7 +51,8 @@ lvgl:
                   align: LEFT_MID
                   x: 18
                   src: icon_unlock_24
-                #  hidden: true
+                  hidden: true
+
               - label:
                   text: "Door Lock"
                   align: LEFT_MID
@@ -65,3 +66,4 @@ lvgl:
                   x: -14
                   text_font: montserrat_24
                   text_color: 0xFFFFFF
+

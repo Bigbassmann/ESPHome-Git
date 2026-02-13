@@ -1,0 +1,231 @@
+lvgl:
+  pages:
+    - id: page_thermostat_v2
+      widgets:
+        - label:
+            text: "Thermostat"
+            align: TOP_MID
+            y: 40
+            text_font: montserrat_32
+            text_color: 0xFFFFFF
+
+        - label:
+            id: tstat2_hvac_action_label
+            text: "--"
+            align: TOP_LEFT
+            x: 60
+            y: 88
+            text_font: montserrat_20
+            text_color: 0x9CA3AF
+
+        - label:
+            id: tstat2_fan_state_label
+            text: "--"
+            align: TOP_RIGHT
+            x: -60
+            y: 88
+            text_font: montserrat_20
+            text_color: 0x9CA3AF
+
+        - arc:
+            id: tstat2_state_arc_off
+            align: TOP_MID
+            y: 88
+            width: 250
+            height: 220
+            min_value: 0
+            max_value: 100
+            value: 100
+            adjustable: false
+            start_angle: 135
+            end_angle: 45
+            indicator:
+              arc_color: 0x6B7280
+              arc_width: 8
+
+        - arc:
+            id: tstat2_state_arc_heat
+            align: TOP_MID
+            y: 88
+            width: 250
+            height: 220
+            min_value: 0
+            max_value: 100
+            value: 100
+            adjustable: false
+            start_angle: 135
+            end_angle: 45
+            indicator:
+              arc_color: 0xF59E0B
+              arc_width: 8
+            hidden: true
+
+        - arc:
+            id: tstat2_state_arc_cool
+            align: TOP_MID
+            y: 88
+            width: 250
+            height: 220
+            min_value: 0
+            max_value: 100
+            value: 100
+            adjustable: false
+            start_angle: 135
+            end_angle: 45
+            indicator:
+              arc_color: 0x3B82F6
+              arc_width: 8
+            hidden: true
+
+        - arc:
+            id: tstat2_target_arc
+            align: TOP_MID
+            y: 88
+            width: 224
+            height: 194
+            min_value: 50
+            max_value: 85
+            value: 68
+            adjustable: true
+            start_angle: 135
+            end_angle: 45
+            indicator:
+              arc_color: 0xE5E7EB
+              arc_width: 12
+            knob:
+              bg_color: 0xFFFFFF
+              pad_all: 3
+            on_value:
+              then:
+                - lvgl.label.update:
+                    id: tstat2_target_label
+                    text: !lambda |-
+                      char buf[24];
+                      snprintf(buf, sizeof(buf), "%d F", x);
+                      return std::string(buf);
+            on_release:
+              then:
+                - lambda: |-
+                    id(last_interaction_ms) = millis();
+                    id(last_auto_scroll_ms) = id(last_interaction_ms);
+                - homeassistant.service:
+                    service: climate.set_temperature
+                    data:
+                      entity_id: climate.thermostat
+                    data_template:
+                      temperature: !lambda |-
+                        char buf[16];
+                        snprintf(buf, sizeof(buf), "%d", x);
+                        return std::string(buf);
+
+        - label:
+            id: tstat2_current_label
+            text: "--"
+            align: TOP_MID
+            y: 162
+            text_font: montserrat_24
+            text_color: 0xD1D5DB
+
+        - label:
+            id: tstat2_target_label
+            text: "--"
+            align: TOP_MID
+            y: 196
+            text_font: montserrat_32
+            text_color: 0xFFFFFF
+
+        - label:
+            id: tstat2_humidity_label
+            text: "--"
+            align: TOP_MID
+            y: 232
+            text_font: montserrat_20
+            text_color: 0x93C5FD
+
+        - label:
+            text: "Mode"
+            align: TOP_LEFT
+            x: 60
+            y: 324
+            text_font: montserrat_20
+            text_color: 0xFFFFFF
+
+        - dropdown:
+            id: tstat2_mode_dropdown
+            align: TOP_LEFT
+            x: 60
+            y: 352
+            width: 150
+            height: 44
+            options:
+              - "off"
+              - "heat"
+              - "cool"
+              - "auto"
+            selected_index: 0
+            on_value:
+              then:
+                - lambda: |-
+                    id(last_interaction_ms) = millis();
+                    id(last_auto_scroll_ms) = id(last_interaction_ms);
+                - if:
+                    condition:
+                      lambda: 'return x == 0;'
+                    then:
+                      - homeassistant.service: {service: climate.set_hvac_mode, data: {entity_id: climate.thermostat, hvac_mode: "off"}}
+                - if:
+                    condition:
+                      lambda: 'return x == 1;'
+                    then:
+                      - homeassistant.service: {service: climate.set_hvac_mode, data: {entity_id: climate.thermostat, hvac_mode: "heat"}}
+                - if:
+                    condition:
+                      lambda: 'return x == 2;'
+                    then:
+                      - homeassistant.service: {service: climate.set_hvac_mode, data: {entity_id: climate.thermostat, hvac_mode: "cool"}}
+                - if:
+                    condition:
+                      lambda: 'return x == 3;'
+                    then:
+                      - homeassistant.service: {service: climate.set_hvac_mode, data: {entity_id: climate.thermostat, hvac_mode: "auto"}}
+
+        - label:
+            text: "Fan"
+            align: TOP_RIGHT
+            x: -60
+            y: 324
+            text_font: montserrat_20
+            text_color: 0xFFFFFF
+
+        - dropdown:
+            id: tstat2_fan_dropdown
+            align: TOP_RIGHT
+            x: -60
+            y: 352
+            width: 150
+            height: 44
+            options:
+              - "auto"
+              - "on"
+              - "circulate"
+            selected_index: 0
+            on_value:
+              then:
+                - lambda: |-
+                    id(last_interaction_ms) = millis();
+                    id(last_auto_scroll_ms) = id(last_interaction_ms);
+                - if:
+                    condition:
+                      lambda: 'return x == 0;'
+                    then:
+                      - homeassistant.service: {service: climate.set_fan_mode, data: {entity_id: climate.thermostat, fan_mode: "auto"}}
+                - if:
+                    condition:
+                      lambda: 'return x == 1;'
+                    then:
+                      - homeassistant.service: {service: climate.set_fan_mode, data: {entity_id: climate.thermostat, fan_mode: "on"}}
+                - if:
+                    condition:
+                      lambda: 'return x == 2;'
+                    then:
+                      - homeassistant.service: {service: climate.set_fan_mode, data: {entity_id: climate.thermostat, fan_mode: "circulation"}}

@@ -13,14 +13,28 @@ lvgl:
         - button:
             id: menu_btn_home
             text: "Home"
-            align: TOP_MID
+            align: TOP_LEFT
+            x: 20
             y: 92
-            width: 200
+            width: 214
             height: 48
             bg_color: 0x374151
             text_color: 0xFFFFFF
             on_press:
               - script.execute: nav_show_home_user
+
+        - button:
+            id: menu_btn_home_clock
+            text: "Home Clock"
+            align: TOP_LEFT
+            x: 248
+            y: 92
+            width: 214
+            height: 48
+            bg_color: 0x374151
+            text_color: 0xFFFFFF
+            on_press:
+              - script.execute: nav_show_home_clock_user
 
         - button:
             id: menu_btn_settings
