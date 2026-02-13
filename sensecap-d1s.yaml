@@ -227,18 +227,27 @@ sensor:
     entity_id: light.in_wall_paddle_dimmer_500s
     attribute: brightness
     internal: true
-
-  - platform: homeassistant
+  - platform: template
     id: ha_tstat_current_temp
-    entity_id: climate.thermostat
-    attribute: current_temperature
     internal: true
+    update_interval: 1s
+    lambda: |-
+      std::string s = id(ha_tstat_current_temp_txt).state;
+      if (s.empty() || s == "None" || s == "none" || s == "unknown" || s == "unavailable") return NAN;
+      return atof(s.c_str());
 
-  - platform: homeassistant
+  - platform: template
     id: ha_tstat_target_temp
-    entity_id: climate.thermostat
-    attribute: temperature
     internal: true
+    update_interval: 1s
+    lambda: |-
+      static float last_valid = 68.0f;
+      std::string s = id(ha_tstat_target_temp_txt).state;
+      if (s.empty() || s == "None" || s == "none" || s == "unknown" || s == "unavailable") return last_valid;
+      float v = atof(s.c_str());
+      if (isnan(v)) return last_valid;
+      last_valid = v;
+      return v;
 
 text_sensor:
   - platform: homeassistant
@@ -259,9 +268,27 @@ text_sensor:
     internal: true
 
   - platform: homeassistant
+    id: ha_tstat_current_temp_txt
+    entity_id: climate.thermostat
+    attribute: current_temperature
+    internal: true
+
+  - platform: homeassistant
+    id: ha_tstat_target_temp_txt
+    entity_id: climate.thermostat
+    attribute: temperature
+    internal: true
+
+  - platform: homeassistant
     id: ha_tstat_fan_mode
     entity_id: climate.thermostat
     attribute: fan_mode
+    internal: true
+
+  - platform: homeassistant
+    id: ha_tstat_fan_state
+    entity_id: climate.thermostat
+    attribute: fan_state
     internal: true
 
   - platform: homeassistant
@@ -1272,6 +1299,14 @@ packages:
 #  - !include sensecap-ha/esphome/ui/ui_updates.yaml
 #  - !include sensecap-ha/esphome/ui/ui_sleep.yaml
 #  - !include sensecap-ha/esphome/ui/ui_analog_clock.yaml
+
+
+
+
+
+
+
+
 
 
 

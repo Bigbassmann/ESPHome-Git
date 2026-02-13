@@ -5,109 +5,92 @@ lvgl:
         - label:
             text: "Thermostat"
             align: TOP_MID
-            y: 40
+            y: 36
             text_font: montserrat_32
             text_color: 0xFFFFFF
+
+        - label:
+            text: "HVAC Status"
+            align: TOP_LEFT
+            x: 48
+            y: 78
+            text_font: montserrat_18
+            text_color: 0x9CA3AF
+
+        - label:
+            text: "Fan Status"
+            align: TOP_RIGHT
+            x: -48
+            y: 78
+            text_font: montserrat_18
+            text_color: 0x9CA3AF
 
         - label:
             id: tstat2_hvac_action_label
             text: "--"
             align: TOP_LEFT
-            x: 60
-            y: 88
-            text_font: montserrat_20
-            text_color: 0x9CA3AF
+            x: 48
+            y: 102
+            text_font: montserrat_18
+            text_color: 0xE5E7EB
 
         - label:
             id: tstat2_fan_state_label
             text: "--"
             align: TOP_RIGHT
-            x: -60
-            y: 88
-            text_font: montserrat_20
-            text_color: 0x9CA3AF
-
-        - arc:
-            id: tstat2_state_arc_off
-            align: TOP_MID
-            y: 88
-            width: 250
-            height: 220
-            min_value: 0
-            max_value: 100
-            value: 100
-            adjustable: false
-            start_angle: 135
-            end_angle: 45
-            indicator:
-              arc_color: 0x6B7280
-              arc_width: 8
-
-        - arc:
-            id: tstat2_state_arc_heat
-            align: TOP_MID
-            y: 88
-            width: 250
-            height: 220
-            min_value: 0
-            max_value: 100
-            value: 100
-            adjustable: false
-            start_angle: 135
-            end_angle: 45
-            indicator:
-              arc_color: 0xF59E0B
-              arc_width: 8
-            hidden: true
-
-        - arc:
-            id: tstat2_state_arc_cool
-            align: TOP_MID
-            y: 88
-            width: 250
-            height: 220
-            min_value: 0
-            max_value: 100
-            value: 100
-            adjustable: false
-            start_angle: 135
-            end_angle: 45
-            indicator:
-              arc_color: 0x3B82F6
-              arc_width: 8
-            hidden: true
+            x: -48
+            y: 102
+            text_font: montserrat_18
+            text_color: 0xE5E7EB
 
         - arc:
             id: tstat2_target_arc
             align: TOP_MID
-            y: 88
-            width: 224
-            height: 194
+            y: 118
+            width: 252
+            height: 220
             min_value: 50
             max_value: 85
             value: 68
             adjustable: true
             start_angle: 135
             end_angle: 45
+            arc_rounded: true
             indicator:
-              arc_color: 0xE5E7EB
+              arc_color: 0x6B7280
               arc_width: 12
             knob:
               bg_color: 0xFFFFFF
               pad_all: 3
             on_value:
               then:
+                - lambda: |-
+                    id(last_interaction_ms) = millis();
+                    id(last_auto_scroll_ms) = id(last_interaction_ms);
+                    int v = lv_arc_get_value(id(tstat2_target_arc));
+                    static int prev_v = -999;
+                    if (v != prev_v) {
+                      ESP_LOGD("tstat_ui", "arc on_value value=%d", v);
+                      prev_v = v;
+                    }
                 - lvgl.label.update:
-                    id: tstat2_target_label
+                    id: tstat2_target_value
                     text: !lambda |-
                       char buf[24];
-                      snprintf(buf, sizeof(buf), "%d F", x);
+                      int v = lv_arc_get_value(id(tstat2_target_arc));
+                      if (v < 50) v = 50;
+                      if (v > 85) v = 85;
+                      snprintf(buf, sizeof(buf), "%.1f F", (float) v);
                       return std::string(buf);
             on_release:
               then:
                 - lambda: |-
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
+                    int v = lv_arc_get_value(id(tstat2_target_arc));
+                    if (v < 50) v = 50;
+                    if (v > 85) v = 85;
+                    ESP_LOGI("tstat_ui", "arc on_release commit target=%d", v);
                 - homeassistant.service:
                     service: climate.set_temperature
                     data:
@@ -115,117 +98,160 @@ lvgl:
                     data_template:
                       temperature: !lambda |-
                         char buf[16];
-                        snprintf(buf, sizeof(buf), "%d", x);
+                        int v = lv_arc_get_value(id(tstat2_target_arc));
+                        if (v < 50) v = 50;
+                        if (v > 85) v = 85;
+                        snprintf(buf, sizeof(buf), "%d", v);
                         return std::string(buf);
 
         - label:
-            id: tstat2_current_label
-            text: "--"
+            text: "Current"
             align: TOP_MID
-            y: 162
-            text_font: montserrat_24
-            text_color: 0xD1D5DB
+            x: 0
+            y: 166
+            text_font: montserrat_18
+            text_color: 0x9CA3AF
 
         - label:
-            id: tstat2_target_label
+            id: tstat2_current_value
             text: "--"
             align: TOP_MID
-            y: 196
-            text_font: montserrat_32
+            y: 190
+            text_font: montserrat_24
+            text_color: 0xE5E7EB
+
+        - label:
+            text: "Target"
+            align: TOP_MID
+            x: 0
+            y: 222
+            text_font: montserrat_18
+            text_color: 0x9CA3AF
+
+        - label:
+            id: tstat2_target_value
+            text: "--"
+            align: TOP_MID
+            y: 246
+            text_font: montserrat_24
             text_color: 0xFFFFFF
 
         - label:
-            id: tstat2_humidity_label
-            text: "--"
+            text: "Humidity"
             align: TOP_MID
-            y: 232
-            text_font: montserrat_20
-            text_color: 0x93C5FD
+            y: 280
+            text_font: montserrat_18
+            text_color: 0x9CA3AF
 
         - label:
-            text: "Mode"
-            align: TOP_LEFT
-            x: 60
-            y: 324
+            id: tstat2_humidity_value
+            text: "--"
+            align: TOP_MID
+            y: 304
             text_font: montserrat_20
+            text_color: 0x9CA3AF  # 0x93C5FD
+
+        - label:
+            text: "HVAC Mode"
+            align: TOP_LEFT
+            x: 56
+            y: 336
+            text_font: montserrat_18
             text_color: 0xFFFFFF
 
         - dropdown:
             id: tstat2_mode_dropdown
             align: TOP_LEFT
-            x: 60
-            y: 352
-            width: 150
-            height: 44
+            x: 56
+            y: 362
+            width: 156
+            height: 40
+            text_font: montserrat_18
             options:
-              - "off"
-              - "heat"
-              - "cool"
-              - "auto"
+              - "Off"
+              - "Heat"
+              - "Cool"
             selected_index: 0
             on_value:
               then:
                 - lambda: |-
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
+                    ESP_LOGI("tstat_ui", "hvac dropdown index=%d", x);
                 - if:
                     condition:
                       lambda: 'return x == 0;'
                     then:
+                      - logger.log: "tstat_ui hvac -> off"
                       - homeassistant.service: {service: climate.set_hvac_mode, data: {entity_id: climate.thermostat, hvac_mode: "off"}}
                 - if:
                     condition:
                       lambda: 'return x == 1;'
                     then:
+                      - logger.log: "tstat_ui hvac -> heat"
                       - homeassistant.service: {service: climate.set_hvac_mode, data: {entity_id: climate.thermostat, hvac_mode: "heat"}}
                 - if:
                     condition:
                       lambda: 'return x == 2;'
                     then:
+                      - logger.log: "tstat_ui hvac -> cool"
                       - homeassistant.service: {service: climate.set_hvac_mode, data: {entity_id: climate.thermostat, hvac_mode: "cool"}}
-                - if:
-                    condition:
-                      lambda: 'return x == 3;'
-                    then:
-                      - homeassistant.service: {service: climate.set_hvac_mode, data: {entity_id: climate.thermostat, hvac_mode: "auto"}}
+
 
         - label:
-            text: "Fan"
+            text: "Fan Mode"
             align: TOP_RIGHT
-            x: -60
-            y: 324
-            text_font: montserrat_20
+            x: -56
+            y: 336
+            text_font: montserrat_18
             text_color: 0xFFFFFF
 
         - dropdown:
             id: tstat2_fan_dropdown
             align: TOP_RIGHT
-            x: -60
-            y: 352
-            width: 150
-            height: 44
+            x: -56
+            y: 362
+            width: 156
+            height: 40
+            text_font: montserrat_18
             options:
-              - "auto"
-              - "on"
-              - "circulate"
+              - "Auto low"
+              - "Low"
+              - "Circulation"
             selected_index: 0
             on_value:
               then:
                 - lambda: |-
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
+                    ESP_LOGI("tstat_ui", "fan dropdown index=%d", x);
                 - if:
                     condition:
                       lambda: 'return x == 0;'
                     then:
-                      - homeassistant.service: {service: climate.set_fan_mode, data: {entity_id: climate.thermostat, fan_mode: "auto"}}
+                      - logger.log: "tstat_ui fan -> Auto low"
+                      - homeassistant.service: {service: climate.set_fan_mode, data: {entity_id: climate.thermostat, fan_mode: "Auto low"}}
                 - if:
                     condition:
                       lambda: 'return x == 1;'
                     then:
-                      - homeassistant.service: {service: climate.set_fan_mode, data: {entity_id: climate.thermostat, fan_mode: "on"}}
+                      - logger.log: "tstat_ui fan -> Low"
+                      - homeassistant.service: {service: climate.set_fan_mode, data: {entity_id: climate.thermostat, fan_mode: "Low"}}
                 - if:
                     condition:
                       lambda: 'return x == 2;'
                     then:
-                      - homeassistant.service: {service: climate.set_fan_mode, data: {entity_id: climate.thermostat, fan_mode: "circulation"}}
+                      - logger.log: "tstat_ui fan -> Circulation"
+                      - homeassistant.service: {service: climate.set_fan_mode, data: {entity_id: climate.thermostat, fan_mode: "Circulation"}}
+
+
+
+
+
+
+
+
+
+
+
+

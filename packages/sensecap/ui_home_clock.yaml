@@ -54,7 +54,7 @@ lvgl:
                       y: 114
                   line_width: 5
                   line_color: 0xF59E0B
-                  rounded: true
+                  line_rounded: true
               - line:
                   id: home_clock_minute_hand
                   points:
@@ -64,7 +64,7 @@ lvgl:
                       y: 140
                   line_width: 3
                   line_color: 0x93C5FD
-                  rounded: true
+                  line_rounded: true
               - line:
                   id: home_clock_second_hand
                   points:
@@ -74,7 +74,7 @@ lvgl:
                       y: 76
                   line_width: 2
                   line_color: 0xEF4444
-                  rounded: true
+                  line_rounded: true
               - obj:
                   align: CENTER
                   width: 12
@@ -98,3 +98,4 @@ lvgl:
             y: -38
             text_font: montserrat_20
             text_color: 0x9CA3AF
+
