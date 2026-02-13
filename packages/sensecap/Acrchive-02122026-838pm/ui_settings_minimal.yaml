@@ -20,7 +20,7 @@ lvgl:
             align: TOP_MID
             y: 32
             text_font: montserrat_30
-            text_color: 0x1D4ED8
+            text_color: 0xFFFFFF
 
         - label:
             id: idle_scroll_title
@@ -43,10 +43,8 @@ lvgl:
               then:
                 - lambda: |-
                     id(display_idle_scroll_enabled) = !id(display_idle_scroll_enabled);
-                    if (id(display_idle_scroll_enabled)) id(display_sleep_enabled) = false;
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
-                    ESP_LOGI("ui_settings", "Idle scroll %s (delay=%ds), sleep forced %s", id(display_idle_scroll_enabled) ? "ON" : "OFF", id(display_idle_scroll_s), id(display_sleep_enabled) ? "ON" : "OFF");
             widgets:
               - label:
                   text: "Auto Scroll"
@@ -87,10 +85,7 @@ lvgl:
               bg_color: 0x0EA5E9
             on_value:
               then:
-                - lambda: |-
-                    id(display_idle_scroll_s) = x;
-                    id(last_interaction_ms) = millis();
-                    id(last_auto_scroll_ms) = id(last_interaction_ms);
+                - lambda: 'id(display_idle_scroll_s) = x;'
 
         - label:
             id: idle_scroll_timeout_value
@@ -122,10 +117,8 @@ lvgl:
               then:
                 - lambda: |-
                     id(display_sleep_enabled) = !id(display_sleep_enabled);
-                    if (id(display_sleep_enabled)) id(display_idle_scroll_enabled) = false;
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
-                    ESP_LOGI("ui_settings", "Display sleep %s (timeout=%ds), idle scroll forced %s", id(display_sleep_enabled) ? "ON" : "OFF", id(display_sleep_timeout_s), id(display_idle_scroll_enabled) ? "ON" : "OFF");
                 - if:
                     condition:
                       lambda: 'return !id(display_sleep_enabled) && id(screen_off);'
@@ -173,10 +166,7 @@ lvgl:
               bg_color: 0x2563EB
             on_value:
               then:
-                - lambda: |-
-                    id(display_sleep_timeout_s) = x;
-                    id(last_interaction_ms) = millis();
-                    id(last_auto_scroll_ms) = id(last_interaction_ms);
+                - lambda: 'id(display_sleep_timeout_s) = x;'
 
         - label:
             id: sleep_timeout_value
@@ -229,5 +219,3 @@ lvgl:
             x: 148
             y: 398 # 404
             src: icon_bright_24
-
-

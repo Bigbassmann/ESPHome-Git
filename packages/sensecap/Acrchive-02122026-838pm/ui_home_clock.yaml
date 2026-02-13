@@ -7,7 +7,7 @@ lvgl:
             align: TOP_MID
             y: 40
             text_font: montserrat_32
-            text_color: 0x374151
+            text_color: 0xFFFFFF
 
         - obj:
             id: home_clock_face
@@ -98,5 +98,4 @@ lvgl:
             y: -38
             text_font: montserrat_20
             text_color: 0x9CA3AF
-
 

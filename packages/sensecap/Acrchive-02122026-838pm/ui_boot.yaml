@@ -5,7 +5,7 @@ lvgl:
         - spinner:
             id: boot_spinner
             align: CENTER
-            y: -36
+            y: 70
             width: 100
             height: 100
             arc_length: 70deg
@@ -19,6 +19,6 @@ lvgl:
         - label:
             text: "Starting..."
             align: CENTER
-            y: 60
+            y: 86
             text_font: montserrat_32
             text_color: 0xFFFFFF

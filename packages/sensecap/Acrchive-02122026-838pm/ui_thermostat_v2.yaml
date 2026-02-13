@@ -7,7 +7,7 @@ lvgl:
             align: TOP_MID
             y: 36
             text_font: montserrat_32
-            text_color: 0x0F766E
+            text_color: 0xFFFFFF
 
         - label:
             text: "HVAC Status"
@@ -58,24 +58,17 @@ lvgl:
             arc_rounded: true
             indicator:
               arc_color: 0x6B7280
-              arc_width: 15
+              arc_width: 12
             knob:
               bg_color: 0xFFFFFF
               pad_all: 3
             on_value:
               then:
                 - lambda: |-
-                    int v = lv_arc_get_value(id(tstat2_target_arc));
-                    static int prev_v = -999;
-                    if (id(tstat_runtime_syncing)) {
-                      if (v != prev_v) {
-                        ESP_LOGD("tstat_ui", "arc on_value runtime-sync value=%d", v);
-                        prev_v = v;
-                      }
-                      return;
-                    }
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
+                    int v = lv_arc_get_value(id(tstat2_target_arc));
+                    static int prev_v = -999;
                     if (v != prev_v) {
                       ESP_LOGD("tstat_ui", "arc on_value value=%d", v);
                       prev_v = v;
@@ -114,7 +107,7 @@ lvgl:
         - label:
             text: "Current"
             align: TOP_MID
-            x: -10
+            x: 0
             y: 166
             text_font: montserrat_18
             text_color: 0x9CA3AF
@@ -123,7 +116,6 @@ lvgl:
             id: tstat2_current_value
             text: "--"
             align: TOP_MID
-            x: -10
             y: 190
             text_font: montserrat_24
             text_color: 0xE5E7EB
@@ -131,7 +123,7 @@ lvgl:
         - label:
             text: "Target"
             align: TOP_MID
-            x: -10
+            x: 0
             y: 222
             text_font: montserrat_18
             text_color: 0x9CA3AF
@@ -140,7 +132,6 @@ lvgl:
             id: tstat2_target_value
             text: "--"
             align: TOP_MID
-            x: -10
             y: 246
             text_font: montserrat_24
             text_color: 0xFFFFFF
@@ -148,7 +139,6 @@ lvgl:
         - label:
             text: "Humidity"
             align: TOP_MID
-            x: -10
             y: 280
             text_font: montserrat_18
             text_color: 0x9CA3AF
@@ -157,10 +147,9 @@ lvgl:
             id: tstat2_humidity_value
             text: "--"
             align: TOP_MID
-            x: -10
             y: 304
             text_font: montserrat_20
-            text_color: 0x9CA3AF
+            text_color: 0x9CA3AF  # 0x93C5FD
 
         - label:
             text: "HVAC Mode"
@@ -186,10 +175,6 @@ lvgl:
             on_value:
               then:
                 - lambda: |-
-                    if (id(tstat_runtime_syncing)) {
-                      ESP_LOGD("tstat_ui", "hvac dropdown ignored during runtime sync idx=%d", x);
-                      return;
-                    }
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
                     ESP_LOGI("tstat_ui", "hvac dropdown index=%d", x);
@@ -211,6 +196,7 @@ lvgl:
                     then:
                       - logger.log: "tstat_ui hvac -> cool"
                       - homeassistant.service: {service: climate.set_hvac_mode, data: {entity_id: climate.thermostat, hvac_mode: "cool"}}
+
 
         - label:
             text: "Fan Mode"
@@ -236,10 +222,6 @@ lvgl:
             on_value:
               then:
                 - lambda: |-
-                    if (id(tstat_runtime_syncing)) {
-                      ESP_LOGD("tstat_ui", "fan dropdown ignored during runtime sync idx=%d", x);
-                      return;
-                    }
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
                     ESP_LOGI("tstat_ui", "fan dropdown index=%d", x);
@@ -261,3 +243,15 @@ lvgl:
                     then:
                       - logger.log: "tstat_ui fan -> Circulation"
                       - homeassistant.service: {service: climate.set_fan_mode, data: {entity_id: climate.thermostat, fan_mode: "Circulation"}}
+
+
+
+
+
+
+
+
+
+
+
+

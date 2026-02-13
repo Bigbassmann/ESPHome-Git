@@ -8,7 +8,7 @@ lvgl:
             align: TOP_MID
             y: 40
             text_font: montserrat_32
-            text_color: 0xB45309
+            text_color: 0xFFFFFF
 
         - button:
             id: lighting_all_btn
@@ -279,4 +279,3 @@ lvgl:
             y: 390
             text_font: montserrat_18
             text_color: 0xC0C0C0
-

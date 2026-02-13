@@ -8,7 +8,7 @@ lvgl:
             align: TOP_MID
             y: 40
             text_font: montserrat_26
-            text_color: 0x1D4ED8
+            text_color: 0xFFFFFF
 
         - label:
             text: "SSID"
@@ -122,4 +122,3 @@ lvgl:
             on_press:
               - lvgl.page.show:
                   id: page_admin
-

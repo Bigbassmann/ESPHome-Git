@@ -20,12 +20,7 @@ esphome:
           value: 50
           animated: false
       - delay: 5s   # 2s
-      - lambda: |-
-          uint32_t now = millis();
-          id(last_interaction_ms) = now;
-          id(last_auto_scroll_ms) = now;
       - lambda: 'id(boot_ready) = true;'
-      - lambda: 'id(display_idle_scroll_s) = 5;'
       - logger.log: "Boot gate enabled: runtime UI updates active"
       
 logger:
@@ -235,7 +230,7 @@ sensor:
   - platform: template
     id: ha_tstat_current_temp
     internal: true
-    update_interval: 10s
+    update_interval: 1s
     lambda: |-
       std::string s = id(ha_tstat_current_temp_txt).state;
       if (s.empty() || s == "None" || s == "none" || s == "unknown" || s == "unavailable") return NAN;
@@ -244,7 +239,7 @@ sensor:
   - platform: template
     id: ha_tstat_target_temp
     internal: true
-    update_interval: 10s
+    update_interval: 1s
     lambda: |-
       static float last_valid = 68.0f;
       std::string s = id(ha_tstat_target_temp_txt).state;
@@ -581,7 +576,6 @@ script:
   - id: nav_show_home_clock_user
     then:
       - lambda: |-
-          id(nav_page_index) = 0;
           id(ui_menu_active) = false;
           uint32_t now = millis();
           id(last_interaction_ms) = now;
@@ -625,49 +619,27 @@ script:
     then:
       - lambda: |-
           if (id(ui_menu_active)) return;
-          const int route[] = {0, 3, 4, 5, 8, 6, 7};
-          const int n = sizeof(route) / sizeof(route[0]);
-          int cur = id(nav_page_index);
-          int pos = -1;
-          for (int i = 0; i < n; i++) {
-            if (route[i] == cur) { pos = i; break; }
-          }
-          if (pos < 0) pos = 0;
-          id(nav_page_index) = route[(pos + 1) % n];
+          id(nav_page_index) = (id(nav_page_index) + 1) % 9;
           uint32_t now = millis();
           id(last_interaction_ms) = now;
           id(last_auto_scroll_ms) = now;
       - script.execute: nav_show_current
+
   - id: nav_prev_main
     then:
       - lambda: |-
           if (id(ui_menu_active)) return;
-          const int route[] = {0, 3, 4, 5, 8, 6, 7};
-          const int n = sizeof(route) / sizeof(route[0]);
-          int cur = id(nav_page_index);
-          int pos = -1;
-          for (int i = 0; i < n; i++) {
-            if (route[i] == cur) { pos = i; break; }
-          }
-          if (pos < 0) pos = 0;
-          id(nav_page_index) = route[(pos + n - 1) % n];
+          id(nav_page_index) = (id(nav_page_index) + 8) % 9;
           uint32_t now = millis();
           id(last_interaction_ms) = now;
           id(last_auto_scroll_ms) = now;
       - script.execute: nav_show_current
+
   - id: nav_next_idle
     then:
       - lambda: |-
           if (id(ui_menu_active)) return;
-          const int route[] = {0, 3, 4, 5, 8, 6, 7};
-          const int n = sizeof(route) / sizeof(route[0]);
-          int cur = id(nav_page_index);
-          int pos = -1;
-          for (int i = 0; i < n; i++) {
-            if (route[i] == cur) { pos = i; break; }
-          }
-          if (pos < 0) pos = 0;
-          id(nav_page_index) = route[(pos + 1) % n];
+          id(nav_page_index) = (id(nav_page_index) + 1) % 9;
           id(last_auto_scroll_ms) = millis();
       - script.execute: nav_show_current
   - id: graph_render
@@ -1351,12 +1323,6 @@ packages:
 #  - !include sensecap-ha/esphome/ui/ui_updates.yaml
 #  - !include sensecap-ha/esphome/ui/ui_sleep.yaml
 #  - !include sensecap-ha/esphome/ui/ui_analog_clock.yaml
-
-
-
-
-
-
 
 
 

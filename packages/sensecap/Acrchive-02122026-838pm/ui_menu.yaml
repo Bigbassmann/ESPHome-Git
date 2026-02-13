@@ -95,7 +95,7 @@ lvgl:
 
         - button:
             id: menu_btn_tstat
-            text: "TStat V2"
+            text: "Thermostat"
             align: TOP_LEFT
             x: 172
             y: 230
@@ -144,18 +144,3 @@ lvgl:
             text_color: 0xFFFFFF
             on_press:
               - script.execute: nav_show_other_controls_user
-
-
-
-        - button:
-            id: menu_btn_tstat_legacy
-            text: "TStat Legacy"
-            align: TOP_LEFT
-            x: 172
-            y: 366
-            width: 138
-            height: 48
-            bg_color: 0x0F766E
-            text_color: 0xFFFFFF
-            on_press:
-              - script.execute: nav_show_thermostat_legacy_user

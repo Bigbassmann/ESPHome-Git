@@ -5,25 +5,38 @@ interval:
           condition:
             lambda: 'return id(boot_ready) && !id(screen_off);'
           then:
+            - lambda: |-
+                static std::string prev_state;
+                std::string st = id(ha_front_door_lock_state).state;
+                std::string s = st;
+                for (auto &ch : s) ch = tolower(ch);
+                if (s != prev_state) {
+                  ESP_LOGI("lock_sync", "lock.front_door_lock state=%s", st.c_str());
+                  prev_state = s;
+                }
+
             - if:
                 condition:
-                  lambda: 'return id(ha_front_door_lock_state).state == "locked" || id(ha_front_door_lock_state).state == "locking";'
+                  lambda: |-
+                    std::string s = id(ha_front_door_lock_state).state;
+                    for (auto &ch : s) ch = tolower(ch);
+                    return s == "locked" || s == "locking";
                 then:
                   - lvgl.label.update: {id: door_lock_state, text: "LOCKED"}
                   - lvgl.widget.update: {id: door_lock_btn, bg_color: 0x166534}
-                  - lvgl.widget.update: {id: door_lock_icon_locked, hidden: false}
-                  - lvgl.widget.update: {id: door_lock_icon_unlocked, hidden: true}
+                  - lvgl.image.update: {id: door_lock_icon, src: icon_lock_24}
                 else:
                   - if:
                       condition:
-                        lambda: 'return id(ha_front_door_lock_state).state == "unlocked" || id(ha_front_door_lock_state).state == "unlocking" || id(ha_front_door_lock_state).state == "jammed";'
+                        lambda: |-
+                          std::string s = id(ha_front_door_lock_state).state;
+                          for (auto &ch : s) ch = tolower(ch);
+                          return s == "unlocked" || s == "unlocking" || s == "jammed";
                       then:
                         - lvgl.label.update: {id: door_lock_state, text: "UNLOCKED"}
                         - lvgl.widget.update: {id: door_lock_btn, bg_color: 0xB91C1C}
-                        - lvgl.widget.update: {id: door_lock_icon_locked, hidden: true}
-                        - lvgl.widget.update: {id: door_lock_icon_unlocked, hidden: false}
+                        - lvgl.image.update: {id: door_lock_icon, src: icon_unlock_24}
                       else:
                         - lvgl.label.update: {id: door_lock_state, text: "UNKNOWN"}
                         - lvgl.widget.update: {id: door_lock_btn, bg_color: 0x374151}
-                        - lvgl.widget.update: {id: door_lock_icon_locked, hidden: false}
-                        - lvgl.widget.update: {id: door_lock_icon_unlocked, hidden: true}
+                        - lvgl.image.update: {id: door_lock_icon, src: icon_lock_24}

@@ -1,4 +1,4 @@
-lvgl:
+﻿lvgl:
   pages:
     - id: page_fans
       widgets:
@@ -8,7 +8,7 @@ lvgl:
             align: TOP_MID
             y: 40
             text_font: montserrat_32
-            text_color: 0x0F766E
+            text_color: 0xFFFFFF
 
         - label:
             text: "FR Fan"

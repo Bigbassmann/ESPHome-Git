@@ -71,7 +71,7 @@ interval:
                   std::string s = id(ha_mbr_lights_brightness_txt).state;
                   if (s.empty() || s == "None" || s == "none" || s == "unknown" || s == "unavailable") return 0;
                   float raw = atof(s.c_str());
-                  int pct = (raw <= 100.0f) ? (int) roundf(raw) : (int) roundf((raw * 100.0f) / 255.0f);
+                  int pct = (int) roundf((raw * 100.0f) / 255.0f);
                   if (pct < 0) pct = 0;
                   if (pct > 100) pct = 100;
                   return pct;
@@ -82,7 +82,7 @@ interval:
                   std::string s = id(ha_mbr_lights_brightness_txt).state;
                   if (s.empty() || s == "None" || s == "none" || s == "unknown" || s == "unavailable") return std::string("0%");
                   float raw = atof(s.c_str());
-                  int pct = (raw <= 100.0f) ? (int) roundf(raw) : (int) roundf((raw * 100.0f) / 255.0f);
+                  int pct = (int) roundf((raw * 100.0f) / 255.0f);
                   if (pct < 0) pct = 0;
                   if (pct > 100) pct = 100;
                   char buf[16];
@@ -94,7 +94,7 @@ interval:
                 value: !lambda |-
                   float raw = id(ha_fr_lights_brightness).state;
                   if (isnan(raw)) return 0;
-                  int pct = (raw <= 100.0f) ? (int) roundf(raw) : (int) roundf((raw * 100.0f) / 255.0f);
+                  int pct = (int) roundf((raw * 100.0f) / 255.0f);
                   if (pct < 0) pct = 0;
                   if (pct > 100) pct = 100;
                   return pct;
@@ -104,7 +104,7 @@ interval:
                 text: !lambda |-
                   float raw = id(ha_fr_lights_brightness).state;
                   int pct = 0;
-                  if (!isnan(raw)) pct = (raw <= 100.0f) ? (int) roundf(raw) : (int) roundf((raw * 100.0f) / 255.0f);
+                  if (!isnan(raw)) pct = (int) roundf((raw * 100.0f) / 255.0f);
                   if (pct < 0) pct = 0;
                   if (pct > 100) pct = 100;
                   char buf[16];
@@ -122,7 +122,7 @@ interval:
                   if (va && vb) raw = (atof(sa.c_str()) + atof(sb.c_str())) * 0.5f;
                   else if (va) raw = atof(sa.c_str());
                   else if (vb) raw = atof(sb.c_str());
-                  int pct = (raw <= 100.0f) ? (int) roundf(raw) : (int) roundf((raw * 100.0f) / 255.0f);
+                  int pct = (int) roundf((raw * 100.0f) / 255.0f);
                   if (pct < 0) pct = 0;
                   if (pct > 100) pct = 100;
                   return pct;
@@ -138,11 +138,10 @@ interval:
                   if (va && vb) raw = (atof(sa.c_str()) + atof(sb.c_str())) * 0.5f;
                   else if (va) raw = atof(sa.c_str());
                   else if (vb) raw = atof(sb.c_str());
-                  int pct = (raw <= 100.0f) ? (int) roundf(raw) : (int) roundf((raw * 100.0f) / 255.0f);
+                  int pct = (int) roundf((raw * 100.0f) / 255.0f);
                   if (pct < 0) pct = 0;
                   if (pct > 100) pct = 100;
                   char buf[16];
                   snprintf(buf, sizeof(buf), "%d%%", pct);
                   return std::string(buf);
-
 

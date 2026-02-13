@@ -39,7 +39,7 @@ lvgl:
           pad_all: 0
           shadow_width: 0
           on_press:
-            - script.execute: nav_show_menu_user
+            - script.execute: nav_show_admin_user
           widgets:
             - image:
                 id: wifi_icon
