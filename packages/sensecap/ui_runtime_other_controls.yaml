@@ -3,7 +3,7 @@ interval:
     then:
       - if:
           condition:
-            lambda: 'return id(boot_ready) && !id(screen_off);'
+            lambda: 'return id(boot_ready) && !id(screen_off) && id(nav_page_index) == 7;'
           then:
             - lambda: |-
                 static std::string prev_state;
@@ -40,3 +40,4 @@ interval:
                         - lvgl.label.update: {id: door_lock_state, text: "UNKNOWN"}
                         - lvgl.widget.update: {id: door_lock_btn, bg_color: 0x374151}
                         - lvgl.image.update: {id: door_lock_icon, src: icon_lock_24}
+

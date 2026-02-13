@@ -1,4 +1,4 @@
-﻿# SenseCAP Indicator sensors + wifi info text
+# SenseCAP Indicator sensors + wifi info text
 text_sensor:
   - platform: wifi_info
     ip_address:
@@ -91,10 +91,3 @@ sensor:
     entity_id: sensor.outdoor_temperature  # Replace with actual
     name: "Outdoor Temperature"
 
-  - platform: homeassistant
-    id: ha_light_brightness
-    entity_id: light.in_wall_paddle_dimmer_500s
-    attribute: brightness  # Reads the brightness attribute (0-255 scale)
-    name: "HA Light Brightness"
-    unit_of_measurement: ""  # Optional: No unit, or set to "%" if you prefer brightness_pct
-    accuracy_decimals: 0     # Integer value

@@ -3,7 +3,7 @@ interval:
     then:
       - if:
           condition:
-            lambda: 'return id(boot_ready) && !id(screen_off);'
+            lambda: 'return id(boot_ready) && !id(screen_off) && id(nav_page_index) == 0;'
           then:
             - lambda: |-
                 static uint32_t last_warn = 0;
@@ -73,3 +73,4 @@ interval:
                             float hour12 = (float) (t.hour % 12) + ((float) t.minute / 60.0f);
                             float ang = (hour12 * 30.0f - 90.0f) * 0.01745329252f;
                             return (int) roundf(140.0f + sinf(ang) * 46.0f);
+

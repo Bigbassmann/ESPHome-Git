@@ -1,9 +1,9 @@
-﻿interval:
+interval:
   - interval: 2s
     then:
       - if:
           condition:
-            lambda: 'return id(boot_ready);'
+            lambda: 'return id(boot_ready) && !id(screen_off) && id(nav_page_index) == 0;'
           then:
             - lvgl.label.update:
                 id: temp_label
@@ -91,3 +91,4 @@
                         - lvgl.widget.update:
                             id: voc_status_label
                             text_color: 0xD50000
+

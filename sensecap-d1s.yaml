@@ -3,12 +3,14 @@ esphome:
   friendly_name: SenseCAP Indicator
   min_version: 2024.6.0
   on_boot:
-    priority: 180  # -100    # -10.0  # Run after LVGL and display are ready
+    priority: -10  # Run after LVGL/display are initialized
     then:
       - lambda: 'id(last_interaction_ms) = millis();'
       - lambda: 'id(boot_ready) = false;'
       - lvgl.page.show:
           id: page_boot
+      - delay: 150ms
+      - script.execute: layout_finalize_boot
       - delay: 30s   # boot page minimum active time
       - lvgl.page.show:
           id: page_home
@@ -25,7 +27,10 @@ esphome:
           id(last_interaction_ms) = now;
           id(last_auto_scroll_ms) = now;
       - lambda: 'id(boot_ready) = true;'
-      - lambda: 'id(display_idle_scroll_s) = 5;'
+      - component.update: ha_tstat_current_temp
+      - component.update: ha_tstat_target_temp
+      - lambda: |-
+          if (id(display_idle_scroll_s) <= 0) id(display_idle_scroll_s) = 5;
       - logger.log: "Boot gate enabled: runtime UI updates active"
       
 logger:
@@ -235,7 +240,7 @@ sensor:
   - platform: template
     id: ha_tstat_current_temp
     internal: true
-    update_interval: 10s
+    update_interval: never
     lambda: |-
       std::string s = id(ha_tstat_current_temp_txt).state;
       if (s.empty() || s == "None" || s == "none" || s == "unknown" || s == "unavailable") return NAN;
@@ -244,7 +249,7 @@ sensor:
   - platform: template
     id: ha_tstat_target_temp
     internal: true
-    update_interval: 10s
+    update_interval: never
     lambda: |-
       static float last_valid = 68.0f;
       std::string s = id(ha_tstat_target_temp_txt).state;
@@ -1314,6 +1319,7 @@ packages:
   - !include packages/sensecap/sensecap_indicator_display.yaml
   - !include packages/sensecap/sensecap_indicator_lvgl.yaml
   - !include packages/sensecap/ui_boot.yaml
+  - !include packages/sensecap/ui_runtime_layout_finalize.yaml
   - !include packages/sensecap/ui_runtime_topbar.yaml
   - !include packages/sensecap/sensecap_indicator_sensors.yaml
   - !include packages/sensecap/sensecap_indicator_inputs.yaml
@@ -1351,6 +1357,11 @@ packages:
 #  - !include sensecap-ha/esphome/ui/ui_updates.yaml
 #  - !include sensecap-ha/esphome/ui/ui_sleep.yaml
 #  - !include sensecap-ha/esphome/ui/ui_analog_clock.yaml
+
+
+
+
+
 
 
 
