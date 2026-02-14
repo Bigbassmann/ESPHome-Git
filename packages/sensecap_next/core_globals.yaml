@@ -81,6 +81,10 @@ globals:
     type: bool
     initial_value: "false"
 
+  - id: graph_page_active
+    type: bool
+    initial_value: "false"
+
   - id: tstat_runtime_syncing
     type: bool
     initial_value: "false"

@@ -1,6 +1,16 @@
 lvgl:
   pages:
     - id: page_graphs
+      on_load:
+        - lambda: |-
+            id(graph_page_active) = true;
+            id(last_interaction_ms) = millis();
+            id(last_auto_scroll_ms) = id(last_interaction_ms);
+        - script.execute: graph_render
+      on_unload:
+        - lambda: |-
+            id(graph_page_active) = false;
+            id(graph_touch_valid) = false;
       widgets:
         - obj:
             id: graph_box
@@ -900,3 +910,4 @@ lvgl:
 #            on_press:
 #              - lvgl.page.show:
 #                  id: page_home
+

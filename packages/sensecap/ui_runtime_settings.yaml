@@ -6,6 +6,21 @@ interval:
             lambda: 'return id(boot_ready) && id(nav_page_index) == 1;'
           then:
 
+            - lvgl.slider.update:
+                id: idle_scroll_timeout_slider
+                value: !lambda 'return id(display_idle_scroll_s);'
+                animated: false
+
+            - lvgl.slider.update:
+                id: sleep_timeout_slider
+                value: !lambda 'return id(display_sleep_timeout_s);'
+                animated: false
+
+            - lvgl.slider.update:
+                id: brightness_slider
+                value: !lambda 'return id(display_brightness_pct);'
+                animated: false
+
             - lvgl.label.update:
                 id: sleep_timeout_value
                 text: !lambda |-
@@ -114,8 +129,3 @@ interval:
             - lvgl.pause:
             - light.turn_off: backlight
             - lambda: 'id(screen_off) = true;'
-
-
-
-
-
