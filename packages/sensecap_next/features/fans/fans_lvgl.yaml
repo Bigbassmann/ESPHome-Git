@@ -1,2 +1,2 @@
-script: []
-
+packages:
+  v1_fans_ui: !include ../../../sensecap/ui_fans.yaml

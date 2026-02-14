@@ -1,2 +1,113 @@
-script: []
+lvgl:
+  pages:
+    - id: page_menu
+      widgets:
+        - label:
+            text: "Menu"
+            align: TOP_MID
+            y: 40
+            text_font: montserrat_32
+            text_color: 0xFFFFFF
 
+        - button:
+            text: "Home"
+            align: TOP_LEFT
+            x: 20
+            y: 100
+            width: 214
+            height: 56
+            on_press:
+              - script.execute: nav_show_home_user
+        - button:
+            text: "Home Clock"
+            align: TOP_LEFT
+            x: 248
+            y: 100
+            width: 214
+            height: 56
+            on_press:
+              - script.execute: nav_show_home_clock_user
+
+        - button:
+            text: "Settings"
+            align: TOP_LEFT
+            x: 20
+            y: 172
+            width: 138
+            height: 52
+            on_press:
+              - script.execute: nav_show_settings_user
+        - button:
+            text: "Admin"
+            align: TOP_LEFT
+            x: 172
+            y: 172
+            width: 138
+            height: 52
+            on_press:
+              - script.execute: nav_show_admin_user
+        - button:
+            text: "WiFi"
+            align: TOP_LEFT
+            x: 324
+            y: 172
+            width: 138
+            height: 52
+            on_press:
+              - script.execute: nav_show_wifi_user
+
+        - button:
+            text: "Overrides"
+            align: TOP_LEFT
+            x: 20
+            y: 240
+            width: 214
+            height: 56
+            on_press:
+              - script.execute: nav_show_overrides_user
+        - button:
+            text: "Fans"
+            align: TOP_LEFT
+            x: 248
+            y: 240
+            width: 214
+            height: 56
+            on_press:
+              - script.execute: nav_show_fans_user
+
+        - button:
+            text: "TStat V2"
+            align: TOP_LEFT
+            x: 20
+            y: 308
+            width: 138
+            height: 52
+            on_press:
+              - script.execute: nav_show_thermostat_user
+        - button:
+            text: "TStat Legacy"
+            align: TOP_LEFT
+            x: 172
+            y: 308
+            width: 138
+            height: 52
+            on_press:
+              - script.execute: nav_show_thermostat_legacy_user
+        - button:
+            text: "Lighting"
+            align: TOP_LEFT
+            x: 324
+            y: 308
+            width: 138
+            height: 52
+            on_press:
+              - script.execute: nav_show_lighting_user
+
+        - button:
+            text: "Other Controls"
+            align: TOP_MID
+            y: 374
+            width: 250
+            height: 52
+            on_press:
+              - script.execute: nav_show_other_controls_user

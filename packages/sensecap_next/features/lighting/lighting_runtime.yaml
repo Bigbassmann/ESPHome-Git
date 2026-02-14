@@ -1,2 +1,2 @@
-script: []
-
+packages:
+  v1_lighting_runtime: !include ../../../sensecap/ui_runtime_lighting_slow.yaml

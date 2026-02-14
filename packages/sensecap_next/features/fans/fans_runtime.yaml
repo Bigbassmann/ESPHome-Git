@@ -1,2 +1,2 @@
-script: []
-
+packages:
+  v1_fans_overrides_runtime: !include ../../../sensecap/ui_runtime_fans_overrides_slow.yaml

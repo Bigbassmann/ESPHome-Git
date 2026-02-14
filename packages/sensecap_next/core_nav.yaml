@@ -12,7 +12,7 @@ script:
 
   - id: nav_boot_ready
     then:
-      - logger.log: "[NEXT] nav_boot_ready"
+      - script.execute: nav_show_home_user
 
   - id: nav_show_home_user
     then:
@@ -25,6 +25,50 @@ script:
       - lvgl.page.show:
           id: page_home
 
+  - id: nav_show_home_clock_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 0;
+          id(ui_menu_active) = false;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_home_clock
+
+  - id: nav_show_settings_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 1;
+          id(ui_menu_active) = false;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_settings
+
+  - id: nav_show_admin_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 2;
+          id(ui_menu_active) = false;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_admin
+
+  - id: nav_show_wifi_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 2;
+          id(ui_menu_active) = false;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_wifi
+
   - id: nav_show_menu_user
     then:
       - lambda: |-
@@ -32,41 +76,220 @@ script:
           uint32_t now = millis();
           id(last_interaction_ms) = now;
           id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_menu
 
-  - id: nav_prev_main
+  - id: nav_show_overrides_user
     then:
       - lambda: |-
-          uint32_t now = millis();
-          id(last_interaction_ms) = now;
-          id(last_auto_scroll_ms) = now;
+          id(nav_page_index) = 3;
+          id(ui_menu_active) = false;
+          id(last_interaction_ms) = millis();
+          id(last_auto_scroll_ms) = id(last_interaction_ms);
+      - lvgl.page.show:
+          id: page_overrides
+
+  - id: nav_show_fans_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 4;
+          id(ui_menu_active) = false;
+          id(last_interaction_ms) = millis();
+          id(last_auto_scroll_ms) = id(last_interaction_ms);
+      - lvgl.page.show:
+          id: page_fans
+
+  - id: nav_show_thermostat_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 5;
+          id(ui_menu_active) = false;
+          id(last_interaction_ms) = millis();
+          id(last_auto_scroll_ms) = id(last_interaction_ms);
+      - lvgl.page.show:
+          id: page_thermostat_v2
+
+  - id: nav_show_thermostat_legacy_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 8;
+          id(ui_menu_active) = false;
+          id(last_interaction_ms) = millis();
+          id(last_auto_scroll_ms) = id(last_interaction_ms);
+      - lvgl.page.show:
+          id: page_thermostat
+
+  - id: nav_show_lighting_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 6;
+          id(ui_menu_active) = false;
+          id(last_interaction_ms) = millis();
+          id(last_auto_scroll_ms) = id(last_interaction_ms);
+      - lvgl.page.show:
+          id: page_lighting
+
+  - id: nav_show_other_controls_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 7;
+          id(ui_menu_active) = false;
+          id(last_interaction_ms) = millis();
+          id(last_auto_scroll_ms) = id(last_interaction_ms);
+      - lvgl.page.show:
+          id: page_other_controls
 
   - id: nav_next_main
     then:
       - lambda: |-
+          if (id(ui_menu_active)) return;
+          const int route[] = {0, 3, 4, 5, 8, 6, 7};
+          const int n = sizeof(route) / sizeof(route[0]);
+          int cur = id(nav_page_index);
+          int pos = -1;
+          for (int i = 0; i < n; i++) if (route[i] == cur) { pos = i; break; }
+          if (pos < 0) pos = 0;
+          id(nav_page_index) = route[(pos + 1) % n];
           uint32_t now = millis();
           id(last_interaction_ms) = now;
           id(last_auto_scroll_ms) = now;
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 0;' }
+          then: [script.execute: nav_show_home_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 3;' }
+          then: [script.execute: nav_show_overrides_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 4;' }
+          then: [script.execute: nav_show_fans_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 5;' }
+          then: [script.execute: nav_show_thermostat_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 8;' }
+          then: [script.execute: nav_show_thermostat_legacy_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 6;' }
+          then: [script.execute: nav_show_lighting_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 7;' }
+          then: [script.execute: nav_show_other_controls_user]
+
+  - id: nav_prev_main
+    then:
+      - lambda: |-
+          if (id(ui_menu_active)) return;
+          const int route[] = {0, 3, 4, 5, 8, 6, 7};
+          const int n = sizeof(route) / sizeof(route[0]);
+          int cur = id(nav_page_index);
+          int pos = -1;
+          for (int i = 0; i < n; i++) if (route[i] == cur) { pos = i; break; }
+          if (pos < 0) pos = 0;
+          id(nav_page_index) = route[(pos + n - 1) % n];
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 0;' }
+          then: [script.execute: nav_show_home_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 3;' }
+          then: [script.execute: nav_show_overrides_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 4;' }
+          then: [script.execute: nav_show_fans_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 5;' }
+          then: [script.execute: nav_show_thermostat_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 8;' }
+          then: [script.execute: nav_show_thermostat_legacy_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 6;' }
+          then: [script.execute: nav_show_lighting_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 7;' }
+          then: [script.execute: nav_show_other_controls_user]
 
   - id: nav_next_idle
     then:
-      - script.execute: nav_show_home_user
-
+      - script.execute: nav_next_main
   - id: graph_render
     then:
-      - logger.log: "[NEXT] graph_render stub (phase-1 compatibility)"
+      - lambda: |-
+          const int HIST = 1440;
+          const int POINTS = 60;
+          const int GRAPH_H = 200;
 
-  - id: nav_show_overrides_user
-    then:
-      - logger.log: "[NEXT] nav_show_overrides_user (stub)"
+          if (id(temp_hist).size() != HIST) id(temp_hist).assign(HIST, NAN);
+          if (id(humid_hist).size() != HIST) id(humid_hist).assign(HIST, NAN);
+          if (id(co2_hist).size() != HIST) id(co2_hist).assign(HIST, NAN);
+          if (id(voc_hist).size() != HIST) id(voc_hist).assign(HIST, NAN);
+          if (id(graph_points).size() != POINTS) id(graph_points).assign(POINTS, GRAPH_H / 2);
 
-  - id: nav_show_fans_user
-    then:
-      - logger.log: "[NEXT] nav_show_fans_user (stub)"
+          std::vector<float> *src = nullptr;
+          switch (id(graph_metric)) {
+            case 0: src = &id(temp_hist); break;
+            case 1: src = &id(humid_hist); break;
+            case 2: src = &id(co2_hist); break;
+            case 3: src = &id(voc_hist); break;
+            default: src = &id(co2_hist); break;
+          }
 
-  - id: nav_show_thermostat_user
-    then:
-      - logger.log: "[NEXT] nav_show_thermostat_user (stub)"
+          int idx = id(hist_index) - 1;
+          if (idx < 0) idx += HIST;
 
-  - id: nav_show_lighting_user
-    then:
-      - logger.log: "[NEXT] nav_show_lighting_user (stub)"
+          int period = id(graph_period_min);
+          int step = id(graph_step_min);
+          if (step <= 0) step = 1;
+          int samples = period / step;
+          if (samples < 2) samples = 2;
+          if (samples > HIST) samples = HIST;
+
+          float minv = NAN;
+          float maxv = NAN;
+          for (int i = 0; i < samples; i++) {
+            int hidx = idx - (i * step);
+            while (hidx < 0) hidx += HIST;
+            float v = (*src)[hidx];
+            if (isnan(v)) continue;
+            if (isnan(minv) || v < minv) minv = v;
+            if (isnan(maxv) || v > maxv) maxv = v;
+          }
+
+          if (isnan(minv) || isnan(maxv)) { minv = 0.0f; maxv = 1.0f; }
+          if (minv == maxv) { minv -= 1.0f; maxv += 1.0f; }
+
+          float cur = (*src)[idx];
+          id(graph_cur) = cur;
+          id(graph_min) = minv;
+          id(graph_max) = maxv;
+          id(graph_touch_valid) = false;
+
+          for (int p = 0; p < POINTS; p++) {
+            float t = (float)p / (float)(POINTS - 1);
+            float sample_index_f = t * (float)(samples - 1);
+            int sample_index = (int)roundf(sample_index_f);
+            int hidx = idx - (sample_index * step);
+            while (hidx < 0) hidx += HIST;
+            float v = (*src)[hidx];
+            if (isnan(v)) v = minv;
+            float norm = (v - minv) / (maxv - minv);
+            int y = (int)roundf((1.0f - norm) * GRAPH_H);
+            if (y < 0) y = 0;
+            if (y > GRAPH_H) y = GRAPH_H;
+            id(graph_points)[p] = y;
+          }
+      - component.update: my_display
+      - lvgl.label.update:
+          id: graph_title_label
+          text: !lambda |-
+            switch (id(graph_metric)) {
+              case 0: return std::string("Temperature");
+              case 1: return std::string("Humidity");
+              case 2: return std::string("CO2");
+              case 3: return std::string("TVOC");
+              default: return std::string("Graph");
+            }
+
+

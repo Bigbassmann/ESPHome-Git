@@ -1,2 +1,15 @@
-script: []
-
+lvgl:
+  pages:
+    - id: page_other_controls
+      widgets:
+        - label:
+            text: "Other Controls"
+            align: TOP_MID
+            y: 50
+            text_font: montserrat_32
+            text_color: 0xB45309
+        - label:
+            text: "Feature migration in progress"
+            align: CENTER
+            text_font: montserrat_20
+            text_color: 0xB0BEC5

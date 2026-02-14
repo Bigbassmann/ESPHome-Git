@@ -1,2 +1,2 @@
-script: []
-
+packages:
+  v1_fans_overrides_actions: !include ../../../sensecap/ui_actions_fans_overrides.yaml

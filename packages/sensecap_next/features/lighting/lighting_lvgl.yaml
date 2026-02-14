@@ -1,2 +1,2 @@
-script: []
-
+packages:
+  v1_lighting_ui: !include ../../../sensecap/ui_lighting.yaml

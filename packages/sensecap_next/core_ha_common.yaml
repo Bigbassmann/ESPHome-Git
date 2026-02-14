@@ -1,3 +1,116 @@
 time:
   - platform: homeassistant
     id: ha_time
+
+binary_sensor:
+  - platform: homeassistant
+    id: ha_cleaners_toggle
+    entity_id: input_boolean.cleaners_toggle
+    internal: true
+  - platform: homeassistant
+    id: ha_dani_mode_on
+    entity_id: input_boolean.dani_mode_on
+    internal: true
+  - platform: homeassistant
+    id: ha_front_door_auto_lock_off
+    entity_id: input_boolean.front_door_auto_lock_off
+    internal: true
+  - platform: homeassistant
+    id: ha_tod_control
+    entity_id: input_boolean.automation_time_of_day_trigger
+    internal: true
+  - platform: homeassistant
+    id: ha_motion_automation_off
+    entity_id: input_boolean.motion_automation_off
+    internal: true
+  - platform: homeassistant
+    id: ha_entry_motion_automation_off
+    entity_id: input_boolean.entry_motion_automation_off
+    internal: true
+  - platform: homeassistant
+    id: ha_garage_light_automation_off
+    entity_id: input_boolean.garage_light_automation_off
+    internal: true
+  - platform: homeassistant
+    id: ha_mbr_motion_off
+    entity_id: input_boolean.mbr_motion_off
+    internal: true
+  - platform: homeassistant
+    id: ha_attic_fan_on
+    entity_id: switch.attic_fan
+    internal: true
+  - platform: homeassistant
+    id: ha_attic_fan2_on
+    entity_id: switch.attic_fan_2
+    internal: true
+  - platform: homeassistant
+    id: ha_fr_fan_on
+    entity_id: fan.in_wall_fan_speed_control_500s
+    internal: true
+  - platform: homeassistant
+    id: ha_mbr_fan_on
+    entity_id: fan.mbr_fan_light
+    internal: true
+  - platform: homeassistant
+    id: ha_all_lights_toggle
+    entity_id: input_boolean.all_lights_toggle
+    internal: true
+  - platform: homeassistant
+    id: ha_outdoor_lights_toggle
+    entity_id: input_boolean.outdoor_lights_toggle
+    internal: true
+  - platform: homeassistant
+    id: ha_mbr_lights_on
+    entity_id: light.mbr_lights
+    internal: true
+  - platform: homeassistant
+    id: ha_fr_lights_on
+    entity_id: light.in_wall_paddle_dimmer_500s
+    internal: true
+  - platform: homeassistant
+    id: ha_library_lights_on
+    entity_id: light.library_lights
+    internal: true
+  - platform: homeassistant
+    id: ha_living_room_lights_on
+    entity_id: light.living_room_lights
+    internal: true
+
+sensor:
+  - platform: homeassistant
+    id: ha_fr_fan_pct
+    entity_id: fan.in_wall_fan_speed_control_500s
+    attribute: percentage
+    internal: true
+  - platform: homeassistant
+    id: ha_mbr_fan_pct
+    entity_id: fan.mbr_fan_light
+    attribute: percentage
+    internal: true
+  - platform: homeassistant
+    id: ha_fr_lights_brightness
+    entity_id: light.in_wall_paddle_dimmer_500s
+    attribute: brightness
+    internal: true
+
+text_sensor:
+  - platform: homeassistant
+    id: ha_mbr_fan_dir
+    entity_id: fan.mbr_fan_light
+    attribute: direction
+    internal: true
+  - platform: homeassistant
+    id: ha_mbr_lights_brightness_txt
+    entity_id: light.mbr_lights
+    attribute: brightness
+    internal: true
+  - platform: homeassistant
+    id: ha_library_lights_brightness_txt
+    entity_id: light.library_lights
+    attribute: brightness
+    internal: true
+  - platform: homeassistant
+    id: ha_living_room_lights_brightness_txt
+    entity_id: light.living_room_lights
+    attribute: brightness
+    internal: true
