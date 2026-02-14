@@ -1,0 +1,13 @@
+globals:
+  - id: g_site_id
+    type: std::string
+    restore_value: no
+    initial_value: '"${site_id}"'
+  - id: g_device_id
+    type: std::string
+    restore_value: no
+    initial_value: '"${device_id}"'
+  - id: g_boot_completed
+    type: bool
+    restore_value: no
+    initial_value: "false"

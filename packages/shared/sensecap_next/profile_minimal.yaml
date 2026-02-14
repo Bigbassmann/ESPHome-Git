@@ -1,0 +1,12 @@
+packages:
+  core_device: !include core_device.yaml
+  core_hw: !include core_hw.yaml
+  core_globals: !include core_globals.yaml
+  core_boot: !include core_boot.yaml
+  core_nav: !include core_nav.yaml
+  core_styles: !include core_styles.yaml
+  core_ha_common: !include core_ha_common.yaml
+
+  feature_home: !include features/home/home_bundle.yaml
+  feature_menu: !include features/menu/menu_bundle.yaml
+  feature_settings: !include features/settings/settings_bundle.yaml

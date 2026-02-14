@@ -1,0 +1,8 @@
+substitutions:
+  device_id: sensecap_d1s_01
+  site_id: home1
+  device_class: sensecap_indicator
+
+packages:
+  entities: !include device_entities.yaml
+  endpoints: !include device_endpoints.yaml

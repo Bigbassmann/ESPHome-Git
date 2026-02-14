@@ -1,0 +1,12 @@
+script:
+  - id: nav_boot_ready
+    then:
+      - logger.log: "[NEXT] nav_boot_ready"
+
+  - id: nav_go_home
+    then:
+      - logger.log: "[NEXT] nav_go_home"
+
+  - id: nav_go_menu
+    then:
+      - logger.log: "[NEXT] nav_go_menu"

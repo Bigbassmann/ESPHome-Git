@@ -1,0 +1,5 @@
+packages:
+  settings_lvgl: !include settings_lvgl.yaml
+  settings_ha: !include settings_ha.yaml
+  settings_runtime: !include settings_runtime.yaml
+  settings_actions: !include settings_actions.yaml

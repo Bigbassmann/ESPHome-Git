@@ -1,0 +1,9 @@
+script:
+  - id: boot_orchestrator
+    mode: queued
+    then:
+      - logger.log: "[NEXT] boot_orchestrator start"
+      - lambda: |-
+          id(g_boot_completed) = true;
+      - script.execute: nav_boot_ready
+      - logger.log: "[NEXT] boot_orchestrator done"

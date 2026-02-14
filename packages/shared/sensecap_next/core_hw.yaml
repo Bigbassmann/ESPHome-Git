@@ -1,0 +1,2 @@
+packages:
+  indicator_hw_base: !include ../sensecap/sensecap_indicator_hw.yaml

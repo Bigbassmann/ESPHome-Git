@@ -1,0 +1,5 @@
+packages:
+  lighting_lvgl: !include lighting_lvgl.yaml
+  lighting_ha: !include lighting_ha.yaml
+  lighting_runtime: !include lighting_runtime.yaml
+  lighting_actions: !include lighting_actions.yaml
