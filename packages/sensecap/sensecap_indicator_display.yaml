@@ -92,4 +92,6 @@ touchscreen:
               - logger.log: "Resuming LVGL from pause"
               - lvgl.resume:
               - script.execute: apply_display_brightness
+              - lambda: 'id(screen_off) = false;'
               - script.execute: nav_show_home_user
+

@@ -53,7 +53,7 @@ sensor:
     internal: false
     accuracy_decimals: 1
     icon: "mdi:thermometer"
-    unit_of_measurement: " C"
+    unit_of_measurement: "C"
     device_class: temperature
 
   - platform: packet_transport

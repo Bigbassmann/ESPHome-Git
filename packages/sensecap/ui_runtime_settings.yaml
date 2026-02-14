@@ -5,15 +5,6 @@ interval:
           condition:
             lambda: 'return id(boot_ready) && id(nav_page_index) == 1;'
           then:
-            - lvgl.slider.update:
-                id: sleep_timeout_slider
-                value: !lambda 'return id(display_sleep_timeout_s);'
-                animated: false
-
-            - lvgl.slider.update:
-                id: idle_scroll_timeout_slider
-                value: !lambda 'return id(display_idle_scroll_s);'
-                animated: false
 
             - lvgl.label.update:
                 id: sleep_timeout_value
@@ -83,6 +74,21 @@ interval:
               if (!id(boot_ready)) return false;
               if (id(screen_off)) return false;
               if (!id(display_idle_scroll_enabled)) return false;
+              if (!(id(nav_page_index) == 1 || id(nav_page_index) == 2)) return false;
+              uint32_t now = millis();
+              uint32_t idle_elapsed = now - id(last_interaction_ms);
+              uint32_t delay_ms = (uint32_t) (id(display_idle_scroll_s) * 1000);
+              return idle_elapsed >= delay_ms;
+          then:
+            - logger.log: "Idle on Settings/Admin/WiFi context; returning Home to resume timed scroll"
+            - script.execute: nav_show_home_user
+
+      - if:
+          condition:
+            lambda: |-
+              if (!id(boot_ready)) return false;
+              if (id(screen_off)) return false;
+              if (!id(display_idle_scroll_enabled)) return false;
               uint32_t now = millis();
               uint32_t idle_elapsed = now - id(last_interaction_ms);
               uint32_t auto_elapsed = now - id(last_auto_scroll_ms);
@@ -108,4 +114,8 @@ interval:
             - lvgl.pause:
             - light.turn_off: backlight
             - lambda: 'id(screen_off) = true;'
+
+
+
+
 

@@ -134,8 +134,8 @@ interval:
             - lvgl.label.update:
                 id: tstat_fan_mode_label
                 text: !lambda |-
-                  if (id(ha_tstat_fan_mode).state.empty()) return std::string("--");
-                  return id(ha_tstat_fan_mode).state;
+                  if (id(ha_tstat_fan_state).state.empty()) return std::string("--");
+                  return id(ha_tstat_fan_state).state;
 
             - lvgl.label.update:
                 id: tstat_current_label
@@ -162,6 +162,102 @@ interval:
                   if (t > 85) t = 85;
                   return t;
                 animated: false
+            - if:
+                condition:
+                  lambda: 'return id(ha_tstat_hvac_action).state == "cooling" || id(ha_tstat_mode).state == "cool";'
+                then:
+                  - lvgl.widget.update:
+                      id: tstat_target_slider
+                      indicator:
+                        bg_color: 0x3B82F6
+                      knob:
+                        border_color: 0x3B82F6
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_tstat_hvac_action).state == "heating" || id(ha_tstat_mode).state == "heat";'
+                then:
+                  - lvgl.widget.update:
+                      id: tstat_target_slider
+                      indicator:
+                        bg_color: 0xF59E0B
+                      knob:
+                        border_color: 0xF59E0B
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_tstat_mode).state == "off" || id(ha_tstat_hvac_action).state == "off" || id(ha_tstat_hvac_action).state.empty();'
+                then:
+                  - lvgl.widget.update:
+                      id: tstat_target_slider
+                      indicator:
+                        bg_color: 0x6B7280
+                      knob:
+                        border_color: 0x6B7280
+            - if:
+                condition:
+                  lambda: 'return id(ha_tstat_mode).state == "off";'
+                then:
+                  - lvgl.widget.update: {id: tstat_off_btn, bg_color: 0x3B82F6}
+                else:
+                  - lvgl.widget.update: {id: tstat_off_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_tstat_mode).state == "heat";'
+                then:
+                  - lvgl.widget.update: {id: tstat_heat_btn, bg_color: 0xF59E0B}
+                else:
+                  - lvgl.widget.update: {id: tstat_heat_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_tstat_mode).state == "cool";'
+                then:
+                  - lvgl.widget.update: {id: tstat_cool_btn, bg_color: 0x3B82F6}
+                else:
+                  - lvgl.widget.update: {id: tstat_cool_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_tstat_mode).state == "auto" || id(ha_tstat_mode).state == "heat_cool";'
+                then:
+                  - lvgl.widget.update: {id: tstat_auto_btn, bg_color: 0x10B981}
+                else:
+                  - lvgl.widget.update: {id: tstat_auto_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: |-
+                    std::string fm = id(ha_tstat_fan_mode).state;
+                    for (auto &ch : fm) ch = tolower(ch);
+                    return (fm == "auto low" || fm == "auto_low");
+                then:
+                  - lvgl.widget.update: {id: tstat_fan_auto_btn, bg_color: 0x10B981}
+                else:
+                  - lvgl.widget.update: {id: tstat_fan_auto_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: |-
+                    std::string fm = id(ha_tstat_fan_mode).state;
+                    for (auto &ch : fm) ch = tolower(ch);
+                    return fm == "low";
+                then:
+                  - lvgl.widget.update: {id: tstat_fan_on_btn, bg_color: 0x3B82F6}
+                else:
+                  - lvgl.widget.update: {id: tstat_fan_on_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: |-
+                    std::string fm = id(ha_tstat_fan_mode).state;
+                    for (auto &ch : fm) ch = tolower(ch);
+                    return (fm == "circulation" || fm == "circulate");
+                then:
+                  - lvgl.widget.update: {id: tstat_fan_circ_btn, bg_color: 0x8B5CF6}
+                else:
+                  - lvgl.widget.update: {id: tstat_fan_circ_btn, bg_color: 0x374151}
 
             - lvgl.dropdown.update:
                 id: tstat2_mode_dropdown
@@ -181,5 +277,10 @@ interval:
                   return 0;
 
             - lambda: 'id(tstat_runtime_syncing) = false;'
+
+
+
+
+
 
 

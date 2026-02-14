@@ -458,10 +458,7 @@ script:
           brightness: !lambda |-
             if (id(display_brightness_pct) <= 0) return 0.0f;
             return id(display_brightness_pct) / 100.0f;
-      - lvgl.slider.update:
-          id: brightness_slider
-          value: !lambda 'return id(display_brightness_pct);'
-          animated: false
+
   - id: nav_show_current
     then:
       - if:
@@ -540,6 +537,18 @@ script:
           id(last_auto_scroll_ms) = now;
       - lvgl.page.show:
           id: page_settings
+      - lvgl.slider.update:
+          id: brightness_slider
+          value: !lambda 'return id(display_brightness_pct);'
+          animated: false
+      - lvgl.slider.update:
+          id: sleep_timeout_slider
+          value: !lambda 'return id(display_sleep_timeout_s);'
+          animated: false
+      - lvgl.slider.update:
+          id: idle_scroll_timeout_slider
+          value: !lambda 'return id(display_idle_scroll_s);'
+          animated: false
 
   - id: nav_show_admin_user
     then:
@@ -595,6 +604,22 @@ script:
           id(last_auto_scroll_ms) = now;
       - lvgl.page.show:
           id: page_thermostat
+      - lvgl.slider.update:
+          id: tstat_target_slider
+          value: !lambda |-
+            if (isnan(id(ha_tstat_target_temp).state)) return 68;
+            int t = (int) roundf(id(ha_tstat_target_temp).state);
+            if (t < 50) t = 50;
+            if (t > 85) t = 85;
+            return t;
+          animated: false
+      - lvgl.label.update:
+          id: tstat_target_label
+          text: !lambda |-
+            if (isnan(id(ha_tstat_target_temp).state)) return std::string("--");
+            char buf[24];
+            snprintf(buf, sizeof(buf), "%.1f F", id(ha_tstat_target_temp).state);
+            return std::string(buf);
   - id: nav_show_home_clock_user
     then:
       - lambda: |-
@@ -1369,6 +1394,10 @@ packages:
 #  - !include sensecap-ha/esphome/ui/ui_updates.yaml
 #  - !include sensecap-ha/esphome/ui/ui_sleep.yaml
 #  - !include sensecap-ha/esphome/ui/ui_analog_clock.yaml
+
+
+
+
 
 
 

@@ -8,15 +8,14 @@ lvgl:
             align: TOP_MID
             y: 40
             text_font: montserrat_32
-            text_color: 0x0F766E
-
+            text_color: 0xFFFFFF
         - label:
             text: "Mode"
             align: TOP_LEFT
             x: 20
             y: 84
             text_font: montserrat_22
-            text_color: 0x0F766E
+            text_color: 0xFFFFFF
         - label:
             id: tstat_mode_label
             text: "--"
@@ -24,7 +23,7 @@ lvgl:
             x: 130
             y: 86
             text_font: montserrat_22
-            text_color: 0xC0C0C0
+            text_color: 0xFFFFFF
 
         - label:
             text: "Fan"
@@ -32,7 +31,7 @@ lvgl:
             x: 250
             y: 84
             text_font: montserrat_22
-            text_color: 0x0F766E
+            text_color: 0xFFFFFF
         - label:
             id: tstat_fan_mode_label
             text: "--"
@@ -40,7 +39,7 @@ lvgl:
             x: 330
             y: 86
             text_font: montserrat_20
-            text_color: 0xC0C0C0
+            text_color: 0xFFFFFF
 
         - label:
             text: "Current"
@@ -48,7 +47,7 @@ lvgl:
             x: 20
             y: 118
             text_font: montserrat_22
-            text_color: 0x0F766E
+            text_color: 0xFFFFFF
         - label:
             id: tstat_current_label
             text: "--"
@@ -56,7 +55,7 @@ lvgl:
             x: 130
             y: 120
             text_font: montserrat_22
-            text_color: 0xC0C0C0
+            text_color: 0xFFFFFF
 
         - label:
             text: "Target"
@@ -64,7 +63,7 @@ lvgl:
             x: 250
             y: 118
             text_font: montserrat_22
-            text_color: 0x0F766E
+            text_color: 0xFFFFFF
         - label:
             id: tstat_target_label
             text: "--"
@@ -72,7 +71,7 @@ lvgl:
             x: 330
             y: 120
             text_font: montserrat_22
-            text_color: 0xC0C0C0
+            text_color: 0xFFFFFF
 
         - slider:
             id: tstat_target_slider
@@ -82,6 +81,7 @@ lvgl:
             height: 18
             min_value: 50
             max_value: 85
+            value: 68
             bg_color: 0x374151
             knob:
               bg_color: 0xFFFFFF
@@ -94,8 +94,11 @@ lvgl:
                 - lvgl.label.update:
                     id: tstat_target_label
                     text: !lambda |-
+                      int v = x;
+                      if (v < 50) v = 50;
+                      if (v > 85) v = 85;
                       char buf[24];
-                      snprintf(buf, sizeof(buf), "%d F", x);
+                      snprintf(buf, sizeof(buf), "%.1f F", (float) v);
                       return std::string(buf);
             on_release:
               then:
@@ -250,7 +253,14 @@ lvgl:
                   service: climate.set_fan_mode
                   data:
                     entity_id: climate.thermostat
-                    fan_mode: "circulation"
+                    fan_mode: "Circulation"
+
+
+
+
+
+
+
 
 
 

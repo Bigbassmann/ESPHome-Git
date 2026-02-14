@@ -16,7 +16,7 @@ lvgl:
             x: 20
             y: 84
             text_font: montserrat_22
-            text_color: 0x9CA3AF  # 0xFFFFFF
+            text_color: 0xFFFFFF
         - label:
             id: tstat_mode_label
             text: "--"
@@ -24,7 +24,7 @@ lvgl:
             x: 130
             y: 86
             text_font: montserrat_22
-            text_color: 0xC0C0C0
+            text_color: 0xFFFFFF
 
         - label:
             text: "Fan"
@@ -32,7 +32,7 @@ lvgl:
             x: 250
             y: 84
             text_font: montserrat_22
-            text_color: 0x9CA3AF  # 0xFFFFFF
+            text_color: 0xFFFFFF
         - label:
             id: tstat_fan_mode_label
             text: "--"
@@ -40,7 +40,7 @@ lvgl:
             x: 330
             y: 86
             text_font: montserrat_20
-            text_color: 0xC0C0C0
+            text_color: 0xFFFFFF
 
         - label:
             text: "Current"
@@ -48,7 +48,7 @@ lvgl:
             x: 20
             y: 118
             text_font: montserrat_22
-            text_color: 0x9CA3AF  # 0xFFFFFF
+            text_color: 0xFFFFFF
         - label:
             id: tstat_current_label
             text: "--"
@@ -56,7 +56,7 @@ lvgl:
             x: 130
             y: 120
             text_font: montserrat_22
-            text_color: 0xC0C0C0
+            text_color: 0xFFFFFF
 
         - label:
             text: "Target"
@@ -64,15 +64,15 @@ lvgl:
             x: 250
             y: 118
             text_font: montserrat_22
-            text_color: 0x9CA3AF  # 0xFFFFFF
+            text_color: 0xFFFFFF
         - label:
-            id: tstat2_target_label
+            id: tstat_target_label
             text: "--"
             align: TOP_LEFT
             x: 330
             y: 120
             text_font: montserrat_22
-            text_color: 0xC0C0C0
+            text_color: 0xFFFFFF
 
         - slider:
             id: tstat_target_slider
@@ -190,7 +190,7 @@ lvgl:
                   service: climate.set_hvac_mode
                   data:
                     entity_id: climate.thermostat
-                    hvac_mode: "auto"
+                    hvac_mode: "heat_cool"
 
         - button:
             id: tstat_fan_auto_btn
@@ -210,11 +210,11 @@ lvgl:
                   service: climate.set_fan_mode
                   data:
                     entity_id: climate.thermostat
-                    fan_mode: "auto"
+                    fan_mode: "Auto low"
 
         - button:
             id: tstat_fan_on_btn
-            text: "Fan On"
+            text: "Fan Low"
             text_color: 0xFFFFFF
             align: TOP_LEFT
             x: 170
@@ -230,7 +230,7 @@ lvgl:
                   service: climate.set_fan_mode
                   data:
                     entity_id: climate.thermostat
-                    fan_mode: "on"
+                    fan_mode: "Low"
 
         - button:
             id: tstat_fan_circ_btn
@@ -251,4 +251,7 @@ lvgl:
                   data:
                     entity_id: climate.thermostat
                     fan_mode: "circulation"
+
+
+
 

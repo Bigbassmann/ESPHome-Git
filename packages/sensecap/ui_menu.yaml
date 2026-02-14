@@ -76,6 +76,7 @@ lvgl:
               - lvgl.page.show:
                   id: page_wifi
               - lambda: |-
+                  id(nav_page_index) = 2;
                   id(ui_menu_active) = false;
                   id(last_interaction_ms) = millis();
                   id(last_auto_scroll_ms) = id(last_interaction_ms);
@@ -159,3 +160,4 @@ lvgl:
             text_color: 0xFFFFFF
             on_press:
               - script.execute: nav_show_thermostat_legacy_user
+
