@@ -4,6 +4,9 @@ script:
     then:
       - logger.log: "[NEXT] boot_orchestrator start"
       - lambda: |-
-          id(g_boot_completed) = true;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+          id(boot_ready) = true;
       - script.execute: nav_boot_ready
       - logger.log: "[NEXT] boot_orchestrator done"

@@ -1,1 +1,3 @@
-script: []
+time:
+  - platform: homeassistant
+    id: ha_time

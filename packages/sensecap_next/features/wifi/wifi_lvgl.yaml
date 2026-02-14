@@ -1,2 +1,2 @@
-script: []
-
+packages:
+  v1_wifi_ui: !include ../../../sensecap/ui_wifi_lvgl.yaml

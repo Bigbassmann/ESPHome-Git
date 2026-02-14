@@ -7,5 +7,3 @@ substitutions:
 packages:
   profile: !include packages/sensecap_next/profile_full.yaml
   device_profile: !include devices/sensecap_d1s_01/device_profile.yaml
-
-

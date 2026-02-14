@@ -32,3 +32,8 @@ web_server:
 
 safe_mode:
   disabled: false
+
+switch:
+  - platform: restart
+    id: restart_switch
+    name: "Restart Device"

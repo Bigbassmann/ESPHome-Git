@@ -1,12 +1,72 @@
 script:
+  - id: apply_display_brightness
+    then:
+      - lambda: |-
+          if (id(display_brightness_pct) < 0 || id(display_brightness_pct) > 100) id(display_brightness_pct) = 50;
+      - light.control:
+          id: backlight
+          state: ON
+          brightness: !lambda |-
+            if (id(display_brightness_pct) <= 0) return 0.0f;
+            return id(display_brightness_pct) / 100.0f;
+
   - id: nav_boot_ready
     then:
       - logger.log: "[NEXT] nav_boot_ready"
 
-  - id: nav_go_home
+  - id: nav_show_home_user
     then:
-      - logger.log: "[NEXT] nav_go_home"
+      - lambda: |-
+          id(nav_page_index) = 0;
+          id(ui_menu_active) = false;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_home
 
-  - id: nav_go_menu
+  - id: nav_show_menu_user
     then:
-      - logger.log: "[NEXT] nav_go_menu"
+      - lambda: |-
+          id(ui_menu_active) = true;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+
+  - id: nav_prev_main
+    then:
+      - lambda: |-
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+
+  - id: nav_next_main
+    then:
+      - lambda: |-
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+
+  - id: nav_next_idle
+    then:
+      - script.execute: nav_show_home_user
+
+  - id: graph_render
+    then:
+      - logger.log: "[NEXT] graph_render stub (phase-1 compatibility)"
+
+  - id: nav_show_overrides_user
+    then:
+      - logger.log: "[NEXT] nav_show_overrides_user (stub)"
+
+  - id: nav_show_fans_user
+    then:
+      - logger.log: "[NEXT] nav_show_fans_user (stub)"
+
+  - id: nav_show_thermostat_user
+    then:
+      - logger.log: "[NEXT] nav_show_thermostat_user (stub)"
+
+  - id: nav_show_lighting_user
+    then:
+      - logger.log: "[NEXT] nav_show_lighting_user (stub)"

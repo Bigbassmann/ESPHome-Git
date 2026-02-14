@@ -1,0 +1,10 @@
+packages:
+  indicator_display: !include ../sensecap/sensecap_indicator_display.yaml
+  indicator_lvgl: !include ../sensecap/sensecap_indicator_lvgl.yaml
+  indicator_sensors: !include ../sensecap/sensecap_indicator_sensors.yaml
+  indicator_inputs: !include ../sensecap/sensecap_indicator_inputs.yaml
+  fonts: !include ../sensecap/fonts_montserrat.yaml
+  icons: !include ../sensecap/icons.yaml
+  runtime_topbar: !include ../sensecap/ui_runtime_topbar.yaml
+  ui_boot: !include ../sensecap/ui_boot.yaml
+  runtime_layout_finalize: !include ../sensecap/ui_runtime_layout_finalize.yaml

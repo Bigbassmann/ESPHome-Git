@@ -1,2 +1,2 @@
-script: []
-
+packages:
+  v1_admin_runtime: !include ../../../sensecap/ui_runtime_admin.yaml
