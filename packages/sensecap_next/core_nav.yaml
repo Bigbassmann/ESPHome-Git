@@ -281,6 +281,130 @@ script:
             id(graph_points)[p] = y;
           }
           ESP_LOGD("graph", "render metric=%d period=%d step=%d cur=%.2f min=%.2f max=%.2f", id(graph_metric), period, step, cur, minv, maxv);
+      - lvgl.line.update:
+          id: graph_line
+          points:
+            - x: 0
+              y: !lambda 'return id(graph_points)[0];'
+            - x: 7
+              y: !lambda 'return id(graph_points)[1];'
+            - x: 14
+              y: !lambda 'return id(graph_points)[2];'
+            - x: 21
+              y: !lambda 'return id(graph_points)[3];'
+            - x: 28
+              y: !lambda 'return id(graph_points)[4];'
+            - x: 35
+              y: !lambda 'return id(graph_points)[5];'
+            - x: 42
+              y: !lambda 'return id(graph_points)[6];'
+            - x: 49
+              y: !lambda 'return id(graph_points)[7];'
+            - x: 56
+              y: !lambda 'return id(graph_points)[8];'
+            - x: 63
+              y: !lambda 'return id(graph_points)[9];'
+            - x: 70
+              y: !lambda 'return id(graph_points)[10];'
+            - x: 77
+              y: !lambda 'return id(graph_points)[11];'
+            - x: 84
+              y: !lambda 'return id(graph_points)[12];'
+            - x: 91
+              y: !lambda 'return id(graph_points)[13];'
+            - x: 98
+              y: !lambda 'return id(graph_points)[14];'
+            - x: 105
+              y: !lambda 'return id(graph_points)[15];'
+            - x: 112
+              y: !lambda 'return id(graph_points)[16];'
+            - x: 119
+              y: !lambda 'return id(graph_points)[17];'
+            - x: 126
+              y: !lambda 'return id(graph_points)[18];'
+            - x: 133
+              y: !lambda 'return id(graph_points)[19];'
+            - x: 140
+              y: !lambda 'return id(graph_points)[20];'
+            - x: 147
+              y: !lambda 'return id(graph_points)[21];'
+            - x: 154
+              y: !lambda 'return id(graph_points)[22];'
+            - x: 161
+              y: !lambda 'return id(graph_points)[23];'
+            - x: 168
+              y: !lambda 'return id(graph_points)[24];'
+            - x: 175
+              y: !lambda 'return id(graph_points)[25];'
+            - x: 182
+              y: !lambda 'return id(graph_points)[26];'
+            - x: 189
+              y: !lambda 'return id(graph_points)[27];'
+            - x: 196
+              y: !lambda 'return id(graph_points)[28];'
+            - x: 203
+              y: !lambda 'return id(graph_points)[29];'
+            - x: 210
+              y: !lambda 'return id(graph_points)[30];'
+            - x: 217
+              y: !lambda 'return id(graph_points)[31];'
+            - x: 224
+              y: !lambda 'return id(graph_points)[32];'
+            - x: 231
+              y: !lambda 'return id(graph_points)[33];'
+            - x: 238
+              y: !lambda 'return id(graph_points)[34];'
+            - x: 245
+              y: !lambda 'return id(graph_points)[35];'
+            - x: 252
+              y: !lambda 'return id(graph_points)[36];'
+            - x: 259
+              y: !lambda 'return id(graph_points)[37];'
+            - x: 266
+              y: !lambda 'return id(graph_points)[38];'
+            - x: 273
+              y: !lambda 'return id(graph_points)[39];'
+            - x: 280
+              y: !lambda 'return id(graph_points)[40];'
+            - x: 287
+              y: !lambda 'return id(graph_points)[41];'
+            - x: 294
+              y: !lambda 'return id(graph_points)[42];'
+            - x: 301
+              y: !lambda 'return id(graph_points)[43];'
+            - x: 308
+              y: !lambda 'return id(graph_points)[44];'
+            - x: 315
+              y: !lambda 'return id(graph_points)[45];'
+            - x: 322
+              y: !lambda 'return id(graph_points)[46];'
+            - x: 329
+              y: !lambda 'return id(graph_points)[47];'
+            - x: 336
+              y: !lambda 'return id(graph_points)[48];'
+            - x: 343
+              y: !lambda 'return id(graph_points)[49];'
+            - x: 350
+              y: !lambda 'return id(graph_points)[50];'
+            - x: 357
+              y: !lambda 'return id(graph_points)[51];'
+            - x: 364
+              y: !lambda 'return id(graph_points)[52];'
+            - x: 371
+              y: !lambda 'return id(graph_points)[53];'
+            - x: 378
+              y: !lambda 'return id(graph_points)[54];'
+            - x: 385
+              y: !lambda 'return id(graph_points)[55];'
+            - x: 392
+              y: !lambda 'return id(graph_points)[56];'
+            - x: 399
+              y: !lambda 'return id(graph_points)[57];'
+            - x: 406
+              y: !lambda 'return id(graph_points)[58];'
+            - x: 413
+              y: !lambda 'return id(graph_points)[59];'
+
       - component.update: my_display
       - lvgl.label.update:
           id: graph_title_label
@@ -372,6 +496,7 @@ script:
             - lvgl.widget.update: { id: graph_step_15m, bg_color: 0x0F766E, text_color: 0xFFFFFF }
           else:
             - lvgl.widget.update: { id: graph_step_15m, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
+
 
 
 
