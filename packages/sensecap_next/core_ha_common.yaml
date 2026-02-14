@@ -112,10 +112,15 @@ sensor:
       if (s.empty() || s == "None" || s == "none" || s == "unknown" || s == "unavailable") return last_valid;
       float v = atof(s.c_str());
       if (isnan(v)) return last_valid;
+      static std::string last_bad;
       if (v < 50.0f || v > 85.0f) {
-        ESP_LOGW("tstat_sync", "Ignoring out-of-range target temp %.1f from HA text state '%s'", v, s.c_str());
+        if (s != last_bad) {
+          ESP_LOGW("tstat_sync", "Ignoring out-of-range target temp %.1f from HA text state '%s'", v, s.c_str());
+          last_bad = s;
+        }
         return last_valid;
       }
+      last_bad.clear();
       last_valid = v;
       return v;
 
@@ -174,3 +179,4 @@ text_sensor:
     entity_id: climate.thermostat
     attribute: fan_state
     internal: true
+

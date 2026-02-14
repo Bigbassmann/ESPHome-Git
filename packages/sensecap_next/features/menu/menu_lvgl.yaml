@@ -16,6 +16,8 @@ lvgl:
             y: 100
             width: 214
             height: 56
+            bg_color: 0x334155
+            text_color: 0xFFFFFF
             on_press:
               - script.execute: nav_show_home_user
         - button:
@@ -25,6 +27,8 @@ lvgl:
             y: 100
             width: 214
             height: 56
+            bg_color: 0x334155
+            text_color: 0xFFFFFF
             on_press:
               - script.execute: nav_show_home_clock_user
 
@@ -35,6 +39,8 @@ lvgl:
             y: 172
             width: 138
             height: 52
+            bg_color: 0x1D4ED8
+            text_color: 0xFFFFFF
             on_press:
               - script.execute: nav_show_settings_user
         - button:
@@ -44,6 +50,8 @@ lvgl:
             y: 172
             width: 138
             height: 52
+            bg_color: 0x1D4ED8
+            text_color: 0xFFFFFF
             on_press:
               - script.execute: nav_show_admin_user
         - button:
@@ -53,6 +61,8 @@ lvgl:
             y: 172
             width: 138
             height: 52
+            bg_color: 0x1D4ED8
+            text_color: 0xFFFFFF
             on_press:
               - script.execute: nav_show_wifi_user
 
@@ -63,6 +73,8 @@ lvgl:
             y: 240
             width: 214
             height: 56
+            bg_color: 0x0891B2
+            text_color: 0xFFFFFF
             on_press:
               - script.execute: nav_show_overrides_user
         - button:
@@ -72,6 +84,8 @@ lvgl:
             y: 240
             width: 214
             height: 56
+            bg_color: 0x0891B2
+            text_color: 0xFFFFFF
             on_press:
               - script.execute: nav_show_fans_user
 
@@ -82,6 +96,8 @@ lvgl:
             y: 308
             width: 138
             height: 52
+            bg_color: 0x0891B2
+            text_color: 0xFFFFFF
             on_press:
               - script.execute: nav_show_thermostat_user
         - button:
@@ -91,6 +107,8 @@ lvgl:
             y: 308
             width: 138
             height: 52
+            bg_color: 0x0891B2
+            text_color: 0xFFFFFF
             on_press:
               - script.execute: nav_show_thermostat_legacy_user
         - button:
@@ -100,6 +118,8 @@ lvgl:
             y: 308
             width: 138
             height: 52
+            bg_color: 0xD97706
+            text_color: 0xFFFFFF
             on_press:
               - script.execute: nav_show_lighting_user
 
@@ -109,5 +129,7 @@ lvgl:
             y: 374
             width: 250
             height: 52
+            bg_color: 0xD97706
+            text_color: 0xFFFFFF
             on_press:
               - script.execute: nav_show_other_controls_user
