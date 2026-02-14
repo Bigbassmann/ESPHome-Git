@@ -1,2 +1,3 @@
 packages:
-  v1_overrides_ui: !include ../../../sensecap/ui_overrides.yaml
+  overrides_ui: !include overrides_page.yaml
+

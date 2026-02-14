@@ -1,2 +1,3 @@
 packages:
-  v1_fans_ui: !include ../../../sensecap/ui_fans.yaml
+  fans_ui: !include fans_page.yaml
+
