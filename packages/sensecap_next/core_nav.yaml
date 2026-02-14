@@ -404,6 +404,186 @@ script:
               y: !lambda 'return id(graph_points)[58];'
             - x: 413
               y: !lambda 'return id(graph_points)[59];'
+      - lvgl.widget.update:
+          id: graph_dot_0
+          y: !lambda 'return 10 + id(graph_points)[0];'
+      - lvgl.widget.update:
+          id: graph_dot_1
+          y: !lambda 'return 10 + id(graph_points)[1];'
+      - lvgl.widget.update:
+          id: graph_dot_2
+          y: !lambda 'return 10 + id(graph_points)[2];'
+      - lvgl.widget.update:
+          id: graph_dot_3
+          y: !lambda 'return 10 + id(graph_points)[3];'
+      - lvgl.widget.update:
+          id: graph_dot_4
+          y: !lambda 'return 10 + id(graph_points)[4];'
+      - lvgl.widget.update:
+          id: graph_dot_5
+          y: !lambda 'return 10 + id(graph_points)[5];'
+      - lvgl.widget.update:
+          id: graph_dot_6
+          y: !lambda 'return 10 + id(graph_points)[6];'
+      - lvgl.widget.update:
+          id: graph_dot_7
+          y: !lambda 'return 10 + id(graph_points)[7];'
+      - lvgl.widget.update:
+          id: graph_dot_8
+          y: !lambda 'return 10 + id(graph_points)[8];'
+      - lvgl.widget.update:
+          id: graph_dot_9
+          y: !lambda 'return 10 + id(graph_points)[9];'
+      - lvgl.widget.update:
+          id: graph_dot_10
+          y: !lambda 'return 10 + id(graph_points)[10];'
+      - lvgl.widget.update:
+          id: graph_dot_11
+          y: !lambda 'return 10 + id(graph_points)[11];'
+      - lvgl.widget.update:
+          id: graph_dot_12
+          y: !lambda 'return 10 + id(graph_points)[12];'
+      - lvgl.widget.update:
+          id: graph_dot_13
+          y: !lambda 'return 10 + id(graph_points)[13];'
+      - lvgl.widget.update:
+          id: graph_dot_14
+          y: !lambda 'return 10 + id(graph_points)[14];'
+      - lvgl.widget.update:
+          id: graph_dot_15
+          y: !lambda 'return 10 + id(graph_points)[15];'
+      - lvgl.widget.update:
+          id: graph_dot_16
+          y: !lambda 'return 10 + id(graph_points)[16];'
+      - lvgl.widget.update:
+          id: graph_dot_17
+          y: !lambda 'return 10 + id(graph_points)[17];'
+      - lvgl.widget.update:
+          id: graph_dot_18
+          y: !lambda 'return 10 + id(graph_points)[18];'
+      - lvgl.widget.update:
+          id: graph_dot_19
+          y: !lambda 'return 10 + id(graph_points)[19];'
+      - lvgl.widget.update:
+          id: graph_dot_20
+          y: !lambda 'return 10 + id(graph_points)[20];'
+      - lvgl.widget.update:
+          id: graph_dot_21
+          y: !lambda 'return 10 + id(graph_points)[21];'
+      - lvgl.widget.update:
+          id: graph_dot_22
+          y: !lambda 'return 10 + id(graph_points)[22];'
+      - lvgl.widget.update:
+          id: graph_dot_23
+          y: !lambda 'return 10 + id(graph_points)[23];'
+      - lvgl.widget.update:
+          id: graph_dot_24
+          y: !lambda 'return 10 + id(graph_points)[24];'
+      - lvgl.widget.update:
+          id: graph_dot_25
+          y: !lambda 'return 10 + id(graph_points)[25];'
+      - lvgl.widget.update:
+          id: graph_dot_26
+          y: !lambda 'return 10 + id(graph_points)[26];'
+      - lvgl.widget.update:
+          id: graph_dot_27
+          y: !lambda 'return 10 + id(graph_points)[27];'
+      - lvgl.widget.update:
+          id: graph_dot_28
+          y: !lambda 'return 10 + id(graph_points)[28];'
+      - lvgl.widget.update:
+          id: graph_dot_29
+          y: !lambda 'return 10 + id(graph_points)[29];'
+      - lvgl.widget.update:
+          id: graph_dot_30
+          y: !lambda 'return 10 + id(graph_points)[30];'
+      - lvgl.widget.update:
+          id: graph_dot_31
+          y: !lambda 'return 10 + id(graph_points)[31];'
+      - lvgl.widget.update:
+          id: graph_dot_32
+          y: !lambda 'return 10 + id(graph_points)[32];'
+      - lvgl.widget.update:
+          id: graph_dot_33
+          y: !lambda 'return 10 + id(graph_points)[33];'
+      - lvgl.widget.update:
+          id: graph_dot_34
+          y: !lambda 'return 10 + id(graph_points)[34];'
+      - lvgl.widget.update:
+          id: graph_dot_35
+          y: !lambda 'return 10 + id(graph_points)[35];'
+      - lvgl.widget.update:
+          id: graph_dot_36
+          y: !lambda 'return 10 + id(graph_points)[36];'
+      - lvgl.widget.update:
+          id: graph_dot_37
+          y: !lambda 'return 10 + id(graph_points)[37];'
+      - lvgl.widget.update:
+          id: graph_dot_38
+          y: !lambda 'return 10 + id(graph_points)[38];'
+      - lvgl.widget.update:
+          id: graph_dot_39
+          y: !lambda 'return 10 + id(graph_points)[39];'
+      - lvgl.widget.update:
+          id: graph_dot_40
+          y: !lambda 'return 10 + id(graph_points)[40];'
+      - lvgl.widget.update:
+          id: graph_dot_41
+          y: !lambda 'return 10 + id(graph_points)[41];'
+      - lvgl.widget.update:
+          id: graph_dot_42
+          y: !lambda 'return 10 + id(graph_points)[42];'
+      - lvgl.widget.update:
+          id: graph_dot_43
+          y: !lambda 'return 10 + id(graph_points)[43];'
+      - lvgl.widget.update:
+          id: graph_dot_44
+          y: !lambda 'return 10 + id(graph_points)[44];'
+      - lvgl.widget.update:
+          id: graph_dot_45
+          y: !lambda 'return 10 + id(graph_points)[45];'
+      - lvgl.widget.update:
+          id: graph_dot_46
+          y: !lambda 'return 10 + id(graph_points)[46];'
+      - lvgl.widget.update:
+          id: graph_dot_47
+          y: !lambda 'return 10 + id(graph_points)[47];'
+      - lvgl.widget.update:
+          id: graph_dot_48
+          y: !lambda 'return 10 + id(graph_points)[48];'
+      - lvgl.widget.update:
+          id: graph_dot_49
+          y: !lambda 'return 10 + id(graph_points)[49];'
+      - lvgl.widget.update:
+          id: graph_dot_50
+          y: !lambda 'return 10 + id(graph_points)[50];'
+      - lvgl.widget.update:
+          id: graph_dot_51
+          y: !lambda 'return 10 + id(graph_points)[51];'
+      - lvgl.widget.update:
+          id: graph_dot_52
+          y: !lambda 'return 10 + id(graph_points)[52];'
+      - lvgl.widget.update:
+          id: graph_dot_53
+          y: !lambda 'return 10 + id(graph_points)[53];'
+      - lvgl.widget.update:
+          id: graph_dot_54
+          y: !lambda 'return 10 + id(graph_points)[54];'
+      - lvgl.widget.update:
+          id: graph_dot_55
+          y: !lambda 'return 10 + id(graph_points)[55];'
+      - lvgl.widget.update:
+          id: graph_dot_56
+          y: !lambda 'return 10 + id(graph_points)[56];'
+      - lvgl.widget.update:
+          id: graph_dot_57
+          y: !lambda 'return 10 + id(graph_points)[57];'
+      - lvgl.widget.update:
+          id: graph_dot_58
+          y: !lambda 'return 10 + id(graph_points)[58];'
+      - lvgl.widget.update:
+          id: graph_dot_59
+          y: !lambda 'return 10 + id(graph_points)[59];'
       - component.update: my_display
       - lvgl.label.update:
           id: graph_title_label
@@ -495,6 +675,7 @@ script:
             - lvgl.widget.update: { id: graph_step_15m, bg_color: 0x0F766E, text_color: 0xFFFFFF }
           else:
             - lvgl.widget.update: { id: graph_step_15m, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
+
 
 
 

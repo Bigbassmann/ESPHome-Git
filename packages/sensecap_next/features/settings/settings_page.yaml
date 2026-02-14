@@ -5,24 +5,27 @@ lvgl:
         - label:
             id: settings_title
             text: "Settings"
-            align: TOP_MID
-            y: 22
+            align: TOP_LEFT
+            x: 20
+            y: 20
             text_font: montserrat_28
             text_color: 0x1D4ED8
 
         - label:
             id: idle_scroll_title
-            text: "Idle Timed Scroll"
-            align: TOP_MID
-            y: 56
-            text_font: montserrat_20
+            text: "Idle Scroll"
+            align: TOP_LEFT
+            x: 20
+            y: 70
+            text_font: montserrat_18
             text_color: 0xFFFFFF
 
         - button:
             id: idle_scroll_enable_btn
-            align: TOP_MID
-            y: 82
-            width: 260
+            align: TOP_LEFT
+            x: 140
+            y: 64
+            width: 150
             height: 34
             bg_color: 0x374151
             radius: 8
@@ -34,35 +37,36 @@ lvgl:
                     if (id(display_idle_scroll_enabled)) id(display_sleep_enabled) = false;
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
-                    ESP_LOGI("ui_settings", "Idle scroll %s (delay=%ds), sleep forced %s", id(display_idle_scroll_enabled) ? "ON" : "OFF", id(display_idle_scroll_s), id(display_sleep_enabled) ? "ON" : "OFF");
             widgets:
               - label:
-                  text: "Auto Scroll"
+                  text: "Auto"
                   align: LEFT_MID
-                  x: 12
-                  text_font: montserrat_18
+                  x: 10
+                  text_font: montserrat_16
                   text_color: 0xFFFFFF
               - label:
                   id: idle_scroll_enable_state
                   text: "OFF"
                   align: RIGHT_MID
-                  x: -12
-                  text_font: montserrat_18
+                  x: -10
+                  text_font: montserrat_16
                   text_color: 0xFCA5A5
 
         - label:
             id: idle_scroll_timeout_label
-            text: "Idle Delay"
-            align: TOP_MID
-            y: 122
+            text: "Delay"
+            align: TOP_LEFT
+            x: 20
+            y: 118
             text_font: montserrat_18
             text_color: 0xFFFFFF
 
         - slider:
             id: idle_scroll_timeout_slider
-            align: TOP_MID
-            y: 142
-            width: 300
+            align: TOP_LEFT
+            x: 140
+            y: 120
+            width: 220
             height: 14
             min_value: 15
             max_value: 300
@@ -83,25 +87,27 @@ lvgl:
         - label:
             id: idle_scroll_timeout_value
             text: "30s"
-            align: TOP_MID
-            x: 148
-            y: 140
+            align: TOP_LEFT
+            x: 372
+            y: 116
             text_font: montserrat_16
             text_color: 0xC0C0C0
 
         - label:
             id: sleep_title
             text: "Display Sleep"
-            align: TOP_MID
-            y: 172
-            text_font: montserrat_20
+            align: TOP_LEFT
+            x: 20
+            y: 166
+            text_font: montserrat_18
             text_color: 0xFFFFFF
 
         - button:
             id: sleep_enable_btn
-            align: TOP_MID
-            y: 198
-            width: 260
+            align: TOP_LEFT
+            x: 140
+            y: 160
+            width: 150
             height: 34
             bg_color: 0x374151
             radius: 8
@@ -113,7 +119,6 @@ lvgl:
                     if (id(display_sleep_enabled)) id(display_idle_scroll_enabled) = false;
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
-                    ESP_LOGI("ui_settings", "Display sleep %s (timeout=%ds), idle scroll forced %s", id(display_sleep_enabled) ? "ON" : "OFF", id(display_sleep_timeout_s), id(display_idle_scroll_enabled) ? "ON" : "OFF");
                 - if:
                     condition:
                       lambda: 'return !id(display_sleep_enabled) && id(screen_off);'
@@ -125,30 +130,32 @@ lvgl:
               - label:
                   text: "Sleep"
                   align: LEFT_MID
-                  x: 12
-                  text_font: montserrat_18
+                  x: 10
+                  text_font: montserrat_16
                   text_color: 0xFFFFFF
               - label:
                   id: sleep_enable_state
                   text: "ON"
                   align: RIGHT_MID
-                  x: -12
-                  text_font: montserrat_18
+                  x: -10
+                  text_font: montserrat_16
                   text_color: 0xD1FAE5
 
         - label:
             id: sleep_timeout_label
-            text: "Sleep Timeout"
-            align: TOP_MID
-            y: 238
+            text: "Timeout"
+            align: TOP_LEFT
+            x: 20
+            y: 214
             text_font: montserrat_18
             text_color: 0xFFFFFF
 
         - slider:
             id: sleep_timeout_slider
-            align: TOP_MID
-            y: 258
-            width: 300
+            align: TOP_LEFT
+            x: 140
+            y: 216
+            width: 220
             height: 14
             min_value: 15
             max_value: 300
@@ -169,32 +176,28 @@ lvgl:
         - label:
             id: sleep_timeout_value
             text: "60s"
-            align: TOP_MID
-            x: 148
-            y: 256
+            align: TOP_LEFT
+            x: 372
+            y: 212
             text_font: montserrat_16
             text_color: 0xC0C0C0
 
         - label:
             id: brightness_label
-            text: "Display Brightness"
-            align: TOP_MID
-            y: 286
-            text_font: montserrat_20
+            text: "Brightness"
+            align: TOP_LEFT
+            x: 20
+            y: 262
+            text_font: montserrat_18
             text_color: 0xFFFFFF
-
-        - image:
-            align: TOP_MID
-            x: -148
-            y: 314
-            src: icon_dim_24
 
         - slider:
             id: brightness_slider
-            align: TOP_MID
-            y: 316
-            width: 240
-            height: 16
+            align: TOP_LEFT
+            x: 140
+            y: 264
+            width: 220
+            height: 14
             min_value: 0
             max_value: 100
             bg_color: 0x374151
@@ -220,14 +223,8 @@ lvgl:
         - label:
             id: brightness_value
             text: "50%"
-            align: TOP_MID
-            x: 148
-            y: 312
+            align: TOP_LEFT
+            x: 372
+            y: 260
             text_font: montserrat_16
             text_color: 0xC0C0C0
-
-        - image:
-            align: TOP_MID
-            x: 148
-            y: 314
-            src: icon_bright_24
