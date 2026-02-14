@@ -1,0 +1,148 @@
+lvgl:
+  pages:
+    - id: page_admin
+      widgets:
+
+        - label:
+            id: admin_title
+            text: "Admin Panel"
+            align: TOP_MID
+            y: 40
+            text_font: montserrat_32
+            text_color: 0x1D4ED8
+            border_color: 0x303F4F
+
+        - label:
+            id: wifi_ssid_label
+            text: "WiFi SSID: --"
+            align: TOP_LEFT
+            x: 20
+            y: 80
+            text_font: montserrat_24
+            text_color: 0xFFFFFF
+
+        - label:
+            id: ip_label
+            text: "IP: --"
+            align: TOP_LEFT
+            x: 20
+            y: 120
+            text_font: montserrat_24
+            text_color: 0xFFFFFF
+
+        - label:
+            id: wifi_bssid_label
+            text: "WiFi BSSID: --"
+            align: TOP_LEFT
+            x: 20
+            y: 160
+            text_font: montserrat_24
+            text_color: 0xFFFFFF
+
+        - label:
+            id: wi_fi_signal_label
+            text: "WiFi Signal: --"
+            align: TOP_LEFT
+            x: 20
+            y: 200
+            text_font: montserrat_24
+            text_color: 0xFFFFFF
+
+        - label:
+            id: uptime_sensor_label
+            text: "Uptime: --"
+            align: TOP_LEFT
+            x: 20
+            y: 240
+            text_font: montserrat_24
+            text_color: 0xFFFFFF
+
+        - label:
+            id: internal_temp_label
+            text: "Internal Temp: --"
+            align: TOP_LEFT
+            x: 20
+            y: 280
+            text_font: montserrat_24
+            text_color: 0xFFFFFF
+
+        - button:
+            id: btn_overrides
+            text: "Overrides"
+            text_color: 0xFFFFFF
+            border_color: 0x303F4F
+            align: BOTTOM_MID
+            x: -120
+            y: -125
+            width: 110
+            height: 36
+            on_press:
+              - script.execute: nav_show_overrides_user
+
+        - button:
+            id: btn_fans
+            text: "Fans"
+            text_color: 0xFFFFFF
+            border_color: 0x303F4F
+            align: BOTTOM_MID
+            x: 0
+            y: -125
+            width: 110
+            height: 36
+            on_press:
+              - script.execute: nav_show_fans_user
+
+        - button:
+            id: btn_thermostat
+            text: "Thermostat"
+            text_color: 0xFFFFFF
+            border_color: 0x303F4F
+            align: BOTTOM_MID
+            x: 120
+            y: -125
+            width: 110
+            height: 36
+            on_press:
+              - script.execute: nav_show_thermostat_user
+
+        - button:
+            id: btn_lighting
+            text: "Lighting"
+            text_color: 0xFFFFFF
+            border_color: 0x303F4F
+            align: BOTTOM_MID
+            x: -120
+            y: -80
+            width: 110
+            height: 36
+            on_press:
+              - script.execute: nav_show_lighting_user
+
+        - button:
+            id: btn_wifi_setup
+            text: "WiFi Setup"
+            text_color: 0xFFFFFF
+            border_color: 0x303F4F
+            align: BOTTOM_MID
+            x: 0
+            y: -80
+            width: 110
+            height: 36
+            on_press:
+              - lvgl.page.show:
+                  id: page_wifi
+
+        - button:
+            id: btn_restart
+            text: "Restart"
+            text_color: 0xFFFFFF
+            border_color: 0x303F4F
+            align: BOTTOM_MID
+            x: 120
+            y: -80
+            width: 110
+            height: 36
+            on_press:
+              - switch.turn_on: restart_switch
+
+

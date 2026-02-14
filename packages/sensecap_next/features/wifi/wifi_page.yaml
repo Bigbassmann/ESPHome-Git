@@ -1,0 +1,125 @@
+lvgl:
+  pages:
+    - id: page_wifi
+      widgets:
+        - label:
+            id: wifi_title
+            text: "WiFi Setup"
+            align: TOP_MID
+            y: 40
+            text_font: montserrat_26
+            text_color: 0x1D4ED8
+
+        - label:
+            text: "SSID"
+            align: TOP_LEFT
+            x: 20
+            y: 50
+            text_font: montserrat_20
+            text_color: 0xB0B0B0
+
+        - textarea:
+            id: wifi_ssid_input
+            align: TOP_LEFT
+            x: 20
+            y: 75
+            width: 440
+            height: 40
+            text: ""
+            one_line: true
+
+        - label:
+            text: "Password"
+            align: TOP_LEFT
+            x: 20
+            y: 118
+            text_font: montserrat_20
+            text_color: 0xB0B0B0
+
+        - textarea:
+            id: wifi_pass_input
+            align: TOP_LEFT
+            x: 20
+            y: 140
+            width: 440
+            height: 40
+            text: ""
+            password_mode: true
+
+        - label:
+            id: wifi_status_label
+            text: "Status: --"
+            align: CENTER
+            x: 0  # 20
+            y: -30
+            text_font: montserrat_18
+            text_color: 0xB0B0B0
+
+        - keyboard:
+            id: wifi_keyboard
+            align: BOTTOM_MID
+            y: -50
+            height: 200
+            textarea: wifi_ssid_input
+
+        - button:
+            id: wifi_focus_ssid
+            text: "Edit SSID"
+            align: TOP_RIGHT
+            x: -20
+            y: 75
+            width: 120
+            height: 36
+            text_font: montserrat_18
+            on_press:
+              - lvgl.keyboard.update:
+                  id: wifi_keyboard
+                  textarea: wifi_ssid_input
+
+        - button:
+            id: wifi_focus_pass
+            text: "Edit Pass"
+            align: TOP_RIGHT
+            x: -20
+            y: 140
+            width: 120
+            height: 40
+            text_font: montserrat_18
+            on_press:
+              - lvgl.keyboard.update:
+                  id: wifi_keyboard
+                  textarea: wifi_pass_input
+
+        - button:
+            id: wifi_save_btn
+            text: "Save"
+            align: BOTTOM_LEFT
+            x: 20
+            y: -260
+            text_font: montserrat_20
+            on_press:
+              - wifi.configure:
+                  ssid: !lambda 'return id(wifi_ssid_text).state;'
+                  password: !lambda 'return id(wifi_pass_text).state;'
+                  save: true
+                  timeout: 30s
+                  on_connect:
+                    - lvgl.label.update:
+                        id: wifi_status_label
+                        text: "Status: Connected"
+                  on_error:
+                    - lvgl.label.update:
+                        id: wifi_status_label
+                        text: "Status: Failed"
+
+        - button:
+            id: wifi_cancel_btn
+            text: "Back"
+            align: BOTTOM_RIGHT
+            x: -20
+            y: -260
+            text_font: montserrat_20
+            on_press:
+              - lvgl.page.show:
+                  id: page_admin
+

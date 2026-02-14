@@ -1,2 +1,3 @@
 packages:
-  v1_admin_runtime: !include ../../../sensecap/ui_runtime_admin.yaml
+  admin_runtime: !include admin_page_runtime.yaml
+

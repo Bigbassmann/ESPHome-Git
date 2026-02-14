@@ -1,2 +1,3 @@
 packages:
-  v1_wifi_ui: !include ../../../sensecap/ui_wifi_lvgl.yaml
+  wifi_ui: !include wifi_page.yaml
+
