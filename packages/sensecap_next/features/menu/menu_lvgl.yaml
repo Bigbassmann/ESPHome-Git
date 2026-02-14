@@ -5,7 +5,7 @@ lvgl:
         - label:
             text: "Menu"
             align: TOP_MID
-            y: 40
+            y: 34
             text_font: montserrat_32
             text_color: 0xFFFFFF
 
@@ -13,9 +13,9 @@ lvgl:
             text: "Home"
             align: TOP_LEFT
             x: 20
-            y: 100
+            y: 88
             width: 214
-            height: 56
+            height: 50
             bg_color: 0x334155
             text_color: 0xFFFFFF
             on_press:
@@ -24,9 +24,9 @@ lvgl:
             text: "Home Clock"
             align: TOP_LEFT
             x: 248
-            y: 100
+            y: 88
             width: 214
-            height: 56
+            height: 50
             bg_color: 0x334155
             text_color: 0xFFFFFF
             on_press:
@@ -36,9 +36,9 @@ lvgl:
             text: "Settings"
             align: TOP_LEFT
             x: 20
-            y: 172
+            y: 148
             width: 138
-            height: 52
+            height: 46
             bg_color: 0x1D4ED8
             text_color: 0xFFFFFF
             on_press:
@@ -47,9 +47,9 @@ lvgl:
             text: "Admin"
             align: TOP_LEFT
             x: 172
-            y: 172
+            y: 148
             width: 138
-            height: 52
+            height: 46
             bg_color: 0x1D4ED8
             text_color: 0xFFFFFF
             on_press:
@@ -58,9 +58,9 @@ lvgl:
             text: "WiFi"
             align: TOP_LEFT
             x: 324
-            y: 172
+            y: 148
             width: 138
-            height: 52
+            height: 46
             bg_color: 0x1D4ED8
             text_color: 0xFFFFFF
             on_press:
@@ -70,9 +70,9 @@ lvgl:
             text: "Overrides"
             align: TOP_LEFT
             x: 20
-            y: 240
+            y: 204
             width: 214
-            height: 56
+            height: 50
             bg_color: 0x0891B2
             text_color: 0xFFFFFF
             on_press:
@@ -81,9 +81,9 @@ lvgl:
             text: "Fans"
             align: TOP_LEFT
             x: 248
-            y: 240
+            y: 204
             width: 214
-            height: 56
+            height: 50
             bg_color: 0x0891B2
             text_color: 0xFFFFFF
             on_press:
@@ -93,9 +93,9 @@ lvgl:
             text: "TStat V2"
             align: TOP_LEFT
             x: 20
-            y: 308
+            y: 264
             width: 138
-            height: 52
+            height: 46
             bg_color: 0x0891B2
             text_color: 0xFFFFFF
             on_press:
@@ -104,9 +104,9 @@ lvgl:
             text: "TStat Legacy"
             align: TOP_LEFT
             x: 172
-            y: 308
+            y: 264
             width: 138
-            height: 52
+            height: 46
             bg_color: 0x0891B2
             text_color: 0xFFFFFF
             on_press:
@@ -115,9 +115,9 @@ lvgl:
             text: "Lighting"
             align: TOP_LEFT
             x: 324
-            y: 308
+            y: 264
             width: 138
-            height: 52
+            height: 46
             bg_color: 0xD97706
             text_color: 0xFFFFFF
             on_press:
@@ -126,9 +126,9 @@ lvgl:
         - button:
             text: "Other Controls"
             align: TOP_MID
-            y: 374
+            y: 320
             width: 250
-            height: 52
+            height: 46
             bg_color: 0xD97706
             text_color: 0xFFFFFF
             on_press:

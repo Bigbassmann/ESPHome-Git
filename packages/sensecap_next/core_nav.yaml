@@ -291,5 +291,48 @@ script:
               case 3: return std::string("TVOC");
               default: return std::string("Graph");
             }
+      - lvgl.label.update:
+          id: graph_current_label
+          text: !lambda |-
+            if (isnan(id(graph_cur))) return std::string("Now: --");
+            char buf[32];
+            switch (id(graph_metric)) {
+              case 0: snprintf(buf, sizeof(buf), "Now: %.1f F", id(graph_cur)); break;
+              case 1: snprintf(buf, sizeof(buf), "Now: %.0f%%", id(graph_cur)); break;
+              case 2: snprintf(buf, sizeof(buf), "Now: %.0f ppm", id(graph_cur)); break;
+              case 3: snprintf(buf, sizeof(buf), "Now: %.0f", id(graph_cur)); break;
+              default: snprintf(buf, sizeof(buf), "Now: %.1f", id(graph_cur)); break;
+            }
+            return std::string(buf);
+      - lvgl.label.update:
+          id: graph_min_label
+          text: !lambda |-
+            if (isnan(id(graph_min))) return std::string("Min: --");
+            char buf[32];
+            switch (id(graph_metric)) {
+              case 0: snprintf(buf, sizeof(buf), "Min: %.1f F", id(graph_min)); break;
+              case 1: snprintf(buf, sizeof(buf), "Min: %.0f%%", id(graph_min)); break;
+              case 2: snprintf(buf, sizeof(buf), "Min: %.0f ppm", id(graph_min)); break;
+              case 3: snprintf(buf, sizeof(buf), "Min: %.0f", id(graph_min)); break;
+              default: snprintf(buf, sizeof(buf), "Min: %.1f", id(graph_min)); break;
+            }
+            return std::string(buf);
+      - lvgl.label.update:
+          id: graph_max_label
+          text: !lambda |-
+            if (isnan(id(graph_max))) return std::string("Max: --");
+            char buf[32];
+            switch (id(graph_metric)) {
+              case 0: snprintf(buf, sizeof(buf), "Max: %.1f F", id(graph_max)); break;
+              case 1: snprintf(buf, sizeof(buf), "Max: %.0f%%", id(graph_max)); break;
+              case 2: snprintf(buf, sizeof(buf), "Max: %.0f ppm", id(graph_max)); break;
+              case 3: snprintf(buf, sizeof(buf), "Max: %.0f", id(graph_max)); break;
+              default: snprintf(buf, sizeof(buf), "Max: %.1f", id(graph_max)); break;
+            }
+            return std::string(buf);
+      - lvgl.label.update:
+          id: graph_touch_label
+          text: "Tap: --"
+
 
 
