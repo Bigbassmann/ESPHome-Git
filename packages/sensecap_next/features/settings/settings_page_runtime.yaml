@@ -1,0 +1,131 @@
+interval:
+  - interval: 1s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(boot_ready) && id(nav_page_index) == 1;'
+          then:
+
+            - lvgl.slider.update:
+                id: idle_scroll_timeout_slider
+                value: !lambda 'return id(display_idle_scroll_s);'
+                animated: false
+
+            - lvgl.slider.update:
+                id: sleep_timeout_slider
+                value: !lambda 'return id(display_sleep_timeout_s);'
+                animated: false
+
+            - lvgl.slider.update:
+                id: brightness_slider
+                value: !lambda 'return id(display_brightness_pct);'
+                animated: false
+
+            - lvgl.label.update:
+                id: sleep_timeout_value
+                text: !lambda |-
+                  char buf[24];
+                  snprintf(buf, sizeof(buf), "%ds", id(display_sleep_timeout_s));
+                  return std::string(buf);
+
+            - lvgl.label.update:
+                id: idle_scroll_timeout_value
+                text: !lambda |-
+                  char buf[24];
+                  snprintf(buf, sizeof(buf), "%ds", id(display_idle_scroll_s));
+                  return std::string(buf);
+
+            - if:
+                condition:
+                  lambda: 'return id(display_sleep_enabled);'
+                then:
+                  - lvgl.label.update:
+                      id: sleep_enable_state
+                      text: "ON"
+                  - lvgl.widget.update:
+                      id: sleep_enable_state
+                      text_color: 0xD1FAE5
+                  - lvgl.widget.update:
+                      id: sleep_enable_btn
+                      bg_color: 0x166534
+                else:
+                  - lvgl.label.update:
+                      id: sleep_enable_state
+                      text: "OFF"
+                  - lvgl.widget.update:
+                      id: sleep_enable_state
+                      text_color: 0xFCA5A5
+                  - lvgl.widget.update:
+                      id: sleep_enable_btn
+                      bg_color: 0x374151
+
+            - if:
+                condition:
+                  lambda: 'return id(display_idle_scroll_enabled);'
+                then:
+                  - lvgl.label.update:
+                      id: idle_scroll_enable_state
+                      text: "ON"
+                  - lvgl.widget.update:
+                      id: idle_scroll_enable_state
+                      text_color: 0xD1FAE5
+                  - lvgl.widget.update:
+                      id: idle_scroll_enable_btn
+                      bg_color: 0x0F766E
+                else:
+                  - lvgl.label.update:
+                      id: idle_scroll_enable_state
+                      text: "OFF"
+                  - lvgl.widget.update:
+                      id: idle_scroll_enable_state
+                      text_color: 0xFCA5A5
+                  - lvgl.widget.update:
+                      id: idle_scroll_enable_btn
+                      bg_color: 0x374151
+
+      - if:
+          condition:
+            lambda: |-
+              if (!id(boot_ready)) return false;
+              if (id(screen_off)) return false;
+              if (!id(display_idle_scroll_enabled)) return false;
+              if (!(id(nav_page_index) == 1 || id(nav_page_index) == 2)) return false;
+              uint32_t now = millis();
+              uint32_t idle_elapsed = now - id(last_interaction_ms);
+              uint32_t delay_ms = (uint32_t) (id(display_idle_scroll_s) * 1000);
+              return idle_elapsed >= delay_ms;
+          then:
+            - logger.log: "Idle on Settings/Admin/WiFi context; returning Home to resume timed scroll"
+            - script.execute: nav_show_home_user
+
+      - if:
+          condition:
+            lambda: |-
+              if (!id(boot_ready)) return false;
+              if (id(screen_off)) return false;
+              if (!id(display_idle_scroll_enabled)) return false;
+              uint32_t now = millis();
+              uint32_t idle_elapsed = now - id(last_interaction_ms);
+              uint32_t auto_elapsed = now - id(last_auto_scroll_ms);
+              uint32_t delay_ms = (uint32_t) (id(display_idle_scroll_s) * 1000);
+              const uint32_t page_rate_ms = 5000;
+              return idle_elapsed >= delay_ms && auto_elapsed >= page_rate_ms;
+          then:
+            - logger.log: "Idle timed scroll threshold reached; advancing page"
+            - script.execute: nav_next_idle
+
+      - if:
+          condition:
+            lambda: |-
+              if (!id(boot_ready)) return false;
+              if (!id(display_sleep_enabled)) return false;
+              if (id(display_idle_scroll_enabled)) return false;
+              if (id(screen_off)) return false;
+              uint32_t now = millis();
+              uint32_t elapsed = now - id(last_interaction_ms);
+              return elapsed >= (uint32_t) (id(display_sleep_timeout_s) * 1000);
+          then:
+            - logger.log: "Display sleep timeout reached; pausing LVGL and backlight off"
+            - lvgl.pause:
+            - light.turn_off: backlight
+            - lambda: 'id(screen_off) = true;'
