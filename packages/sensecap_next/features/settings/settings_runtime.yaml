@@ -1,2 +1,2 @@
-script: []
-
+packages:
+  v1_settings_runtime: !include ../../../sensecap/ui_runtime_settings.yaml

@@ -1,2 +1,2 @@
-script: []
-
+packages:
+  v1_settings_ui: !include ../../../sensecap/ui_settings_minimal.yaml

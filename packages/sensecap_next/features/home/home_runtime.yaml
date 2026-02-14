@@ -1,2 +1,3 @@
-script: []
-
+packages:
+  v1_home_runtime: !include ../../../sensecap/ui_runtime_home.yaml
+  v1_home_clock_runtime: !include ../../../sensecap/ui_runtime_home_clock.yaml
