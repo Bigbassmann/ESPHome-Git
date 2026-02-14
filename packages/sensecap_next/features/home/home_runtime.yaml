@@ -34,6 +34,7 @@ interval:
     then:
       - if:
           condition:
-            lambda: 'return id(boot_ready) && !id(screen_off) && (lv_scr_act() == id(page_graphs));'
+            lambda: 'return id(boot_ready) && !id(screen_off);'
           then:
             - script.execute: graph_render
+
