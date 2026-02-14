@@ -404,7 +404,6 @@ script:
               y: !lambda 'return id(graph_points)[58];'
             - x: 413
               y: !lambda 'return id(graph_points)[59];'
-
       - component.update: my_display
       - lvgl.label.update:
           id: graph_title_label
@@ -496,6 +495,8 @@ script:
             - lvgl.widget.update: { id: graph_step_15m, bg_color: 0x0F766E, text_color: 0xFFFFFF }
           else:
             - lvgl.widget.update: { id: graph_step_15m, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
+
+
 
 
 

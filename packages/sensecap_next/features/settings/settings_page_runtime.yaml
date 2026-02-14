@@ -20,6 +20,12 @@ interval:
                 id: brightness_slider
                 value: !lambda 'return id(display_brightness_pct);'
                 animated: false
+            - lvgl.label.update:
+                id: brightness_value
+                text: !lambda |-
+                  char buf[24];
+                  snprintf(buf, sizeof(buf), "%d%%", id(display_brightness_pct));
+                  return std::string(buf);
 
             - lvgl.label.update:
                 id: sleep_timeout_value
@@ -129,3 +135,4 @@ interval:
             - lvgl.pause:
             - light.turn_off: backlight
             - lambda: 'id(screen_off) = true;'
+

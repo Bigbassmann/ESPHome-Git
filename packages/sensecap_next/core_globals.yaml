@@ -43,9 +43,11 @@ globals:
     initial_value: "2"
   - id: graph_period_min
     type: int
+    restore_value: true
     initial_value: "360"
   - id: graph_step_min
     type: int
+    restore_value: true
     initial_value: "5"
   - id: hist_index
     type: int
@@ -88,3 +90,6 @@ globals:
   - id: tstat_runtime_syncing
     type: bool
     initial_value: "false"
+
+
+

@@ -37,3 +37,7 @@ switch:
   - platform: restart
     id: restart_switch
     name: "Restart Device"
+
+  - platform: factory_reset
+    id: factory_reset_switch
+    name: "Factory Reset Device"
