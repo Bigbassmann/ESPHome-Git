@@ -1,2 +1,2 @@
-script: []
-
+packages:
+  v1_other_controls_runtime: !include ../../../sensecap/ui_runtime_other_controls.yaml
