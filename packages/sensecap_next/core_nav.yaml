@@ -280,6 +280,7 @@ script:
             if (y > GRAPH_H) y = GRAPH_H;
             id(graph_points)[p] = y;
           }
+          ESP_LOGD("graph", "render metric=%d period=%d step=%d cur=%.2f min=%.2f max=%.2f", id(graph_metric), period, step, cur, minv, maxv);
       - component.update: my_display
       - lvgl.label.update:
           id: graph_title_label
@@ -333,6 +334,46 @@ script:
       - lvgl.label.update:
           id: graph_touch_label
           text: "Tap: --"
+
+      - if:
+          condition: { lambda: 'return id(graph_period_min) == 60;' }
+          then:
+            - lvgl.widget.update: { id: graph_period_1h, bg_color: 0x2563EB, text_color: 0xFFFFFF }
+          else:
+            - lvgl.widget.update: { id: graph_period_1h, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
+      - if:
+          condition: { lambda: 'return id(graph_period_min) == 360;' }
+          then:
+            - lvgl.widget.update: { id: graph_period_6h, bg_color: 0x2563EB, text_color: 0xFFFFFF }
+          else:
+            - lvgl.widget.update: { id: graph_period_6h, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
+      - if:
+          condition: { lambda: 'return id(graph_period_min) == 1440;' }
+          then:
+            - lvgl.widget.update: { id: graph_period_24h, bg_color: 0x2563EB, text_color: 0xFFFFFF }
+          else:
+            - lvgl.widget.update: { id: graph_period_24h, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
+
+      - if:
+          condition: { lambda: 'return id(graph_step_min) == 1;' }
+          then:
+            - lvgl.widget.update: { id: graph_step_1m, bg_color: 0x0F766E, text_color: 0xFFFFFF }
+          else:
+            - lvgl.widget.update: { id: graph_step_1m, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
+      - if:
+          condition: { lambda: 'return id(graph_step_min) == 5;' }
+          then:
+            - lvgl.widget.update: { id: graph_step_5m, bg_color: 0x0F766E, text_color: 0xFFFFFF }
+          else:
+            - lvgl.widget.update: { id: graph_step_5m, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
+      - if:
+          condition: { lambda: 'return id(graph_step_min) == 15;' }
+          then:
+            - lvgl.widget.update: { id: graph_step_15m, bg_color: 0x0F766E, text_color: 0xFFFFFF }
+          else:
+            - lvgl.widget.update: { id: graph_step_15m, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
+
+
 
 
 

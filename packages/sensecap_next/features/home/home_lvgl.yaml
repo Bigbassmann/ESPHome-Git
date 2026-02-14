@@ -1,4 +1,4 @@
 packages:
-  v1_home_ui: !include ../../../sensecap/ui_home.yaml
-  v1_home_clock_ui: !include ../../../sensecap/ui_home_clock.yaml
-  v1_graphs_ui: !include ../../../sensecap/ui_graphs.yaml
+  home_ui: !include home_page.yaml
+  home_clock_ui: !include home_clock_page.yaml
+  graphs_ui: !include graphs_page.yaml

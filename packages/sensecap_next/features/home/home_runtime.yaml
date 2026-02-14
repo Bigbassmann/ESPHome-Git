@@ -1,6 +1,6 @@
 packages:
-  v1_home_runtime: !include ../../../sensecap/ui_runtime_home.yaml
-  v1_home_clock_runtime: !include ../../../sensecap/ui_runtime_home_clock.yaml
+  home_runtime: !include home_page_runtime.yaml
+  home_clock_runtime: !include home_clock_page_runtime.yaml
 
 interval:
   - interval: 60s
@@ -37,5 +37,3 @@ interval:
             lambda: 'return id(boot_ready) && !id(screen_off) && id(graph_page_active);'
           then:
             - script.execute: graph_render
-
-
