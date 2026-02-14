@@ -15,13 +15,14 @@ api:
 
 ota:
   - platform: esphome
+    password: "41def07295f8022fbb33225b9baa335a"
 
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   ap:
-    ssid: "${friendly_name} Fallback"
-    password: !secret fallback_ap_password
+    ssid: "Fallback AP"
+    password: "1234567890"
 
 captive_portal:
 

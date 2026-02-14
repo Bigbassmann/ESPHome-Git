@@ -1,9 +1,11 @@
 substitutions:
   device_id: sensecap_d1s_01
-  device_name: sensecap-d1s-next
-  friendly_name: SenseCAP Indicator Next
+  device_name: sensecap-d1s
+  friendly_name: SenseCAP Indicator
   site_id: home1
 
 packages:
   profile: !include packages/sensecap_next/profile_full.yaml
-  device_profile: !include devices/${device_id}/device_profile.yaml
+  device_profile: !include devices/sensecap_d1s_01/device_profile.yaml
+
+
