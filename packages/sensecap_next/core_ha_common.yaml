@@ -93,6 +93,28 @@ sensor:
     attribute: brightness
     internal: true
 
+  - platform: template
+    id: ha_tstat_current_temp
+    internal: true
+    update_interval: never
+    lambda: |-
+      std::string s = id(ha_tstat_current_temp_txt).state;
+      if (s.empty() || s == "None" || s == "none" || s == "unknown" || s == "unavailable") return NAN;
+      return atof(s.c_str());
+
+  - platform: template
+    id: ha_tstat_target_temp
+    internal: true
+    update_interval: never
+    lambda: |-
+      static float last_valid = 68.0f;
+      std::string s = id(ha_tstat_target_temp_txt).state;
+      if (s.empty() || s == "None" || s == "none" || s == "unknown" || s == "unavailable") return last_valid;
+      float v = atof(s.c_str());
+      if (isnan(v)) return last_valid;
+      last_valid = v;
+      return v;
+
 text_sensor:
   - platform: homeassistant
     id: ha_mbr_fan_dir
@@ -117,4 +139,35 @@ text_sensor:
   - platform: homeassistant
     id: ha_front_door_lock_state
     entity_id: lock.front_door_lock
+    internal: true
+
+  - platform: homeassistant
+    id: ha_tstat_mode
+    entity_id: climate.thermostat
+    attribute: hvac_mode
+    internal: true
+  - platform: homeassistant
+    id: ha_tstat_hvac_action
+    entity_id: climate.thermostat
+    attribute: hvac_action
+    internal: true
+  - platform: homeassistant
+    id: ha_tstat_current_temp_txt
+    entity_id: climate.thermostat
+    attribute: current_temperature
+    internal: true
+  - platform: homeassistant
+    id: ha_tstat_target_temp_txt
+    entity_id: climate.thermostat
+    attribute: temperature
+    internal: true
+  - platform: homeassistant
+    id: ha_tstat_fan_mode
+    entity_id: climate.thermostat
+    attribute: fan_mode
+    internal: true
+  - platform: homeassistant
+    id: ha_tstat_fan_state
+    entity_id: climate.thermostat
+    attribute: fan_state
     internal: true

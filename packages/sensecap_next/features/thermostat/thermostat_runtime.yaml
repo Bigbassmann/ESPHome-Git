@@ -1,2 +1,2 @@
-script: []
-
+packages:
+  v1_tstat_runtime: !include ../../../sensecap/ui_runtime_thermostat_slow.yaml
