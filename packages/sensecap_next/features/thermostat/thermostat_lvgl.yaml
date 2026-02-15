@@ -58,7 +58,7 @@ lvgl:
             arc_rounded: true
             indicator:
               arc_color: 0x6B7280
-              arc_width: 15
+              arc_width: 20  # 15
             knob:
               bg_color: 0xFFFFFF
               pad_all: 3

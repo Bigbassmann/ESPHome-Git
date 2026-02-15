@@ -118,7 +118,7 @@ lvgl:
             border_width: 0
             align: BOTTOM_MID
             x: -136
-            y: -88
+            y: -74
             width: 126
             height: 42
             on_press:
@@ -133,7 +133,7 @@ lvgl:
             border_width: 0
             align: BOTTOM_MID
             x: 0
-            y: -88
+            y: -74
             width: 126
             height: 42
             on_press:
@@ -148,9 +148,10 @@ lvgl:
             border_width: 0
             align: BOTTOM_MID
             x: 136
-            y: -88
+            y: -74
             width: 126
             height: 42
             on_press:
               - switch.turn_on: factory_reset_switch
+
 

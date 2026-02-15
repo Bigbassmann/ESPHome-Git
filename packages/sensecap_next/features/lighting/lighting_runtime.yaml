@@ -35,11 +35,11 @@ interval:
                 then:
                   - lvgl.label.update: {id: mbr_light_state, text: "ON"}
                   - lvgl.widget.update: {id: mbr_light_state, text_color: 0xD1FAE5}
-                  - lvgl.widget.update: {id: mbr_light_slider, bg_color: 0x166534}
+                  - lvgl.widget.update: {id: mbr_light_row_btn, bg_color: 0x166534}
                 else:
                   - lvgl.label.update: {id: mbr_light_state, text: "OFF"}
                   - lvgl.widget.update: {id: mbr_light_state, text_color: 0xFCA5A5}
-                  - lvgl.widget.update: {id: mbr_light_slider, bg_color: 0x374151}
+                  - lvgl.widget.update: {id: mbr_light_row_btn, bg_color: 0x374151}
 
             - if:
                 condition:
@@ -47,11 +47,11 @@ interval:
                 then:
                   - lvgl.label.update: {id: fr_light_state, text: "ON"}
                   - lvgl.widget.update: {id: fr_light_state, text_color: 0xD1FAE5}
-                  - lvgl.widget.update: {id: fr_light_slider, bg_color: 0x166534}
+                  - lvgl.widget.update: {id: fr_light_row_btn, bg_color: 0x166534}
                 else:
                   - lvgl.label.update: {id: fr_light_state, text: "OFF"}
                   - lvgl.widget.update: {id: fr_light_state, text_color: 0xFCA5A5}
-                  - lvgl.widget.update: {id: fr_light_slider, bg_color: 0x374151}
+                  - lvgl.widget.update: {id: fr_light_row_btn, bg_color: 0x374151}
 
             - if:
                 condition:
@@ -59,11 +59,11 @@ interval:
                 then:
                   - lvgl.label.update: {id: lr_light_state, text: "ON"}
                   - lvgl.widget.update: {id: lr_light_state, text_color: 0xD1FAE5}
-                  - lvgl.widget.update: {id: lr_light_slider, bg_color: 0x166534}
+                  - lvgl.widget.update: {id: lr_light_row_btn, bg_color: 0x166534}
                 else:
                   - lvgl.label.update: {id: lr_light_state, text: "OFF"}
                   - lvgl.widget.update: {id: lr_light_state, text_color: 0xFCA5A5}
-                  - lvgl.widget.update: {id: lr_light_slider, bg_color: 0x374151}
+                  - lvgl.widget.update: {id: lr_light_row_btn, bg_color: 0x374151}
 
             - lvgl.slider.update:
                 id: mbr_light_slider
@@ -144,6 +144,7 @@ interval:
                   char buf[16];
                   snprintf(buf, sizeof(buf), "%d%%", pct);
                   return std::string(buf);
+
 
 
 

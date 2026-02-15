@@ -72,28 +72,40 @@ lvgl:
                   text_font: montserrat_20
                   text_color: 0xFCA5A5
 
-        - label:
-            text: "MBR Lights"
+        - button:
+            id: mbr_light_row_btn
             align: TOP_LEFT
             x: 20
-            y: 176
-            text_font: montserrat_22
-            text_color: 0xFFFFFF
-        - label:
-            id: mbr_light_state
-            text: "OFF"
-            align: TOP_LEFT
-            x: 158
-            y: 182
-            text_font: montserrat_18
-            text_color: 0xFCA5A5
+            y: 170
+            width: 170
+            height: 40
+            bg_color: 0x374151
+            radius: 8
+            border_width: 0
+            on_press:
+              - script.execute: light_mbr_toggle
+            widgets:
+              - label:
+                  text: "MBR Lights"
+                  align: LEFT_MID
+                  x: 10
+                  text_font: montserrat_16
+                  text_color: 0xFFFFFF
+              - label:
+                  id: mbr_light_state
+                  text: "OFF"
+                  align: RIGHT_MID
+                  x: -10
+                  text_font: montserrat_14
+                  text_color: 0xFCA5A5
+
         - slider:
             id: mbr_light_slider
             align: TOP_LEFT
-            x: 238
-            y: 184
-            width: 162
-            height: 18
+            x: 206
+            y: 182
+            width: 210
+            height: 16
             min_value: 0
             max_value: 100
             bg_color: 0x374151
@@ -129,37 +141,50 @@ lvgl:
                               char buf[8];
                               snprintf(buf, sizeof(buf), "%d", x);
                               return std::string(buf);
+
         - label:
             id: mbr_light_pct
             text: "0%"
             align: TOP_LEFT
-            x: 412
-            y: 182
+            x: 424
+            y: 176
             text_font: montserrat_18
             text_color: 0xC0C0C0
 
-        - label:
-            text: "FR Lights"
+        - button:
+            id: fr_light_row_btn
             align: TOP_LEFT
             x: 20
-            y: 250
-            text_font: montserrat_22
-            text_color: 0xFFFFFF
-        - label:
-            id: fr_light_state
-            text: "OFF"
-            align: TOP_LEFT
-            x: 158
-            y: 256
-            text_font: montserrat_18
-            text_color: 0xFCA5A5
+            y: 238
+            width: 170
+            height: 40
+            bg_color: 0x374151
+            radius: 8
+            border_width: 0
+            on_press:
+              - script.execute: light_fr_toggle
+            widgets:
+              - label:
+                  text: "FR Lights"
+                  align: LEFT_MID
+                  x: 10
+                  text_font: montserrat_16
+                  text_color: 0xFFFFFF
+              - label:
+                  id: fr_light_state
+                  text: "OFF"
+                  align: RIGHT_MID
+                  x: -10
+                  text_font: montserrat_14
+                  text_color: 0xFCA5A5
+
         - slider:
             id: fr_light_slider
             align: TOP_LEFT
-            x: 238
-            y: 258
-            width: 162
-            height: 18
+            x: 206
+            y: 250
+            width: 210
+            height: 16
             min_value: 0
             max_value: 100
             bg_color: 0x374151
@@ -195,37 +220,50 @@ lvgl:
                               char buf[8];
                               snprintf(buf, sizeof(buf), "%d", x);
                               return std::string(buf);
+
         - label:
             id: fr_light_pct
             text: "0%"
             align: TOP_LEFT
-            x: 412
-            y: 256
+            x: 424
+            y: 244
             text_font: montserrat_18
             text_color: 0xC0C0C0
 
-        - label:
-            text: "LR Lights"
+        - button:
+            id: lr_light_row_btn
             align: TOP_LEFT
             x: 20
-            y: 324
-            text_font: montserrat_22
-            text_color: 0xFFFFFF
-        - label:
-            id: lr_light_state
-            text: "OFF"
-            align: TOP_LEFT
-            x: 158
-            y: 330
-            text_font: montserrat_18
-            text_color: 0xFCA5A5
+            y: 306
+            width: 170
+            height: 40
+            bg_color: 0x374151
+            radius: 8
+            border_width: 0
+            on_press:
+              - script.execute: light_lr_toggle
+            widgets:
+              - label:
+                  text: "LR Lights"
+                  align: LEFT_MID
+                  x: 10
+                  text_font: montserrat_16
+                  text_color: 0xFFFFFF
+              - label:
+                  id: lr_light_state
+                  text: "OFF"
+                  align: RIGHT_MID
+                  x: -10
+                  text_font: montserrat_14
+                  text_color: 0xFCA5A5
+
         - slider:
             id: lr_light_slider
             align: TOP_LEFT
-            x: 238
-            y: 332
-            width: 162
-            height: 18
+            x: 206
+            y: 318
+            width: 210
+            height: 16
             min_value: 0
             max_value: 100
             bg_color: 0x374151
@@ -271,11 +309,12 @@ lvgl:
                               char buf[8];
                               snprintf(buf, sizeof(buf), "%d", x);
                               return std::string(buf);
+
         - label:
             id: lr_light_pct
             text: "0%"
             align: TOP_LEFT
-            x: 412
-            y: 330
+            x: 424
+            y: 312
             text_font: montserrat_18
             text_color: 0xC0C0C0
