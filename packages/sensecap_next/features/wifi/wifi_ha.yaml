@@ -1,2 +1,14 @@
 script: []
 
+
+text:
+  - platform: lvgl
+    id: wifi_ssid_text
+    widget: wifi_ssid_input
+    mode: text
+    internal: true
+  - platform: lvgl
+    id: wifi_pass_text
+    widget: wifi_pass_input
+    mode: password
+    internal: true

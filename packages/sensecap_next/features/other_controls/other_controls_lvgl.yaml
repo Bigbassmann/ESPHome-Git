@@ -1,2 +1,2 @@
 packages:
-  v1_other_controls_ui: !include ../../../sensecap/ui_other_controls.yaml
+  other_controls_ui: !include other_controls_page.yaml

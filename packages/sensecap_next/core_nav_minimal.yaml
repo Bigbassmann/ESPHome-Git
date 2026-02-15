@@ -1,0 +1,687 @@
+script:
+  - id: apply_display_brightness
+    then:
+      - lambda: |-
+          if (id(display_brightness_pct) < 0 || id(display_brightness_pct) > 100) id(display_brightness_pct) = 50;
+      - light.control:
+          id: backlight
+          state: ON
+          brightness: !lambda |-
+            if (id(display_brightness_pct) <= 0) return 0.0f;
+            return id(display_brightness_pct) / 100.0f;
+
+  - id: nav_boot_ready
+    then:
+      - script.execute: nav_show_home_user
+
+  - id: nav_show_home_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 0;
+          id(ui_menu_active) = false;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_home
+
+  - id: nav_show_home_clock_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 0;
+          id(ui_menu_active) = false;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_home_clock
+
+  - id: nav_show_settings_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 1;
+          id(ui_menu_active) = false;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_settings
+
+  - id: nav_show_admin_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 2;
+          id(ui_menu_active) = false;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_home
+
+  - id: nav_show_wifi_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 2;
+          id(ui_menu_active) = false;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_home
+
+  - id: nav_show_menu_user
+    then:
+      - lambda: |-
+          id(ui_menu_active) = true;
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - lvgl.page.show:
+          id: page_menu
+
+  - id: nav_show_overrides_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 3;
+          id(ui_menu_active) = false;
+          id(last_interaction_ms) = millis();
+          id(last_auto_scroll_ms) = id(last_interaction_ms);
+      - lvgl.page.show:
+          id: page_home
+
+  - id: nav_show_fans_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 4;
+          id(ui_menu_active) = false;
+          id(last_interaction_ms) = millis();
+          id(last_auto_scroll_ms) = id(last_interaction_ms);
+      - lvgl.page.show:
+          id: page_home
+
+  - id: nav_show_thermostat_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 5;
+          id(ui_menu_active) = false;
+          id(last_interaction_ms) = millis();
+          id(last_auto_scroll_ms) = id(last_interaction_ms);
+      - lvgl.page.show:
+          id: page_home
+
+  - id: nav_show_thermostat_legacy_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 8;
+          id(ui_menu_active) = false;
+          id(last_interaction_ms) = millis();
+          id(last_auto_scroll_ms) = id(last_interaction_ms);
+      - lvgl.page.show:
+          id: page_home
+
+  - id: nav_show_lighting_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 6;
+          id(ui_menu_active) = false;
+          id(last_interaction_ms) = millis();
+          id(last_auto_scroll_ms) = id(last_interaction_ms);
+      - lvgl.page.show:
+          id: page_home
+
+  - id: nav_show_other_controls_user
+    then:
+      - lambda: |-
+          id(nav_page_index) = 7;
+          id(ui_menu_active) = false;
+          id(last_interaction_ms) = millis();
+          id(last_auto_scroll_ms) = id(last_interaction_ms);
+      - lvgl.page.show:
+          id: page_home
+
+  - id: nav_next_main
+    then:
+      - lambda: |-
+          if (id(ui_menu_active)) return;
+          const int route[] = {0, 3, 4, 5, 8, 6, 7};
+          const int n = sizeof(route) / sizeof(route[0]);
+          int cur = id(nav_page_index);
+          int pos = -1;
+          for (int i = 0; i < n; i++) if (route[i] == cur) { pos = i; break; }
+          if (pos < 0) pos = 0;
+          id(nav_page_index) = route[(pos + 1) % n];
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 0;' }
+          then: [script.execute: nav_show_home_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 3;' }
+          then: [script.execute: nav_show_overrides_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 4;' }
+          then: [script.execute: nav_show_fans_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 5;' }
+          then: [script.execute: nav_show_thermostat_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 8;' }
+          then: [script.execute: nav_show_thermostat_legacy_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 6;' }
+          then: [script.execute: nav_show_lighting_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 7;' }
+          then: [script.execute: nav_show_other_controls_user]
+
+  - id: nav_prev_main
+    then:
+      - lambda: |-
+          if (id(ui_menu_active)) return;
+          const int route[] = {0, 3, 4, 5, 8, 6, 7};
+          const int n = sizeof(route) / sizeof(route[0]);
+          int cur = id(nav_page_index);
+          int pos = -1;
+          for (int i = 0; i < n; i++) if (route[i] == cur) { pos = i; break; }
+          if (pos < 0) pos = 0;
+          id(nav_page_index) = route[(pos + n - 1) % n];
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 0;' }
+          then: [script.execute: nav_show_home_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 3;' }
+          then: [script.execute: nav_show_overrides_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 4;' }
+          then: [script.execute: nav_show_fans_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 5;' }
+          then: [script.execute: nav_show_thermostat_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 8;' }
+          then: [script.execute: nav_show_thermostat_legacy_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 6;' }
+          then: [script.execute: nav_show_lighting_user]
+      - if:
+          condition: { lambda: 'return id(nav_page_index) == 7;' }
+          then: [script.execute: nav_show_other_controls_user]
+
+  - id: nav_next_idle
+    then:
+      - script.execute: nav_next_main
+  - id: graph_render
+    then:
+      - lambda: |-
+          const int HIST = 1440;
+          const int POINTS = 60;
+          const int GRAPH_H = 200;
+
+          if (id(temp_hist).size() != HIST) id(temp_hist).assign(HIST, NAN);
+          if (id(humid_hist).size() != HIST) id(humid_hist).assign(HIST, NAN);
+          if (id(co2_hist).size() != HIST) id(co2_hist).assign(HIST, NAN);
+          if (id(voc_hist).size() != HIST) id(voc_hist).assign(HIST, NAN);
+          if (id(graph_points).size() != POINTS) id(graph_points).assign(POINTS, GRAPH_H / 2);
+
+          std::vector<float> *src = nullptr;
+          switch (id(graph_metric)) {
+            case 0: src = &id(temp_hist); break;
+            case 1: src = &id(humid_hist); break;
+            case 2: src = &id(co2_hist); break;
+            case 3: src = &id(voc_hist); break;
+            default: src = &id(co2_hist); break;
+          }
+
+          int idx = id(hist_index) - 1;
+          if (idx < 0) idx += HIST;
+
+          int period = id(graph_period_min);
+          int step = id(graph_step_min);
+          if (step <= 0) step = 1;
+          int samples = period / step;
+          if (samples < 2) samples = 2;
+          if (samples > HIST) samples = HIST;
+
+          float minv = NAN;
+          float maxv = NAN;
+          for (int i = 0; i < samples; i++) {
+            int hidx = idx - (i * step);
+            while (hidx < 0) hidx += HIST;
+            float v = (*src)[hidx];
+            if (isnan(v)) continue;
+            if (isnan(minv) || v < minv) minv = v;
+            if (isnan(maxv) || v > maxv) maxv = v;
+          }
+
+          if (isnan(minv) || isnan(maxv)) { minv = 0.0f; maxv = 1.0f; }
+          if (minv == maxv) { minv -= 1.0f; maxv += 1.0f; }
+
+          float cur = (*src)[idx];
+          id(graph_cur) = cur;
+          id(graph_min) = minv;
+          id(graph_max) = maxv;
+          id(graph_touch_valid) = false;
+
+          for (int p = 0; p < POINTS; p++) {
+            float t = (float)p / (float)(POINTS - 1);
+            float sample_index_f = t * (float)(samples - 1);
+            int sample_index = (int)roundf(sample_index_f);
+            int hidx = idx - (sample_index * step);
+            while (hidx < 0) hidx += HIST;
+            float v = (*src)[hidx];
+            if (isnan(v)) v = minv;
+            float norm = (v - minv) / (maxv - minv);
+            int y = (int)roundf((1.0f - norm) * GRAPH_H);
+            if (y < 0) y = 0;
+            if (y > GRAPH_H) y = GRAPH_H;
+            id(graph_points)[p] = y;
+          }
+          ESP_LOGD("graph", "render metric=%d period=%d step=%d cur=%.2f min=%.2f max=%.2f", id(graph_metric), period, step, cur, minv, maxv);
+      - lvgl.line.update:
+          id: graph_line
+          points:
+            - x: 0
+              y: !lambda 'return id(graph_points)[0];'
+            - x: 7
+              y: !lambda 'return id(graph_points)[1];'
+            - x: 14
+              y: !lambda 'return id(graph_points)[2];'
+            - x: 21
+              y: !lambda 'return id(graph_points)[3];'
+            - x: 28
+              y: !lambda 'return id(graph_points)[4];'
+            - x: 35
+              y: !lambda 'return id(graph_points)[5];'
+            - x: 42
+              y: !lambda 'return id(graph_points)[6];'
+            - x: 49
+              y: !lambda 'return id(graph_points)[7];'
+            - x: 56
+              y: !lambda 'return id(graph_points)[8];'
+            - x: 63
+              y: !lambda 'return id(graph_points)[9];'
+            - x: 70
+              y: !lambda 'return id(graph_points)[10];'
+            - x: 77
+              y: !lambda 'return id(graph_points)[11];'
+            - x: 84
+              y: !lambda 'return id(graph_points)[12];'
+            - x: 91
+              y: !lambda 'return id(graph_points)[13];'
+            - x: 98
+              y: !lambda 'return id(graph_points)[14];'
+            - x: 105
+              y: !lambda 'return id(graph_points)[15];'
+            - x: 112
+              y: !lambda 'return id(graph_points)[16];'
+            - x: 119
+              y: !lambda 'return id(graph_points)[17];'
+            - x: 126
+              y: !lambda 'return id(graph_points)[18];'
+            - x: 133
+              y: !lambda 'return id(graph_points)[19];'
+            - x: 140
+              y: !lambda 'return id(graph_points)[20];'
+            - x: 147
+              y: !lambda 'return id(graph_points)[21];'
+            - x: 154
+              y: !lambda 'return id(graph_points)[22];'
+            - x: 161
+              y: !lambda 'return id(graph_points)[23];'
+            - x: 168
+              y: !lambda 'return id(graph_points)[24];'
+            - x: 175
+              y: !lambda 'return id(graph_points)[25];'
+            - x: 182
+              y: !lambda 'return id(graph_points)[26];'
+            - x: 189
+              y: !lambda 'return id(graph_points)[27];'
+            - x: 196
+              y: !lambda 'return id(graph_points)[28];'
+            - x: 203
+              y: !lambda 'return id(graph_points)[29];'
+            - x: 210
+              y: !lambda 'return id(graph_points)[30];'
+            - x: 217
+              y: !lambda 'return id(graph_points)[31];'
+            - x: 224
+              y: !lambda 'return id(graph_points)[32];'
+            - x: 231
+              y: !lambda 'return id(graph_points)[33];'
+            - x: 238
+              y: !lambda 'return id(graph_points)[34];'
+            - x: 245
+              y: !lambda 'return id(graph_points)[35];'
+            - x: 252
+              y: !lambda 'return id(graph_points)[36];'
+            - x: 259
+              y: !lambda 'return id(graph_points)[37];'
+            - x: 266
+              y: !lambda 'return id(graph_points)[38];'
+            - x: 273
+              y: !lambda 'return id(graph_points)[39];'
+            - x: 280
+              y: !lambda 'return id(graph_points)[40];'
+            - x: 287
+              y: !lambda 'return id(graph_points)[41];'
+            - x: 294
+              y: !lambda 'return id(graph_points)[42];'
+            - x: 301
+              y: !lambda 'return id(graph_points)[43];'
+            - x: 308
+              y: !lambda 'return id(graph_points)[44];'
+            - x: 315
+              y: !lambda 'return id(graph_points)[45];'
+            - x: 322
+              y: !lambda 'return id(graph_points)[46];'
+            - x: 329
+              y: !lambda 'return id(graph_points)[47];'
+            - x: 336
+              y: !lambda 'return id(graph_points)[48];'
+            - x: 343
+              y: !lambda 'return id(graph_points)[49];'
+            - x: 350
+              y: !lambda 'return id(graph_points)[50];'
+            - x: 357
+              y: !lambda 'return id(graph_points)[51];'
+            - x: 364
+              y: !lambda 'return id(graph_points)[52];'
+            - x: 371
+              y: !lambda 'return id(graph_points)[53];'
+            - x: 378
+              y: !lambda 'return id(graph_points)[54];'
+            - x: 385
+              y: !lambda 'return id(graph_points)[55];'
+            - x: 392
+              y: !lambda 'return id(graph_points)[56];'
+            - x: 399
+              y: !lambda 'return id(graph_points)[57];'
+            - x: 406
+              y: !lambda 'return id(graph_points)[58];'
+            - x: 413
+              y: !lambda 'return id(graph_points)[59];'
+      - lvgl.widget.update:
+          id: graph_dot_0
+          y: !lambda 'return 10 + id(graph_points)[0];'
+      - lvgl.widget.update:
+          id: graph_dot_1
+          y: !lambda 'return 10 + id(graph_points)[1];'
+      - lvgl.widget.update:
+          id: graph_dot_2
+          y: !lambda 'return 10 + id(graph_points)[2];'
+      - lvgl.widget.update:
+          id: graph_dot_3
+          y: !lambda 'return 10 + id(graph_points)[3];'
+      - lvgl.widget.update:
+          id: graph_dot_4
+          y: !lambda 'return 10 + id(graph_points)[4];'
+      - lvgl.widget.update:
+          id: graph_dot_5
+          y: !lambda 'return 10 + id(graph_points)[5];'
+      - lvgl.widget.update:
+          id: graph_dot_6
+          y: !lambda 'return 10 + id(graph_points)[6];'
+      - lvgl.widget.update:
+          id: graph_dot_7
+          y: !lambda 'return 10 + id(graph_points)[7];'
+      - lvgl.widget.update:
+          id: graph_dot_8
+          y: !lambda 'return 10 + id(graph_points)[8];'
+      - lvgl.widget.update:
+          id: graph_dot_9
+          y: !lambda 'return 10 + id(graph_points)[9];'
+      - lvgl.widget.update:
+          id: graph_dot_10
+          y: !lambda 'return 10 + id(graph_points)[10];'
+      - lvgl.widget.update:
+          id: graph_dot_11
+          y: !lambda 'return 10 + id(graph_points)[11];'
+      - lvgl.widget.update:
+          id: graph_dot_12
+          y: !lambda 'return 10 + id(graph_points)[12];'
+      - lvgl.widget.update:
+          id: graph_dot_13
+          y: !lambda 'return 10 + id(graph_points)[13];'
+      - lvgl.widget.update:
+          id: graph_dot_14
+          y: !lambda 'return 10 + id(graph_points)[14];'
+      - lvgl.widget.update:
+          id: graph_dot_15
+          y: !lambda 'return 10 + id(graph_points)[15];'
+      - lvgl.widget.update:
+          id: graph_dot_16
+          y: !lambda 'return 10 + id(graph_points)[16];'
+      - lvgl.widget.update:
+          id: graph_dot_17
+          y: !lambda 'return 10 + id(graph_points)[17];'
+      - lvgl.widget.update:
+          id: graph_dot_18
+          y: !lambda 'return 10 + id(graph_points)[18];'
+      - lvgl.widget.update:
+          id: graph_dot_19
+          y: !lambda 'return 10 + id(graph_points)[19];'
+      - lvgl.widget.update:
+          id: graph_dot_20
+          y: !lambda 'return 10 + id(graph_points)[20];'
+      - lvgl.widget.update:
+          id: graph_dot_21
+          y: !lambda 'return 10 + id(graph_points)[21];'
+      - lvgl.widget.update:
+          id: graph_dot_22
+          y: !lambda 'return 10 + id(graph_points)[22];'
+      - lvgl.widget.update:
+          id: graph_dot_23
+          y: !lambda 'return 10 + id(graph_points)[23];'
+      - lvgl.widget.update:
+          id: graph_dot_24
+          y: !lambda 'return 10 + id(graph_points)[24];'
+      - lvgl.widget.update:
+          id: graph_dot_25
+          y: !lambda 'return 10 + id(graph_points)[25];'
+      - lvgl.widget.update:
+          id: graph_dot_26
+          y: !lambda 'return 10 + id(graph_points)[26];'
+      - lvgl.widget.update:
+          id: graph_dot_27
+          y: !lambda 'return 10 + id(graph_points)[27];'
+      - lvgl.widget.update:
+          id: graph_dot_28
+          y: !lambda 'return 10 + id(graph_points)[28];'
+      - lvgl.widget.update:
+          id: graph_dot_29
+          y: !lambda 'return 10 + id(graph_points)[29];'
+      - lvgl.widget.update:
+          id: graph_dot_30
+          y: !lambda 'return 10 + id(graph_points)[30];'
+      - lvgl.widget.update:
+          id: graph_dot_31
+          y: !lambda 'return 10 + id(graph_points)[31];'
+      - lvgl.widget.update:
+          id: graph_dot_32
+          y: !lambda 'return 10 + id(graph_points)[32];'
+      - lvgl.widget.update:
+          id: graph_dot_33
+          y: !lambda 'return 10 + id(graph_points)[33];'
+      - lvgl.widget.update:
+          id: graph_dot_34
+          y: !lambda 'return 10 + id(graph_points)[34];'
+      - lvgl.widget.update:
+          id: graph_dot_35
+          y: !lambda 'return 10 + id(graph_points)[35];'
+      - lvgl.widget.update:
+          id: graph_dot_36
+          y: !lambda 'return 10 + id(graph_points)[36];'
+      - lvgl.widget.update:
+          id: graph_dot_37
+          y: !lambda 'return 10 + id(graph_points)[37];'
+      - lvgl.widget.update:
+          id: graph_dot_38
+          y: !lambda 'return 10 + id(graph_points)[38];'
+      - lvgl.widget.update:
+          id: graph_dot_39
+          y: !lambda 'return 10 + id(graph_points)[39];'
+      - lvgl.widget.update:
+          id: graph_dot_40
+          y: !lambda 'return 10 + id(graph_points)[40];'
+      - lvgl.widget.update:
+          id: graph_dot_41
+          y: !lambda 'return 10 + id(graph_points)[41];'
+      - lvgl.widget.update:
+          id: graph_dot_42
+          y: !lambda 'return 10 + id(graph_points)[42];'
+      - lvgl.widget.update:
+          id: graph_dot_43
+          y: !lambda 'return 10 + id(graph_points)[43];'
+      - lvgl.widget.update:
+          id: graph_dot_44
+          y: !lambda 'return 10 + id(graph_points)[44];'
+      - lvgl.widget.update:
+          id: graph_dot_45
+          y: !lambda 'return 10 + id(graph_points)[45];'
+      - lvgl.widget.update:
+          id: graph_dot_46
+          y: !lambda 'return 10 + id(graph_points)[46];'
+      - lvgl.widget.update:
+          id: graph_dot_47
+          y: !lambda 'return 10 + id(graph_points)[47];'
+      - lvgl.widget.update:
+          id: graph_dot_48
+          y: !lambda 'return 10 + id(graph_points)[48];'
+      - lvgl.widget.update:
+          id: graph_dot_49
+          y: !lambda 'return 10 + id(graph_points)[49];'
+      - lvgl.widget.update:
+          id: graph_dot_50
+          y: !lambda 'return 10 + id(graph_points)[50];'
+      - lvgl.widget.update:
+          id: graph_dot_51
+          y: !lambda 'return 10 + id(graph_points)[51];'
+      - lvgl.widget.update:
+          id: graph_dot_52
+          y: !lambda 'return 10 + id(graph_points)[52];'
+      - lvgl.widget.update:
+          id: graph_dot_53
+          y: !lambda 'return 10 + id(graph_points)[53];'
+      - lvgl.widget.update:
+          id: graph_dot_54
+          y: !lambda 'return 10 + id(graph_points)[54];'
+      - lvgl.widget.update:
+          id: graph_dot_55
+          y: !lambda 'return 10 + id(graph_points)[55];'
+      - lvgl.widget.update:
+          id: graph_dot_56
+          y: !lambda 'return 10 + id(graph_points)[56];'
+      - lvgl.widget.update:
+          id: graph_dot_57
+          y: !lambda 'return 10 + id(graph_points)[57];'
+      - lvgl.widget.update:
+          id: graph_dot_58
+          y: !lambda 'return 10 + id(graph_points)[58];'
+      - lvgl.widget.update:
+          id: graph_dot_59
+          y: !lambda 'return 10 + id(graph_points)[59];'
+      - component.update: my_display
+      - lvgl.label.update:
+          id: graph_title_label
+          text: !lambda |-
+            switch (id(graph_metric)) {
+              case 0: return std::string("Temperature");
+              case 1: return std::string("Humidity");
+              case 2: return std::string("CO2");
+              case 3: return std::string("TVOC");
+              default: return std::string("Graph");
+            }
+      - lvgl.label.update:
+          id: graph_current_label
+          text: !lambda |-
+            if (isnan(id(graph_cur))) return std::string("Now: --");
+            char buf[32];
+            switch (id(graph_metric)) {
+              case 0: snprintf(buf, sizeof(buf), "Now: %.1f F", id(graph_cur)); break;
+              case 1: snprintf(buf, sizeof(buf), "Now: %.0f%%", id(graph_cur)); break;
+              case 2: snprintf(buf, sizeof(buf), "Now: %.0f ppm", id(graph_cur)); break;
+              case 3: snprintf(buf, sizeof(buf), "Now: %.0f", id(graph_cur)); break;
+              default: snprintf(buf, sizeof(buf), "Now: %.1f", id(graph_cur)); break;
+            }
+            return std::string(buf);
+      - lvgl.label.update:
+          id: graph_min_label
+          text: !lambda |-
+            if (isnan(id(graph_min))) return std::string("Min: --");
+            char buf[32];
+            switch (id(graph_metric)) {
+              case 0: snprintf(buf, sizeof(buf), "Min: %.1f F", id(graph_min)); break;
+              case 1: snprintf(buf, sizeof(buf), "Min: %.0f%%", id(graph_min)); break;
+              case 2: snprintf(buf, sizeof(buf), "Min: %.0f ppm", id(graph_min)); break;
+              case 3: snprintf(buf, sizeof(buf), "Min: %.0f", id(graph_min)); break;
+              default: snprintf(buf, sizeof(buf), "Min: %.1f", id(graph_min)); break;
+            }
+            return std::string(buf);
+      - lvgl.label.update:
+          id: graph_max_label
+          text: !lambda |-
+            if (isnan(id(graph_max))) return std::string("Max: --");
+            char buf[32];
+            switch (id(graph_metric)) {
+              case 0: snprintf(buf, sizeof(buf), "Max: %.1f F", id(graph_max)); break;
+              case 1: snprintf(buf, sizeof(buf), "Max: %.0f%%", id(graph_max)); break;
+              case 2: snprintf(buf, sizeof(buf), "Max: %.0f ppm", id(graph_max)); break;
+              case 3: snprintf(buf, sizeof(buf), "Max: %.0f", id(graph_max)); break;
+              default: snprintf(buf, sizeof(buf), "Max: %.1f", id(graph_max)); break;
+            }
+            return std::string(buf);
+      - lvgl.label.update:
+          id: graph_touch_label
+          text: "Tap: --"
+
+      - if:
+          condition: { lambda: 'return id(graph_period_min) == 60;' }
+          then:
+            - lvgl.widget.update: { id: graph_period_1h, bg_color: 0x2563EB, text_color: 0xFFFFFF }
+          else:
+            - lvgl.widget.update: { id: graph_period_1h, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
+      - if:
+          condition: { lambda: 'return id(graph_period_min) == 360;' }
+          then:
+            - lvgl.widget.update: { id: graph_period_6h, bg_color: 0x2563EB, text_color: 0xFFFFFF }
+          else:
+            - lvgl.widget.update: { id: graph_period_6h, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
+      - if:
+          condition: { lambda: 'return id(graph_period_min) == 1440;' }
+          then:
+            - lvgl.widget.update: { id: graph_period_24h, bg_color: 0x2563EB, text_color: 0xFFFFFF }
+          else:
+            - lvgl.widget.update: { id: graph_period_24h, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
+
+      - if:
+          condition: { lambda: 'return id(graph_step_min) == 1;' }
+          then:
+            - lvgl.widget.update: { id: graph_step_1m, bg_color: 0x0F766E, text_color: 0xFFFFFF }
+          else:
+            - lvgl.widget.update: { id: graph_step_1m, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
+      - if:
+          condition: { lambda: 'return id(graph_step_min) == 5;' }
+          then:
+            - lvgl.widget.update: { id: graph_step_5m, bg_color: 0x0F766E, text_color: 0xFFFFFF }
+          else:
+            - lvgl.widget.update: { id: graph_step_5m, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
+      - if:
+          condition: { lambda: 'return id(graph_step_min) == 15;' }
+          then:
+            - lvgl.widget.update: { id: graph_step_15m, bg_color: 0x0F766E, text_color: 0xFFFFFF }
+          else:
+            - lvgl.widget.update: { id: graph_step_15m, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
+
+
+
+
+
+
+
+
+
+

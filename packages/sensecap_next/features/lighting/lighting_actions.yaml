@@ -1,2 +1,2 @@
 packages:
-  v1_lighting_actions: !include ../../../sensecap/ui_actions_lighting.yaml
+  lighting_actions_impl: !include lighting_actions_impl.yaml

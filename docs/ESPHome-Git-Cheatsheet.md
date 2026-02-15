@@ -1,4 +1,4 @@
-ï»¿# ESPHome Git Cheatsheet
+# ESPHome Git Cheatsheet
 
 This is a practical checklist for keeping Home1 (production), Home2, and the Laptop repo in sync.
 
@@ -7,10 +7,24 @@ This is a practical checklist for keeping Home1 (production), Home2, and the Lap
 - Home2 (prod): `\\<HOME2-IP>\config\esphome`
 - Laptop repo: `C:\Users\bigba\OneDrive\Documents\GitHub\ESPHome-Git`
 
+## Folder Structure (Canonical)
+```
+ESPHome-Git/
+  custom_components/   # custom ESPHome components
+  fonts/               # font files
+  icon_s/              # svg/png icons
+  packages/            # reusable packages only
+    shared/            # wifi, fonts, icons, etc.
+    sensecap/          # SenseCAP-specific packages
+  projects/            # full projects / device configs
+  boards/              # board pinouts / substitutions
+  docs/                # cheatsheets, pinouts, notes
+```
+
 ## Repo Hygiene (Must Haves)
 - `.gitignore` should include: `.esphome/`, `**/.esphome/`, `**/__pycache__/`, `*.pyc`, `*.log`, `*.tmp`, `secrets.yaml`, `secrets.*.yaml`.
 - Remove nested `.git` folders inside subprojects unless you truly want submodules.
-- Keep `secrets.yaml` local to each Home. Donâ€™t push secrets.
+- Keep `secrets.yaml` local to each Home. Don’t push secrets.
 
 ## Golden Rule
 Make changes in only one place at a time, then immediately sync to the laptop repo and push to GitHub.
@@ -133,8 +147,18 @@ esphome config sensecap-d1s.yaml
 esphome compile sensecap-d1s.yaml
 ```
 
+## Preflight Include Check (Recommended)
+Run this before ESPHome validate/flash to catch missing include files quickly.
+```powershell
+powershell -ExecutionPolicy Bypass -File "\\192.168.158.131\config\esphome\docs\preflight-includes.ps1" -Root "\\192.168.158.131\config\esphome" -Config "sensecap-d1s.yaml"
+```
+Expected result:
+- `OK: all !include files exist for sensecap-d1s.yaml`
+
+If it fails, restore/copy the missing file(s) listed by the script before compiling.
+
 ## Suggested Working Pattern (Daily)
-1. Pull on laptop first (if youâ€™ve been away).
+1. Pull on laptop first (if you’ve been away).
 2. Make changes in only one place.
 3. Validate.
 4. Sync to laptop repo.
@@ -261,8 +285,8 @@ GitHub Desktop is fine for branch merges, but tagging is most reliable with thes
 cd "C:\Users\bigba\OneDrive\Documents\GitHub\ESPHome-Git"
 git checkout main
 git pull origin main
-git tag -a v2026.02.11-stable1 -m "Stable SenseCAP release"
-git push origin v2026.02.11-stable1
+git tag -a v2026.02.14-stable1 -m "Stable SenseCAP release"
+git push origin v2026.02.14-stable1
 ```
 
 ## Quick Verify Before Promote

@@ -1,2 +1,2 @@
 packages:
-  v1_tstat_runtime: !include ../../../sensecap/ui_runtime_thermostat_slow.yaml
+  thermostat_runtime_impl: !include thermostat_runtime_impl.yaml

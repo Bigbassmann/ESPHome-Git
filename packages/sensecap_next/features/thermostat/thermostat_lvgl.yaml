@@ -1,3 +1,3 @@
 packages:
-  v1_tstat_v2_ui: !include ../../../sensecap/ui_thermostat_v2.yaml
-  v1_tstat_legacy_ui: !include ../../../sensecap/ui_thermostat.yaml
+  thermostat_v2_ui: !include thermostat_v2_page.yaml
+  thermostat_legacy_ui: !include thermostat_legacy_page.yaml
