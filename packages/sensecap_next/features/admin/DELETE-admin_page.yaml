@@ -146,4 +146,3 @@ lvgl:
             height: 42
             on_press:
               - switch.turn_on: factory_reset_switch
-

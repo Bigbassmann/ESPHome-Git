@@ -123,4 +123,3 @@ lvgl:
               - label: {id: ov_motion_mbr_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}
 
 
-

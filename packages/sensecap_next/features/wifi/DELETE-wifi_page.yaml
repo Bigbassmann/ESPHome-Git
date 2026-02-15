@@ -123,4 +123,3 @@ lvgl:
               - lvgl.page.show:
                   id: page_admin
 
-
