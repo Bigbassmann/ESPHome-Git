@@ -12,6 +12,11 @@ interval:
                 animated: false
 
             - lvgl.slider.update:
+                id: idle_scroll_rate_slider
+                value: !lambda 'return id(display_idle_scroll_rate_s);'
+                animated: false
+
+            - lvgl.slider.update:
                 id: sleep_timeout_slider
                 value: !lambda 'return id(display_sleep_timeout_s);'
                 animated: false
@@ -20,6 +25,7 @@ interval:
                 id: brightness_slider
                 value: !lambda 'return id(display_brightness_pct);'
                 animated: false
+
             - lvgl.label.update:
                 id: brightness_value
                 text: !lambda |-
@@ -39,6 +45,13 @@ interval:
                 text: !lambda |-
                   char buf[24];
                   snprintf(buf, sizeof(buf), "%ds", id(display_idle_scroll_s));
+                  return std::string(buf);
+
+            - lvgl.label.update:
+                id: idle_scroll_rate_value
+                text: !lambda |-
+                  char buf[24];
+                  snprintf(buf, sizeof(buf), "%ds", id(display_idle_scroll_rate_s));
                   return std::string(buf);
 
             - if:
@@ -114,7 +127,7 @@ interval:
               uint32_t idle_elapsed = now - id(last_interaction_ms);
               uint32_t auto_elapsed = now - id(last_auto_scroll_ms);
               uint32_t delay_ms = (uint32_t) (id(display_idle_scroll_s) * 1000);
-              const uint32_t page_rate_ms = 5000;
+              uint32_t page_rate_ms = (uint32_t) (id(display_idle_scroll_rate_s) * 1000);
               return idle_elapsed >= delay_ms && auto_elapsed >= page_rate_ms;
           then:
             - logger.log: "Idle timed scroll threshold reached; advancing page"
@@ -135,4 +148,3 @@ interval:
             - lvgl.pause:
             - light.turn_off: backlight
             - lambda: 'id(screen_off) = true;'
-

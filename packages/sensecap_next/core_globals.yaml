@@ -25,6 +25,10 @@ globals:
     type: int
     restore_value: true
     initial_value: "30"
+  - id: display_idle_scroll_rate_s
+    type: int
+    restore_value: true
+    initial_value: "5"
   - id: display_sleep_enabled
     type: bool
     restore_value: true
@@ -90,6 +94,3 @@ globals:
   - id: tstat_runtime_syncing
     type: bool
     initial_value: "false"
-
-
-

@@ -6,17 +6,16 @@ lvgl:
             id: admin_title
             text: "Admin Panel"
             align: TOP_MID
-            y: 24
-            text_font: montserrat_28
+            y: 44
+            text_font: montserrat_32
             text_color: 0x1D4ED8
-            border_color: 0x303F4F
 
         - label:
             id: wifi_ssid_label
             text: "WiFi SSID: --"
             align: TOP_LEFT
             x: 20
-            y: 58
+            y: 98
             text_font: montserrat_18
             text_color: 0xFFFFFF
 
@@ -25,7 +24,7 @@ lvgl:
             text: "IP: --"
             align: TOP_LEFT
             x: 20
-            y: 86
+            y: 124
             text_font: montserrat_18
             text_color: 0xFFFFFF
 
@@ -34,7 +33,7 @@ lvgl:
             text: "WiFi BSSID: --"
             align: TOP_LEFT
             x: 20
-            y: 114
+            y: 150
             text_font: montserrat_18
             text_color: 0xFFFFFF
 
@@ -43,7 +42,7 @@ lvgl:
             text: "WiFi Signal: --"
             align: TOP_LEFT
             x: 20
-            y: 142
+            y: 176
             text_font: montserrat_18
             text_color: 0xFFFFFF
 
@@ -52,7 +51,7 @@ lvgl:
             text: "Uptime: --"
             align: TOP_LEFT
             x: 20
-            y: 170
+            y: 202
             text_font: montserrat_18
             text_color: 0xFFFFFF
 
@@ -61,7 +60,7 @@ lvgl:
             text: "Internal Temp: --"
             align: TOP_LEFT
             x: 20
-            y: 198
+            y: 228
             text_font: montserrat_18
             text_color: 0xFFFFFF
 
@@ -70,36 +69,36 @@ lvgl:
             text: "Device ID: ${device_id}"
             align: TOP_LEFT
             x: 20
-            y: 226
+            y: 256
             text_font: montserrat_16
-            text_color: 0x9CA3AF
+            text_color: 0xCBD5E1
 
         - label:
             id: admin_device_name_label
             text: "Device Name: ${device_name}"
             align: TOP_LEFT
             x: 20
-            y: 248
+            y: 278
             text_font: montserrat_16
-            text_color: 0x9CA3AF
+            text_color: 0xCBD5E1
 
         - label:
             id: admin_friendly_name_label
             text: "Friendly Name: ${friendly_name}"
             align: TOP_LEFT
             x: 20
-            y: 270
+            y: 300
             text_font: montserrat_16
-            text_color: 0x9CA3AF
+            text_color: 0xCBD5E1
 
         - label:
             id: admin_site_id_label
             text: "Site ID: ${site_id}"
             align: TOP_LEFT
             x: 20
-            y: 292
+            y: 322
             text_font: montserrat_16
-            text_color: 0x9CA3AF
+            text_color: 0xCBD5E1
 
         - button:
             id: btn_wifi_setup
@@ -109,9 +108,9 @@ lvgl:
             radius: 8
             border_width: 0
             align: BOTTOM_MID
-            x: -132
-            y: -86
-            width: 120
+            x: -136
+            y: -88
+            width: 126
             height: 42
             on_press:
               - script.execute: nav_show_wifi_user
@@ -125,8 +124,8 @@ lvgl:
             border_width: 0
             align: BOTTOM_MID
             x: 0
-            y: -86
-            width: 120
+            y: -88
+            width: 126
             height: 42
             on_press:
               - switch.turn_on: restart_switch
@@ -139,13 +138,9 @@ lvgl:
             radius: 8
             border_width: 0
             align: BOTTOM_MID
-            x: 132
-            y: -86
-            width: 140
+            x: 136
+            y: -88
+            width: 126
             height: 42
             on_press:
               - switch.turn_on: factory_reset_switch
-
-
-
-

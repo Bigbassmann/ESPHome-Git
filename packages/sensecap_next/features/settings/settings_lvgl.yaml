@@ -6,26 +6,35 @@ lvgl:
             id: settings_title
             text: "Settings"
             align: TOP_MID
-            y: 22
+            y: 24
             text_font: montserrat_32
             text_color: 0x1D4ED8
 
-        - label:
+        - button:
             id: brightness_label
-            text: "Brightness"
             align: TOP_LEFT
             x: 20
-            y: 106
-            text_font: montserrat_20
-            text_color: 0xFFFFFF
+            y: 102
+            width: 150
+            height: 40
+            bg_color: 0x334155
+            radius: 8
+            border_width: 0
+            widgets:
+              - label:
+                  text: "Brightness"
+                  align: LEFT_MID
+                  x: 10
+                  text_font: montserrat_16
+                  text_color: 0xFFFFFF
 
         - slider:
             id: brightness_slider
             align: TOP_LEFT
-            x: 170
-            y: 112
-            width: 230
-            height: 18
+            x: 186
+            y: 114
+            width: 210
+            height: 16
             min_value: 0
             max_value: 100
             bg_color: 0x374151
@@ -52,27 +61,18 @@ lvgl:
             id: brightness_value
             text: "50%"
             align: TOP_LEFT
-            x: 412
-            y: 106
+            x: 406
+            y: 108
             text_font: montserrat_18
             text_color: 0xC0C0C0
-
-        - label:
-            id: idle_scroll_title
-            text: "Idle Scroll"
-            align: TOP_LEFT
-            x: 20
-            y: 176
-            text_font: montserrat_20
-            text_color: 0xFFFFFF
 
         - button:
             id: idle_scroll_enable_btn
             align: TOP_LEFT
-            x: 130
-            y: 172
-            width: 120
-            height: 36
+            x: 20
+            y: 162
+            width: 150
+            height: 40
             bg_color: 0x374151
             radius: 8
             border_width: 0
@@ -85,35 +85,26 @@ lvgl:
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
             widgets:
               - label:
-                  text: "Auto"
+                  text: "Scroll / Delay"
                   align: LEFT_MID
-                  x: 10
-                  text_font: montserrat_16
+                  x: 8
+                  text_font: montserrat_14
                   text_color: 0xFFFFFF
               - label:
                   id: idle_scroll_enable_state
                   text: "OFF"
                   align: RIGHT_MID
-                  x: -10
-                  text_font: montserrat_16
+                  x: -8
+                  text_font: montserrat_14
                   text_color: 0xFCA5A5
-
-        - label:
-            id: idle_scroll_timeout_label
-            text: "Delay"
-            align: TOP_LEFT
-            x: 262
-            y: 176
-            text_font: montserrat_18
-            text_color: 0xFFFFFF
 
         - slider:
             id: idle_scroll_timeout_slider
             align: TOP_LEFT
-            x: 310
-            y: 182
-            width: 90
-            height: 18
+            x: 186
+            y: 174
+            width: 210
+            height: 16
             min_value: 15
             max_value: 300
             bg_color: 0x374151
@@ -134,27 +125,68 @@ lvgl:
             id: idle_scroll_timeout_value
             text: "30s"
             align: TOP_LEFT
-            x: 412
-            y: 176
+            x: 406
+            y: 168
             text_font: montserrat_18
             text_color: 0xC0C0C0
 
-        - label:
-            id: sleep_title
-            text: "Display Sleep"
+        - button:
+            id: idle_scroll_rate_btn
             align: TOP_LEFT
             x: 20
-            y: 246
-            text_font: montserrat_20
-            text_color: 0xFFFFFF
+            y: 222
+            width: 150
+            height: 40
+            bg_color: 0x334155
+            radius: 8
+            border_width: 0
+            widgets:
+              - label:
+                  text: "Scroll Rate"
+                  align: LEFT_MID
+                  x: 10
+                  text_font: montserrat_16
+                  text_color: 0xFFFFFF
+
+        - slider:
+            id: idle_scroll_rate_slider
+            align: TOP_LEFT
+            x: 186
+            y: 234
+            width: 210
+            height: 16
+            min_value: 1
+            max_value: 30
+            bg_color: 0x374151
+            knob:
+              bg_color: 0xFFFFFF
+              border_color: 0x06B6D4
+              border_width: 2
+            indicator:
+              bg_color: 0x06B6D4
+            on_value:
+              then:
+                - lambda: |-
+                    id(display_idle_scroll_rate_s) = x;
+                    id(last_interaction_ms) = millis();
+                    id(last_auto_scroll_ms) = id(last_interaction_ms);
+
+        - label:
+            id: idle_scroll_rate_value
+            text: "5s"
+            align: TOP_LEFT
+            x: 406
+            y: 228
+            text_font: montserrat_18
+            text_color: 0xC0C0C0
 
         - button:
             id: sleep_enable_btn
             align: TOP_LEFT
-            x: 130
-            y: 242
-            width: 120
-            height: 36
+            x: 20
+            y: 282
+            width: 150
+            height: 40
             bg_color: 0x374151
             radius: 8
             border_width: 0
@@ -174,35 +206,26 @@ lvgl:
                       - lambda: 'id(screen_off) = false;'
             widgets:
               - label:
-                  text: "Sleep"
+                  text: "Sleep / Delay"
                   align: LEFT_MID
-                  x: 10
-                  text_font: montserrat_16
+                  x: 8
+                  text_font: montserrat_14
                   text_color: 0xFFFFFF
               - label:
                   id: sleep_enable_state
                   text: "ON"
                   align: RIGHT_MID
-                  x: -10
-                  text_font: montserrat_16
+                  x: -8
+                  text_font: montserrat_14
                   text_color: 0xD1FAE5
-
-        - label:
-            id: sleep_timeout_label
-            text: "Timeout"
-            align: TOP_LEFT
-            x: 262
-            y: 246
-            text_font: montserrat_18
-            text_color: 0xFFFFFF
 
         - slider:
             id: sleep_timeout_slider
             align: TOP_LEFT
-            x: 326
-            y: 252
-            width: 74
-            height: 18
+            x: 186
+            y: 294
+            width: 210
+            height: 16
             min_value: 15
             max_value: 300
             bg_color: 0x374151
@@ -223,7 +246,7 @@ lvgl:
             id: sleep_timeout_value
             text: "60s"
             align: TOP_LEFT
-            x: 412
-            y: 246
+            x: 406
+            y: 288
             text_font: montserrat_18
             text_color: 0xC0C0C0
