@@ -6,7 +6,7 @@ lvgl:
             id: settings_title
             text: "Settings"
             align: TOP_MID
-            y: 24
+            y: 34
             text_font: montserrat_32
             text_color: 0x1D4ED8
 
@@ -14,10 +14,10 @@ lvgl:
             id: brightness_label
             align: TOP_LEFT
             x: 20
-            y: 102
-            width: 150
+            y: 112
+            width: 170
             height: 40
-            bg_color: 0x334155
+            bg_color: 0x312E81
             radius: 8
             border_width: 0
             widgets:
@@ -31,8 +31,8 @@ lvgl:
         - slider:
             id: brightness_slider
             align: TOP_LEFT
-            x: 186
-            y: 114
+            x: 206
+            y: 124
             width: 210
             height: 16
             min_value: 0
@@ -40,10 +40,10 @@ lvgl:
             bg_color: 0x374151
             knob:
               bg_color: 0xFFFFFF
-              border_color: 0x4F46E5
+              border_color: 0x6366F1
               border_width: 2
             indicator:
-              bg_color: 0x4F46E5
+              bg_color: 0x6366F1
             on_value:
               then:
                 - lambda: |-
@@ -61,8 +61,8 @@ lvgl:
             id: brightness_value
             text: "50%"
             align: TOP_LEFT
-            x: 406
-            y: 108
+            x: 424
+            y: 118
             text_font: montserrat_18
             text_color: 0xC0C0C0
 
@@ -70,10 +70,10 @@ lvgl:
             id: idle_scroll_enable_btn
             align: TOP_LEFT
             x: 20
-            y: 162
-            width: 150
+            y: 172
+            width: 170
             height: 40
-            bg_color: 0x374151
+            bg_color: 0x0E3A42
             radius: 8
             border_width: 0
             on_press:
@@ -87,22 +87,22 @@ lvgl:
               - label:
                   text: "Scroll / Delay"
                   align: LEFT_MID
-                  x: 8
+                  x: 10
                   text_font: montserrat_14
                   text_color: 0xFFFFFF
               - label:
                   id: idle_scroll_enable_state
                   text: "OFF"
                   align: RIGHT_MID
-                  x: -8
+                  x: -10
                   text_font: montserrat_14
                   text_color: 0xFCA5A5
 
         - slider:
             id: idle_scroll_timeout_slider
             align: TOP_LEFT
-            x: 186
-            y: 174
+            x: 206
+            y: 184
             width: 210
             height: 16
             min_value: 15
@@ -110,10 +110,10 @@ lvgl:
             bg_color: 0x374151
             knob:
               bg_color: 0xFFFFFF
-              border_color: 0x0EA5E9
+              border_color: 0x06B6D4
               border_width: 2
             indicator:
-              bg_color: 0x0EA5E9
+              bg_color: 0x06B6D4
             on_value:
               then:
                 - lambda: |-
@@ -125,8 +125,8 @@ lvgl:
             id: idle_scroll_timeout_value
             text: "30s"
             align: TOP_LEFT
-            x: 406
-            y: 168
+            x: 424
+            y: 178
             text_font: montserrat_18
             text_color: 0xC0C0C0
 
@@ -134,10 +134,10 @@ lvgl:
             id: idle_scroll_rate_btn
             align: TOP_LEFT
             x: 20
-            y: 222
-            width: 150
+            y: 232
+            width: 170
             height: 40
-            bg_color: 0x334155
+            bg_color: 0x0E3A42
             radius: 8
             border_width: 0
             widgets:
@@ -151,8 +151,8 @@ lvgl:
         - slider:
             id: idle_scroll_rate_slider
             align: TOP_LEFT
-            x: 186
-            y: 234
+            x: 206
+            y: 244
             width: 210
             height: 16
             min_value: 1
@@ -160,10 +160,10 @@ lvgl:
             bg_color: 0x374151
             knob:
               bg_color: 0xFFFFFF
-              border_color: 0x06B6D4
+              border_color: 0x0891B2
               border_width: 2
             indicator:
-              bg_color: 0x06B6D4
+              bg_color: 0x0891B2
             on_value:
               then:
                 - lambda: |-
@@ -175,8 +175,8 @@ lvgl:
             id: idle_scroll_rate_value
             text: "5s"
             align: TOP_LEFT
-            x: 406
-            y: 228
+            x: 424
+            y: 238
             text_font: montserrat_18
             text_color: 0xC0C0C0
 
@@ -184,10 +184,10 @@ lvgl:
             id: sleep_enable_btn
             align: TOP_LEFT
             x: 20
-            y: 282
-            width: 150
+            y: 292
+            width: 170
             height: 40
-            bg_color: 0x374151
+            bg_color: 0x3F2D16
             radius: 8
             border_width: 0
             on_press:
@@ -208,22 +208,22 @@ lvgl:
               - label:
                   text: "Sleep / Delay"
                   align: LEFT_MID
-                  x: 8
+                  x: 10
                   text_font: montserrat_14
                   text_color: 0xFFFFFF
               - label:
                   id: sleep_enable_state
                   text: "ON"
                   align: RIGHT_MID
-                  x: -8
+                  x: -10
                   text_font: montserrat_14
                   text_color: 0xD1FAE5
 
         - slider:
             id: sleep_timeout_slider
             align: TOP_LEFT
-            x: 186
-            y: 294
+            x: 206
+            y: 304
             width: 210
             height: 16
             min_value: 15
@@ -231,10 +231,10 @@ lvgl:
             bg_color: 0x374151
             knob:
               bg_color: 0xFFFFFF
-              border_color: 0x2563EB
+              border_color: 0xF59E0B
               border_width: 2
             indicator:
-              bg_color: 0x2563EB
+              bg_color: 0xF59E0B
             on_value:
               then:
                 - lambda: |-
@@ -246,7 +246,7 @@ lvgl:
             id: sleep_timeout_value
             text: "60s"
             align: TOP_LEFT
-            x: 406
-            y: 288
+            x: 424
+            y: 298
             text_font: montserrat_18
             text_color: 0xC0C0C0

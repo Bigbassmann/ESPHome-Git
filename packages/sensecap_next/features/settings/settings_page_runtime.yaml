@@ -66,7 +66,7 @@ interval:
                       text_color: 0xD1FAE5
                   - lvgl.widget.update:
                       id: sleep_enable_btn
-                      bg_color: 0x166534
+                      bg_color: 0x9A3412
                 else:
                   - lvgl.label.update:
                       id: sleep_enable_state
@@ -76,7 +76,7 @@ interval:
                       text_color: 0xFCA5A5
                   - lvgl.widget.update:
                       id: sleep_enable_btn
-                      bg_color: 0x374151
+                      bg_color: 0x3F2D16
 
             - if:
                 condition:
@@ -100,7 +100,7 @@ interval:
                       text_color: 0xFCA5A5
                   - lvgl.widget.update:
                       id: idle_scroll_enable_btn
-                      bg_color: 0x374151
+                      bg_color: 0x0E3A42
 
       - if:
           condition:
