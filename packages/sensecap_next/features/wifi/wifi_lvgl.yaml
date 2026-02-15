@@ -120,7 +120,7 @@ lvgl:
             y: -260
             text_font: montserrat_20
             on_press:
-              - lvgl.page.show:
-                  id: page_admin
+              - script.execute: nav_show_admin_user
+
 
 

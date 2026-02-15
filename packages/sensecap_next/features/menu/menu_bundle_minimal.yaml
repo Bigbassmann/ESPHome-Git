@@ -1,0 +1,5 @@
+packages:
+  menu_lvgl: !include menu_lvgl_minimal.yaml
+  menu_ha: !include menu_ha.yaml
+  menu_runtime: !include menu_runtime.yaml
+  menu_actions: !include menu_actions.yaml

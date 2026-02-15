@@ -2,5 +2,8 @@ packages:
   profile_core: !include profile_core_minimal.yaml
 
   feature_home: !include features/home/home_bundle.yaml
-  feature_menu: !include features/menu/menu_bundle.yaml
+  feature_menu: !include features/menu/menu_bundle_minimal.yaml
   feature_settings: !include features/settings/settings_bundle.yaml
+  feature_wifi: !include features/wifi/wifi_bundle.yaml
+
+

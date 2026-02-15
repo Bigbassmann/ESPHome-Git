@@ -1,0 +1,58 @@
+lvgl:
+  pages:
+    - id: page_menu
+      widgets:
+        - label:
+            text: "Menu"
+            align: TOP_MID
+            y: 34
+            text_font: montserrat_32
+            text_color: 0xFFFFFF
+
+        - button:
+            text: "Home"
+            align: TOP_LEFT
+            x: 20
+            y: 96
+            width: 214
+            height: 58
+            bg_color: 0x334155
+            text_color: 0xFFFFFF
+            on_press:
+              - script.execute: nav_show_home_user
+
+        - button:
+            text: "Home Clock"
+            align: TOP_LEFT
+            x: 248
+            y: 96
+            width: 214
+            height: 58
+            bg_color: 0x334155
+            text_color: 0xFFFFFF
+            on_press:
+              - script.execute: nav_show_home_clock_user
+
+        - button:
+            text: "Settings"
+            align: TOP_LEFT
+            x: 20
+            y: 172
+            width: 214
+            height: 58
+            bg_color: 0x1D4ED8
+            text_color: 0xFFFFFF
+            on_press:
+              - script.execute: nav_show_settings_user
+
+        - button:
+            text: "WiFi"
+            align: TOP_LEFT
+            x: 248
+            y: 172
+            width: 214
+            height: 58
+            bg_color: 0x1D4ED8
+            text_color: 0xFFFFFF
+            on_press:
+              - script.execute: nav_show_wifi_user
