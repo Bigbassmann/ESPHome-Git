@@ -76,23 +76,23 @@ lvgl:
             text: "MBR Lights"
             align: TOP_LEFT
             x: 20
-            y: 170
+            y: 176
             text_font: montserrat_22
             text_color: 0xFFFFFF
         - label:
             id: mbr_light_state
             text: "OFF"
             align: TOP_LEFT
-            x: 184
-            y: 176
-            text_font: montserrat_20
+            x: 158
+            y: 182
+            text_font: montserrat_18
             text_color: 0xFCA5A5
         - slider:
             id: mbr_light_slider
             align: TOP_LEFT
-            x: 20
-            y: 222
-            width: 350
+            x: 238
+            y: 184
+            width: 162
             height: 18
             min_value: 0
             max_value: 100
@@ -132,9 +132,9 @@ lvgl:
         - label:
             id: mbr_light_pct
             text: "0%"
-            align: TOP_RIGHT
-            x: -20
-            y: 218
+            align: TOP_LEFT
+            x: 412
+            y: 182
             text_font: montserrat_18
             text_color: 0xC0C0C0
 
@@ -142,23 +142,23 @@ lvgl:
             text: "FR Lights"
             align: TOP_LEFT
             x: 20
-            y: 258
+            y: 250
             text_font: montserrat_22
             text_color: 0xFFFFFF
         - label:
             id: fr_light_state
             text: "OFF"
             align: TOP_LEFT
-            x: 184
-            y: 264
-            text_font: montserrat_20
+            x: 158
+            y: 256
+            text_font: montserrat_18
             text_color: 0xFCA5A5
         - slider:
             id: fr_light_slider
             align: TOP_LEFT
-            x: 20
-            y: 310
-            width: 350
+            x: 238
+            y: 258
+            width: 162
             height: 18
             min_value: 0
             max_value: 100
@@ -198,9 +198,9 @@ lvgl:
         - label:
             id: fr_light_pct
             text: "0%"
-            align: TOP_RIGHT
-            x: -20
-            y: 306
+            align: TOP_LEFT
+            x: 412
+            y: 256
             text_font: montserrat_18
             text_color: 0xC0C0C0
 
@@ -208,23 +208,23 @@ lvgl:
             text: "LR Lights"
             align: TOP_LEFT
             x: 20
-            y: 346
+            y: 324
             text_font: montserrat_22
             text_color: 0xFFFFFF
         - label:
             id: lr_light_state
             text: "OFF"
             align: TOP_LEFT
-            x: 184
-            y: 352
-            text_font: montserrat_20
+            x: 158
+            y: 330
+            text_font: montserrat_18
             text_color: 0xFCA5A5
         - slider:
             id: lr_light_slider
             align: TOP_LEFT
-            x: 20
-            y: 394
-            width: 350
+            x: 238
+            y: 332
+            width: 162
             height: 18
             min_value: 0
             max_value: 100
@@ -274,10 +274,8 @@ lvgl:
         - label:
             id: lr_light_pct
             text: "0%"
-            align: TOP_RIGHT
-            x: -20
-            y: 390
+            align: TOP_LEFT
+            x: 412
+            y: 330
             text_font: montserrat_18
             text_color: 0xC0C0C0
-
-
