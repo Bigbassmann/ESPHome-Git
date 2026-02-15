@@ -1,4 +1,4 @@
-script:
+﻿script:
   - id: lighting_mark_interaction
     then:
       - lambda: |-
@@ -61,6 +61,5 @@ script:
           else:
             - homeassistant.service: {service: light.turn_on, data: {entity_id: light.library_lights}}
             - homeassistant.service: {service: light.turn_on, data: {entity_id: light.living_room_lights}}
-
 
 

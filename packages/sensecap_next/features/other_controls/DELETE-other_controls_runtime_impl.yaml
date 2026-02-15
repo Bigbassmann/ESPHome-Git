@@ -41,4 +41,3 @@ interval:
                         - lvgl.widget.update: {id: door_lock_btn, bg_color: 0x374151}
                         - lvgl.image.update: {id: door_lock_icon, src: icon_lock_24}
 
-
