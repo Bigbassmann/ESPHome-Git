@@ -114,8 +114,7 @@ lvgl:
             width: 120
             height: 42
             on_press:
-              - lvgl.page.show:
-                  id: page_wifi
+              - script.execute: nav_show_wifi_user
 
         - button:
             id: btn_restart
@@ -146,4 +145,7 @@ lvgl:
             height: 42
             on_press:
               - switch.turn_on: factory_reset_switch
+
+
+
 
