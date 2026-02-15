@@ -56,7 +56,7 @@ script:
           id(last_interaction_ms) = now;
           id(last_auto_scroll_ms) = now;
       - lvgl.page.show:
-          id: ${page_admin_id}
+          id: page_admin
 
   - id: nav_show_wifi_user
     then:
@@ -87,7 +87,7 @@ script:
           id(last_interaction_ms) = millis();
           id(last_auto_scroll_ms) = id(last_interaction_ms);
       - lvgl.page.show:
-          id: ${page_overrides_id}
+          id: page_overrides
 
   - id: nav_show_fans_user
     then:
@@ -97,7 +97,7 @@ script:
           id(last_interaction_ms) = millis();
           id(last_auto_scroll_ms) = id(last_interaction_ms);
       - lvgl.page.show:
-          id: ${page_fans_id}
+          id: page_fans
 
   - id: nav_show_thermostat_user
     then:
@@ -107,7 +107,7 @@ script:
           id(last_interaction_ms) = millis();
           id(last_auto_scroll_ms) = id(last_interaction_ms);
       - lvgl.page.show:
-          id: ${page_thermostat_v2_id}
+          id: page_thermostat_v2
 
   - id: nav_show_thermostat_legacy_user
     then:
@@ -117,7 +117,7 @@ script:
           id(last_interaction_ms) = millis();
           id(last_auto_scroll_ms) = id(last_interaction_ms);
       - lvgl.page.show:
-          id: ${page_thermostat_legacy_id}
+          id: page_thermostat
 
   - id: nav_show_lighting_user
     then:
@@ -127,7 +127,7 @@ script:
           id(last_interaction_ms) = millis();
           id(last_auto_scroll_ms) = id(last_interaction_ms);
       - lvgl.page.show:
-          id: ${page_lighting_id}
+          id: page_lighting
 
   - id: nav_show_other_controls_user
     then:
@@ -137,14 +137,14 @@ script:
           id(last_interaction_ms) = millis();
           id(last_auto_scroll_ms) = id(last_interaction_ms);
       - lvgl.page.show:
-          id: ${page_other_controls_id}
+          id: page_other_controls
 
   - id: nav_next_main
     then:
       - lambda: |-
           if (id(ui_menu_active)) return;
-          std::vector<int> route; route.push_back(0); if (${feature_overrides_enabled}) route.push_back(3); if (${feature_fans_enabled}) route.push_back(4); if (${feature_thermostat_v2_enabled}) route.push_back(5); if (${feature_thermostat_legacy_enabled}) route.push_back(8); if (${feature_lighting_enabled}) route.push_back(6); if (${feature_other_controls_enabled}) route.push_back(7);
-          const int n = (int) route.size(); if (n <= 0) return;
+          const int route[] = {0, 3, 4, 5, 8, 6, 7};
+          const int n = sizeof(route) / sizeof(route[0]);
           int cur = id(nav_page_index);
           int pos = -1;
           for (int i = 0; i < n; i++) if (route[i] == cur) { pos = i; break; }
@@ -179,8 +179,8 @@ script:
     then:
       - lambda: |-
           if (id(ui_menu_active)) return;
-          std::vector<int> route; route.push_back(0); if (${feature_overrides_enabled}) route.push_back(3); if (${feature_fans_enabled}) route.push_back(4); if (${feature_thermostat_v2_enabled}) route.push_back(5); if (${feature_thermostat_legacy_enabled}) route.push_back(8); if (${feature_lighting_enabled}) route.push_back(6); if (${feature_other_controls_enabled}) route.push_back(7);
-          const int n = (int) route.size(); if (n <= 0) return;
+          const int route[] = {0, 3, 4, 5, 8, 6, 7};
+          const int n = sizeof(route) / sizeof(route[0]);
           int cur = id(nav_page_index);
           int pos = -1;
           for (int i = 0; i < n; i++) if (route[i] == cur) { pos = i; break; }
@@ -675,7 +675,6 @@ script:
             - lvgl.widget.update: { id: graph_step_15m, bg_color: 0x0F766E, text_color: 0xFFFFFF }
           else:
             - lvgl.widget.update: { id: graph_step_15m, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
-
 
 
 

@@ -1,3 +1,19 @@
+substitutions:
+  page_admin_id: page_home
+  page_overrides_id: page_home
+  page_fans_id: page_home
+  page_thermostat_v2_id: page_home
+  page_thermostat_legacy_id: page_home
+  page_lighting_id: page_home
+  page_other_controls_id: page_home
+  feature_admin_enabled: "false"
+  feature_overrides_enabled: "false"
+  feature_fans_enabled: "false"
+  feature_thermostat_v2_enabled: "false"
+  feature_thermostat_legacy_enabled: "false"
+  feature_lighting_enabled: "false"
+  feature_other_controls_enabled: "false"
+
 packages:
   profile_core: !include profile_core_minimal.yaml
 
@@ -5,5 +21,3 @@ packages:
   feature_menu: !include features/menu/menu_bundle_minimal.yaml
   feature_settings: !include features/settings/settings_bundle.yaml
   feature_wifi: !include features/wifi/wifi_bundle.yaml
-
-

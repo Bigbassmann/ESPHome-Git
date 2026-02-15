@@ -1,3 +1,19 @@
+substitutions:
+  page_admin_id: page_admin
+  page_overrides_id: page_overrides
+  page_fans_id: page_fans
+  page_thermostat_v2_id: page_thermostat_v2
+  page_thermostat_legacy_id: page_thermostat
+  page_lighting_id: page_lighting
+  page_other_controls_id: page_other_controls
+  feature_admin_enabled: "true"
+  feature_overrides_enabled: "true"
+  feature_fans_enabled: "true"
+  feature_thermostat_v2_enabled: "true"
+  feature_thermostat_legacy_enabled: "true"
+  feature_lighting_enabled: "true"
+  feature_other_controls_enabled: "true"
+
 packages:
   profile_core: !include profile_core_full.yaml
 
