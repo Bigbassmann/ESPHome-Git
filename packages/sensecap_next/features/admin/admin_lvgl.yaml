@@ -57,7 +57,7 @@ lvgl:
 
         - label:
             id: internal_temp_label
-            text: "Internal Temp: --"
+            text: "MCU Temp: --"
             align: TOP_LEFT
             x: 20
             y: 228
@@ -66,39 +66,48 @@ lvgl:
 
         - label:
             id: admin_device_id_label
-            text: "Device ID: ${device_id}"
+            text: "Device: ${device_id} | Site: ${site_id}"
             align: TOP_LEFT
             x: 20
-            y: 256
+            y: 254
             text_font: montserrat_16
             text_color: 0xCBD5E1
 
         - label:
             id: admin_device_name_label
-            text: "Device Name: ${device_name}"
+            text: "Name: ${friendly_name}"
             align: TOP_LEFT
             x: 20
-            y: 278
+            y: 274
             text_font: montserrat_16
             text_color: 0xCBD5E1
 
         - label:
             id: admin_friendly_name_label
-            text: "Friendly Name: ${friendly_name}"
+            text: "Reset: -- | CPU: -- MHz | Flash: -- MB"
             align: TOP_LEFT
             x: 20
-            y: 300
-            text_font: montserrat_16
-            text_color: 0xCBD5E1
+            y: 294
+            text_font: montserrat_14
+            text_color: 0x94A3B8
 
         - label:
             id: admin_site_id_label
-            text: "Site ID: ${site_id}"
+            text: "PSRAM: --/-- KB | RP2040: --s"
             align: TOP_LEFT
             x: 20
-            y: 322
-            text_font: montserrat_16
-            text_color: 0xCBD5E1
+            y: 312
+            text_font: montserrat_14
+            text_color: 0x94A3B8
+
+        - label:
+            id: admin_version_label
+            text: "ESPHome: --"
+            align: TOP_LEFT
+            x: 20
+            y: 330
+            text_font: montserrat_14
+            text_color: 0x94A3B8
 
         - button:
             id: btn_wifi_setup
@@ -144,3 +153,4 @@ lvgl:
             height: 42
             on_press:
               - switch.turn_on: factory_reset_switch
+

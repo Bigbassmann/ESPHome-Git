@@ -54,10 +54,10 @@ interval:
                   char buf[32];
                   float temp_c = id(internal_temp).state;
                   if (isnan(temp_c)) {
-                    return "Internal Temp: --";
+                    return "MCU Temp: --";
                   } else {
                     float f_temp = (temp_c * 9.0 / 5.0) + 32.0;
-                    snprintf(buf, sizeof(buf), "Internal Temp: %.1f F", f_temp);
+                    snprintf(buf, sizeof(buf), "MCU Temp: %.1f F", f_temp);
                     return std::string(buf);
                   }
 
@@ -72,10 +72,40 @@ interval:
                     return std::string(buf);
                   }
 
+            - lvgl.label.update:
+                id: admin_friendly_name_label
+                text: !lambda |-
+                  char buf[96];
+                  std::string rr = id(esp_reset_reason_txt).state.empty() ? std::string("--") : id(esp_reset_reason_txt).state;
+                  int cpu = (int) roundf(id(esp_cpu_freq_mhz).state);
+                  int flash = (int) roundf(id(esp_flash_size_mb).state);
+                  snprintf(buf, sizeof(buf), "Reset: %s | CPU: %d MHz | Flash: %d MB", rr.c_str(), cpu, flash);
+                  return std::string(buf);
+
+            - lvgl.label.update:
+                id: admin_site_id_label
+                text: !lambda |-
+                  char buf[96];
+                  int pfree = (int) roundf(id(esp_psram_free_kb).state);
+                  int ptotal = (int) roundf(id(esp_psram_total_kb).state);
+                  if (pfree < 0 || isnan(id(esp_psram_free_kb).state)) pfree = 0;
+                  if (ptotal < 0 || isnan(id(esp_psram_total_kb).state)) ptotal = 0;
+                  if (isnan(id(rp2040_last_seen_s).state)) {
+                    snprintf(buf, sizeof(buf), "PSRAM: %d/%d KB | RP2040: --", pfree, ptotal);
+                  } else {
+                    int seen = (int) roundf(id(rp2040_last_seen_s).state);
+                    snprintf(buf, sizeof(buf), "PSRAM: %d/%d KB | RP2040: %ds", pfree, ptotal, seen);
+                  }
+                  return std::string(buf);
+
+            - lvgl.label.update:
+                id: admin_version_label
+                text: !lambda |-
+                  std::string v = id(esphome_version_txt).state.empty() ? std::string("--") : id(esphome_version_txt).state;
+                  return std::string("ESPHome: ") + v;
 
             - lvgl.label.update:
                 id: wifi_status_label
                 text: !lambda |-
                   if (id(ip_sensor).state == "0.0.0.0") return std::string("Status: Disconnected");
                   return std::string("Status: Connected");
-

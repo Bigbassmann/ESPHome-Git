@@ -41,6 +41,9 @@ globals:
     type: int
     restore_value: true
     initial_value: "50"
+  - id: rp2040_last_seen_ms
+    type: uint32_t
+    initial_value: "0"
 
   - id: graph_metric
     type: int
