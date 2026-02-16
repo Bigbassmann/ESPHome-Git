@@ -1,0 +1,111 @@
+interval:
+  - interval: 3s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(boot_ready) && !id(screen_off) && id(nav_page_index) == 2;'
+          then:
+            - lvgl.label.update:
+                id: wifi_ssid_label
+                text: !lambda |-
+                  if (id(ssid_sensor).state.empty()) {
+                    return "WiFi SSID: Disconnected";
+                  } else {
+                    return "WiFi SSID: " + id(ssid_sensor).state;
+                  }
+
+            - lvgl.label.update:
+                id: ip_label
+                text: !lambda |-
+                  if (id(ip_sensor).state == "0.0.0.0") {
+                    return "IP: None";
+                  } else {
+                    return "IP: " + id(ip_sensor).state;
+                  }
+
+            - lvgl.label.update:
+                id: wifi_bssid_label
+                text: !lambda |-
+                  if (id(bssid_sensor).state.empty()) {
+                    return "WiFi BSSID: None";
+                  } else {
+                    return "WiFi BSSID: " + id(bssid_sensor).state;
+                  }
+
+            - lvgl.label.update:
+                id: uptime_sensor_label
+                text: !lambda |-
+                  if (isnan(id(uptime_sensor).state)) {
+                    return "Uptime: None";
+                  } else {
+                    char buf[32];
+                    int seconds = (int)id(uptime_sensor).state;
+                    int days = seconds / 86400;
+                    int hours = (seconds / 3600) % 24;
+                    int minutes = (seconds / 60) % 60;
+                    int secs = seconds % 60;
+                    snprintf(buf, sizeof(buf), "%dd %dh %dm %ds", days, hours, minutes, secs);
+                    return "Uptime: " + std::string(buf);
+                  }
+
+            - lvgl.label.update:
+                id: internal_temp_label
+                text: !lambda |-
+                  char buf[32];
+                  float temp_c = id(internal_temp).state;
+                  if (isnan(temp_c)) {
+                    return "MCU Temp: --";
+                  } else {
+                    float f_temp = (temp_c * 9.0 / 5.0) + 32.0;
+                    snprintf(buf, sizeof(buf), "MCU Temp: %.1f F", f_temp);
+                    return std::string(buf);
+                  }
+
+            - lvgl.label.update:
+                id: wi_fi_signal_label
+                text: !lambda |-
+                  if (isnan(id(wi_fi_signal).state)) {
+                    return "WiFi Signal: None";
+                  } else {
+                    char buf[32];
+                    snprintf(buf, sizeof(buf), "WiFi Signal: %.0f dBm", id(wi_fi_signal).state);
+                    return std::string(buf);
+                  }
+
+            - lvgl.label.update:
+                id: admin_friendly_name_label
+                text: !lambda |-
+                  char buf[96];
+                  std::string rr = id(esp_reset_reason_txt).state.empty() ? std::string("--") : id(esp_reset_reason_txt).state;
+                  int cpu = (int) roundf(id(esp_cpu_freq_mhz).state);
+                  int flash = (int) roundf(id(esp_flash_size_mb).state);
+                  snprintf(buf, sizeof(buf), "Reset: %s | CPU: %d MHz | Flash: %d MB", rr.c_str(), cpu, flash);
+                  return std::string(buf);
+
+            - lvgl.label.update:
+                id: admin_site_id_label
+                text: !lambda |-
+                  char buf[96];
+                  int pfree = (int) roundf(id(esp_psram_free_kb).state);
+                  int ptotal = (int) roundf(id(esp_psram_total_kb).state);
+                  if (pfree < 0 || isnan(id(esp_psram_free_kb).state)) pfree = 0;
+                  if (ptotal < 0 || isnan(id(esp_psram_total_kb).state)) ptotal = 0;
+                  if (isnan(id(rp2040_last_seen_s).state)) {
+                    snprintf(buf, sizeof(buf), "PSRAM: %d/%d KB | RP2040: --", pfree, ptotal);
+                  } else {
+                    int seen = (int) roundf(id(rp2040_last_seen_s).state);
+                    snprintf(buf, sizeof(buf), "PSRAM: %d/%d KB | RP2040: %ds", pfree, ptotal, seen);
+                  }
+                  return std::string(buf);
+
+            - lvgl.label.update:
+                id: admin_version_label
+                text: !lambda |-
+                  std::string v = id(esphome_version_txt).state.empty() ? std::string("--") : id(esphome_version_txt).state;
+                  return std::string("ESPHome: ") + v;
+
+            - lvgl.label.update:
+                id: wifi_status_label
+                text: !lambda |-
+                  if (id(ip_sensor).state == "0.0.0.0") return std::string("Status: Disconnected");
+                  return std::string("Status: Connected");

@@ -1,0 +1,5 @@
+packages:
+  admin_lvgl: !include admin_lvgl.yaml
+  admin_ha: !include admin_ha.yaml
+  admin_runtime: !include admin_runtime.yaml
+  admin_actions: !include admin_actions.yaml

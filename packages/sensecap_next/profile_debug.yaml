@@ -1,0 +1,5 @@
+packages:
+  selected_profile: !include profile_full.yaml
+
+logger:
+  level: DEBUG

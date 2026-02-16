@@ -1,0 +1,1184 @@
+lvgl:
+  pages:
+    - id: page_home
+      widgets:
+        - button:
+            id: tile_co2
+            align: TOP_MID
+            y: 60
+            width: 440
+            height: 180
+            bg_color: 0x4CAF50
+            radius: 8
+            pad_all: 8
+            border_width: 0
+            on_press:
+              - lambda: 'id(graph_metric) = 2;'
+              - script.execute: graph_render
+              - lvgl.page.show:
+                  id: page_graphs
+            widgets:
+              - label:
+                  text: "CO2"
+                  align: TOP_LEFT
+                  x: 6
+                  y: 4
+                  text_font: montserrat_18
+                  text_color: 0xE6F5E6
+              - image:
+                  align: TOP_RIGHT
+                  x: -6
+                  y: 4
+                  src: icon_co2_32
+              - label:
+                  id: co2_label
+                  text: "--"
+                  align: CENTER
+                  y: -10
+                  text_font: montserrat_64
+                  text_color: 0xFFFFFF
+              - label:
+                  id: co2_unit_label
+                  text: "ppm"
+                  align: CENTER
+                  y: 50
+                  text_font: montserrat_20
+                  text_color: 0xE6F5E6
+              - label:
+                  id: co2_status_label
+                  text: "AQ: --"
+                  align: CENTER
+                  y: 74
+                  text_font: montserrat_18
+                  text_color: 0xE6F5E6
+
+        - button:
+            id: tile_voc
+            align: BOTTOM_LEFT
+            x: 20
+            y: -80  # -20
+            width: 140
+            height: 140
+            bg_color: 0xD96C2C
+            radius: 8
+            pad_all: 8
+            border_width: 0
+            on_press:
+              - lambda: 'id(graph_metric) = 3;'
+              - script.execute: graph_render
+              - lvgl.page.show:
+                  id: page_graphs
+            widgets:
+              - image:
+                  align: TOP_RIGHT
+                  x: -6
+                  y: 4
+                  src: icon_tvoc_24
+              - label:
+                  text: "TVOC"
+                  align: TOP_LEFT
+                  x: 6
+                  y: 4
+                  text_font: montserrat_18
+                  text_color: 0xFFF2E8
+              - label:
+                  id: voc_label
+                  text: "--"
+                  align: CENTER
+                  y: 16
+                  text_font: montserrat_32
+                  text_color: 0xFFFFFF
+              - label:
+                  id: voc_status_label
+                  text: "TVOC: --"
+                  align: CENTER
+                  y: 44
+                  text_font: montserrat_18
+                  text_color: 0xFFF2E8
+
+        - button:
+            id: tile_temp
+            align: BOTTOM_MID
+            y: -80  # -20
+            width: 140
+            height: 140
+            bg_color: 0xE5B12B
+            radius: 8
+            pad_all: 8
+            border_width: 0
+            on_press:
+              - lambda: 'id(graph_metric) = 0;'
+              - script.execute: graph_render
+              - lvgl.page.show:
+                  id: page_graphs
+            widgets:
+              - image:
+                  align: TOP_RIGHT
+                  x: -6
+                  y: 4
+                  src: icon_temp_24
+              - label:
+                  text: "Temp"
+                  align: TOP_LEFT
+                  x: 6
+                  y: 4
+                  text_font: montserrat_18
+                  text_color: 0xFFF7D6
+              - label:
+                  id: temp_label
+                  text: "--"
+                  align: CENTER
+                  y: 16
+                  text_font: montserrat_32
+                  text_color: 0xFFFFFF
+
+        - button:
+            id: tile_humid
+            align: BOTTOM_RIGHT
+            x: -20
+            y: -80  # -20
+            width: 140
+            height: 140
+            bg_color: 0x3B82C4
+            radius: 8
+            pad_all: 8
+            border_width: 0
+            on_press:
+              - lambda: 'id(graph_metric) = 1;'
+              - script.execute: graph_render
+              - lvgl.page.show:
+                  id: page_graphs
+            widgets:
+              - image:
+                  align: TOP_RIGHT
+                  x: -6
+                  y: 4
+                  src: icon_humid_24
+              - label:
+                  text: "Humidity"
+                  align: TOP_LEFT
+                  x: 6
+                  y: 4
+                  text_font: montserrat_18
+                  text_color: 0xE8F3FF
+              - label:
+                  id: humid_label
+                  text: "--"
+                  align: CENTER
+                  y: 16
+                  text_font: montserrat_32
+                  text_color: 0xFFFFFF
+    - id: page_home_clock
+      widgets:
+        - label:
+            text: "Home Clock"
+            align: TOP_MID
+            y: 40
+            text_font: montserrat_32
+            text_color: 0x374151
+
+        - obj:
+            id: home_clock_face
+            align: TOP_MID
+            y: 86
+            width: 280
+            height: 280
+            radius: 140
+            bg_color: 0x0F172A
+            border_color: 0x64748B
+            border_width: 3
+            pad_all: 0
+            widgets:
+              - label:
+                  text: "12"
+                  align: TOP_MID
+                  y: 10
+                  text_font: montserrat_22
+                  text_color: 0xE5E7EB
+              - label:
+                  text: "3"
+                  align: RIGHT_MID
+                  x: -12
+                  text_font: montserrat_22
+                  text_color: 0xE5E7EB
+              - label:
+                  text: "6"
+                  align: BOTTOM_MID
+                  y: -10
+                  text_font: montserrat_22
+                  text_color: 0xE5E7EB
+              - label:
+                  text: "9"
+                  align: LEFT_MID
+                  x: 12
+                  text_font: montserrat_22
+                  text_color: 0xE5E7EB
+              - line:
+                  id: home_clock_hour_hand
+                  points:
+                    - x: 140
+                      y: 140
+                    - x: 175
+                      y: 114
+                  line_width: 5
+                  line_color: 0xF59E0B
+                  line_rounded: true
+              - line:
+                  id: home_clock_minute_hand
+                  points:
+                    - x: 140
+                      y: 140
+                    - x: 210
+                      y: 140
+                  line_width: 3
+                  line_color: 0x93C5FD
+                  line_rounded: true
+              - line:
+                  id: home_clock_second_hand
+                  points:
+                    - x: 140
+                      y: 140
+                    - x: 140
+                      y: 76
+                  line_width: 2
+                  line_color: 0xEF4444
+                  line_rounded: true
+              - obj:
+                  align: CENTER
+                  width: 12
+                  height: 12
+                  radius: 6
+                  bg_color: 0xFFFFFF
+                  border_width: 0
+
+        - label:
+            id: home_clock_digital
+            text: "--:--:--"
+            align: BOTTOM_MID
+            y: -68
+            text_font: montserrat_28
+            text_color: 0xFFFFFF
+
+        - label:
+            id: home_clock_date
+            text: "-- --- ----"
+            align: BOTTOM_MID
+            y: -38
+            text_font: montserrat_20
+            text_color: 0x9CA3AF
+    - id: page_graphs
+      on_load:
+        - lambda: |-
+            id(graph_page_active) = true;
+            id(last_interaction_ms) = millis();
+            id(last_auto_scroll_ms) = id(last_interaction_ms);
+        - script.execute: graph_render
+      on_unload:
+        - lambda: |-
+            id(graph_page_active) = false;
+            id(graph_touch_valid) = false;
+      widgets:
+        - obj:
+            id: graph_box
+            align: TOP_MID
+            y: 50
+            width: 440
+            height: 220
+            bg_color: 0x0D141C
+            border_color: 0x2A3A4A
+            border_width: 2
+            radius: 8
+            pad_all: 6
+            widgets:
+              - line:
+                  id: graph_line
+                  align: TOP_LEFT
+                  x: 10
+                  y: 10
+                  points:
+                    - x: 0
+                      y: !lambda 'return id(graph_points)[0];'
+                    - x: 7
+                      y: !lambda 'return id(graph_points)[1];'
+                    - x: 14
+                      y: !lambda 'return id(graph_points)[2];'
+                    - x: 21
+                      y: !lambda 'return id(graph_points)[3];'
+                    - x: 28
+                      y: !lambda 'return id(graph_points)[4];'
+                    - x: 35
+                      y: !lambda 'return id(graph_points)[5];'
+                    - x: 42
+                      y: !lambda 'return id(graph_points)[6];'
+                    - x: 49
+                      y: !lambda 'return id(graph_points)[7];'
+                    - x: 56
+                      y: !lambda 'return id(graph_points)[8];'
+                    - x: 63
+                      y: !lambda 'return id(graph_points)[9];'
+                    - x: 70
+                      y: !lambda 'return id(graph_points)[10];'
+                    - x: 77
+                      y: !lambda 'return id(graph_points)[11];'
+                    - x: 84
+                      y: !lambda 'return id(graph_points)[12];'
+                    - x: 91
+                      y: !lambda 'return id(graph_points)[13];'
+                    - x: 98
+                      y: !lambda 'return id(graph_points)[14];'
+                    - x: 105
+                      y: !lambda 'return id(graph_points)[15];'
+                    - x: 112
+                      y: !lambda 'return id(graph_points)[16];'
+                    - x: 119
+                      y: !lambda 'return id(graph_points)[17];'
+                    - x: 126
+                      y: !lambda 'return id(graph_points)[18];'
+                    - x: 133
+                      y: !lambda 'return id(graph_points)[19];'
+                    - x: 140
+                      y: !lambda 'return id(graph_points)[20];'
+                    - x: 147
+                      y: !lambda 'return id(graph_points)[21];'
+                    - x: 154
+                      y: !lambda 'return id(graph_points)[22];'
+                    - x: 161
+                      y: !lambda 'return id(graph_points)[23];'
+                    - x: 168
+                      y: !lambda 'return id(graph_points)[24];'
+                    - x: 175
+                      y: !lambda 'return id(graph_points)[25];'
+                    - x: 182
+                      y: !lambda 'return id(graph_points)[26];'
+                    - x: 189
+                      y: !lambda 'return id(graph_points)[27];'
+                    - x: 196
+                      y: !lambda 'return id(graph_points)[28];'
+                    - x: 203
+                      y: !lambda 'return id(graph_points)[29];'
+                    - x: 210
+                      y: !lambda 'return id(graph_points)[30];'
+                    - x: 217
+                      y: !lambda 'return id(graph_points)[31];'
+                    - x: 224
+                      y: !lambda 'return id(graph_points)[32];'
+                    - x: 231
+                      y: !lambda 'return id(graph_points)[33];'
+                    - x: 238
+                      y: !lambda 'return id(graph_points)[34];'
+                    - x: 245
+                      y: !lambda 'return id(graph_points)[35];'
+                    - x: 252
+                      y: !lambda 'return id(graph_points)[36];'
+                    - x: 259
+                      y: !lambda 'return id(graph_points)[37];'
+                    - x: 266
+                      y: !lambda 'return id(graph_points)[38];'
+                    - x: 273
+                      y: !lambda 'return id(graph_points)[39];'
+                    - x: 280
+                      y: !lambda 'return id(graph_points)[40];'
+                    - x: 287
+                      y: !lambda 'return id(graph_points)[41];'
+                    - x: 294
+                      y: !lambda 'return id(graph_points)[42];'
+                    - x: 301
+                      y: !lambda 'return id(graph_points)[43];'
+                    - x: 308
+                      y: !lambda 'return id(graph_points)[44];'
+                    - x: 315
+                      y: !lambda 'return id(graph_points)[45];'
+                    - x: 322
+                      y: !lambda 'return id(graph_points)[46];'
+                    - x: 329
+                      y: !lambda 'return id(graph_points)[47];'
+                    - x: 336
+                      y: !lambda 'return id(graph_points)[48];'
+                    - x: 343
+                      y: !lambda 'return id(graph_points)[49];'
+                    - x: 350
+                      y: !lambda 'return id(graph_points)[50];'
+                    - x: 357
+                      y: !lambda 'return id(graph_points)[51];'
+                    - x: 364
+                      y: !lambda 'return id(graph_points)[52];'
+                    - x: 371
+                      y: !lambda 'return id(graph_points)[53];'
+                    - x: 378
+                      y: !lambda 'return id(graph_points)[54];'
+                    - x: 385
+                      y: !lambda 'return id(graph_points)[55];'
+                    - x: 392
+                      y: !lambda 'return id(graph_points)[56];'
+                    - x: 399
+                      y: !lambda 'return id(graph_points)[57];'
+                    - x: 406
+                      y: !lambda 'return id(graph_points)[58];'
+                    - x: 413
+                      y: !lambda 'return id(graph_points)[59];'
+                  line_width: 2
+                  line_color: 0x66CCFF
+              - obj:
+                  id: graph_dot_0
+                  align: TOP_LEFT
+                  x: 10
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_1
+                  align: TOP_LEFT
+                  x: 17
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_2
+                  align: TOP_LEFT
+                  x: 24
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_3
+                  align: TOP_LEFT
+                  x: 31
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_4
+                  align: TOP_LEFT
+                  x: 38
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_5
+                  align: TOP_LEFT
+                  x: 45
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_6
+                  align: TOP_LEFT
+                  x: 52
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_7
+                  align: TOP_LEFT
+                  x: 59
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_8
+                  align: TOP_LEFT
+                  x: 66
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_9
+                  align: TOP_LEFT
+                  x: 73
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_10
+                  align: TOP_LEFT
+                  x: 80
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_11
+                  align: TOP_LEFT
+                  x: 87
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_12
+                  align: TOP_LEFT
+                  x: 94
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_13
+                  align: TOP_LEFT
+                  x: 101
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_14
+                  align: TOP_LEFT
+                  x: 108
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_15
+                  align: TOP_LEFT
+                  x: 115
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_16
+                  align: TOP_LEFT
+                  x: 122
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_17
+                  align: TOP_LEFT
+                  x: 129
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_18
+                  align: TOP_LEFT
+                  x: 136
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_19
+                  align: TOP_LEFT
+                  x: 143
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_20
+                  align: TOP_LEFT
+                  x: 150
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_21
+                  align: TOP_LEFT
+                  x: 157
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_22
+                  align: TOP_LEFT
+                  x: 164
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_23
+                  align: TOP_LEFT
+                  x: 171
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_24
+                  align: TOP_LEFT
+                  x: 178
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_25
+                  align: TOP_LEFT
+                  x: 185
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_26
+                  align: TOP_LEFT
+                  x: 192
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_27
+                  align: TOP_LEFT
+                  x: 199
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_28
+                  align: TOP_LEFT
+                  x: 206
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_29
+                  align: TOP_LEFT
+                  x: 213
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_30
+                  align: TOP_LEFT
+                  x: 220
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_31
+                  align: TOP_LEFT
+                  x: 227
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_32
+                  align: TOP_LEFT
+                  x: 234
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_33
+                  align: TOP_LEFT
+                  x: 241
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_34
+                  align: TOP_LEFT
+                  x: 248
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_35
+                  align: TOP_LEFT
+                  x: 255
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_36
+                  align: TOP_LEFT
+                  x: 262
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_37
+                  align: TOP_LEFT
+                  x: 269
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_38
+                  align: TOP_LEFT
+                  x: 276
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_39
+                  align: TOP_LEFT
+                  x: 283
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_40
+                  align: TOP_LEFT
+                  x: 290
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_41
+                  align: TOP_LEFT
+                  x: 297
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_42
+                  align: TOP_LEFT
+                  x: 304
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_43
+                  align: TOP_LEFT
+                  x: 311
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_44
+                  align: TOP_LEFT
+                  x: 318
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_45
+                  align: TOP_LEFT
+                  x: 325
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_46
+                  align: TOP_LEFT
+                  x: 332
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_47
+                  align: TOP_LEFT
+                  x: 339
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_48
+                  align: TOP_LEFT
+                  x: 346
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_49
+                  align: TOP_LEFT
+                  x: 353
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_50
+                  align: TOP_LEFT
+                  x: 360
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_51
+                  align: TOP_LEFT
+                  x: 367
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_52
+                  align: TOP_LEFT
+                  x: 374
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_53
+                  align: TOP_LEFT
+                  x: 381
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_54
+                  align: TOP_LEFT
+                  x: 388
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_55
+                  align: TOP_LEFT
+                  x: 395
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_56
+                  align: TOP_LEFT
+                  x: 402
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_57
+                  align: TOP_LEFT
+                  x: 409
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_58
+                  align: TOP_LEFT
+                  x: 416
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+              - obj:
+                  id: graph_dot_59
+                  align: TOP_LEFT
+                  x: 423
+                  y: 110
+                  width: 4
+                  height: 4
+                  radius: 2
+                  bg_color: 0x66CCFF
+                  border_width: 0
+        - label:
+            id: graph_title_label
+            text: "Graph"
+            align: TOP_MID
+            y: 39
+            text_font: montserrat_28
+            text_color: 0xFFFFFF
+
+        - label:
+            id: graph_current_label
+            text: "Now: --"
+            align: TOP_LEFT
+            x: 20
+            y: 280
+            text_font: montserrat_20
+            text_color: 0xFFFFFF
+
+        - label:
+            id: graph_min_label
+            text: "Min: --"
+            align: TOP_MID
+            y: 280
+            text_font: montserrat_20
+            text_color: 0xB0B0B0
+
+        - label:
+            id: graph_max_label
+            text: "Max: --"
+            align: TOP_RIGHT
+            x: -20
+            y: 280
+            text_font: montserrat_20
+            text_color: 0xB0B0B0
+
+        - label:
+            id: graph_touch_label
+            text: "Tap: --"
+            align: TOP_MID
+            y: 300
+            text_font: montserrat_18
+            text_color: 0xA0A0A0
+
+        - label:
+            text: "Period"
+            align: TOP_LEFT
+            x: 20
+            y: 340
+            text_font: montserrat_18
+            text_color: 0xB0B0B0
+
+        - button:
+            id: graph_period_1h
+            text: "1h"
+            align: TOP_LEFT
+            x: 90
+            y: 330
+            width: 70
+            height: 40
+            bg_color: 0x1F2933
+            text_color: 0xC0C0C0
+            text_font: montserrat_18
+            on_release:
+              - logger.log: "graph_btn period=1h"
+              - lambda: 'id(graph_period_min) = 60;'
+              - script.execute: graph_render
+
+        - button:
+            id: graph_period_6h
+            text: "6h"
+            align: TOP_LEFT
+            x: 170
+            y: 330
+            width: 70
+            height: 40
+            bg_color: 0x1F2933
+            text_color: 0xC0C0C0
+            text_font: montserrat_18
+            on_release:
+              - logger.log: "graph_btn period=6h"
+              - lambda: 'id(graph_period_min) = 360;'
+              - script.execute: graph_render
+
+        - button:
+            id: graph_period_24h
+            text: "24h"
+            align: TOP_LEFT
+            x: 250
+            y: 330
+            width: 80
+            height: 40
+            bg_color: 0x1F2933
+            text_color: 0xC0C0C0
+            text_font: montserrat_18
+            on_release:
+              - logger.log: "graph_btn period=24h"
+              - lambda: 'id(graph_period_min) = 1440;'
+              - script.execute: graph_render
+
+        - label:
+            text: "Step"
+            align: TOP_LEFT
+            x: 20
+            y: 390
+            text_font: montserrat_18
+            text_color: 0xB0B0B0
+
+        - button:
+            id: graph_step_1m
+            text: "1m"
+            align: TOP_LEFT
+            x: 90
+            y: 380
+            width: 70
+            height: 40
+            bg_color: 0x1F2933
+            text_color: 0xC0C0C0
+            text_font: montserrat_18
+            on_release:
+              - logger.log: "graph_btn step=1m"
+              - lambda: 'id(graph_step_min) = 1;'
+              - script.execute: graph_render
+
+        - button:
+            id: graph_step_5m
+            text: "5m"
+            align: TOP_LEFT
+            x: 170
+            y: 380
+            width: 70
+            height: 40
+            bg_color: 0x1F2933
+            text_color: 0xC0C0C0
+            text_font: montserrat_18
+            on_release:
+              - logger.log: "graph_btn step=5m"
+              - lambda: 'id(graph_step_min) = 5;'
+              - script.execute: graph_render
+
+        - button:
+            id: graph_step_15m
+            text: "15m"
+            align: TOP_LEFT
+            x: 250
+            y: 380
+            width: 80
+            height: 40
+            bg_color: 0x1F2933
+            text_color: 0xC0C0C0
+            text_font: montserrat_18
+            on_release:
+              - logger.log: "graph_btn step=15m"
+              - lambda: 'id(graph_step_min) = 15;'
+              - script.execute: graph_render
+
+#        - button:
+#            id: nav_home_graphs
+#            text: "Home"
+#            align: BOTTOM_MID
+#            y: -20
+#            text_font: montserrat_20
+#            on_press:
+#              - lvgl.page.show:
+#                  id: page_home
+

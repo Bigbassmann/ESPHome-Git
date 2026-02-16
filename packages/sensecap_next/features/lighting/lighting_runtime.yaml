@@ -1,0 +1,150 @@
+interval:
+  - interval: 2s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(boot_ready) && !id(screen_off) && id(nav_page_index) == 6;'
+          then:
+            - if:
+                condition:
+                  lambda: 'return id(ha_all_lights_toggle).state;'
+                then:
+                  - lvgl.label.update: {id: light_all_state, text: "ON"}
+                  - lvgl.widget.update: {id: light_all_state, text_color: 0xD1FAE5}
+                  - lvgl.widget.update: {id: lighting_all_btn, bg_color: 0x166534}
+                else:
+                  - lvgl.label.update: {id: light_all_state, text: "OFF"}
+                  - lvgl.widget.update: {id: light_all_state, text_color: 0xFCA5A5}
+                  - lvgl.widget.update: {id: lighting_all_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_outdoor_lights_toggle).state;'
+                then:
+                  - lvgl.label.update: {id: light_outdoor_state, text: "ON"}
+                  - lvgl.widget.update: {id: light_outdoor_state, text_color: 0xD1FAE5}
+                  - lvgl.widget.update: {id: lighting_outdoor_btn, bg_color: 0x166534}
+                else:
+                  - lvgl.label.update: {id: light_outdoor_state, text: "OFF"}
+                  - lvgl.widget.update: {id: light_outdoor_state, text_color: 0xFCA5A5}
+                  - lvgl.widget.update: {id: lighting_outdoor_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_mbr_lights_on).state;'
+                then:
+                  - lvgl.label.update: {id: mbr_light_state, text: "ON"}
+                  - lvgl.widget.update: {id: mbr_light_state, text_color: 0xD1FAE5}
+                  - lvgl.widget.update: {id: mbr_light_row_btn, bg_color: 0x166534}
+                else:
+                  - lvgl.label.update: {id: mbr_light_state, text: "OFF"}
+                  - lvgl.widget.update: {id: mbr_light_state, text_color: 0xFCA5A5}
+                  - lvgl.widget.update: {id: mbr_light_row_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_fr_lights_on).state;'
+                then:
+                  - lvgl.label.update: {id: fr_light_state, text: "ON"}
+                  - lvgl.widget.update: {id: fr_light_state, text_color: 0xD1FAE5}
+                  - lvgl.widget.update: {id: fr_light_row_btn, bg_color: 0x166534}
+                else:
+                  - lvgl.label.update: {id: fr_light_state, text: "OFF"}
+                  - lvgl.widget.update: {id: fr_light_state, text_color: 0xFCA5A5}
+                  - lvgl.widget.update: {id: fr_light_row_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_library_lights_on).state || id(ha_living_room_lights_on).state;'
+                then:
+                  - lvgl.label.update: {id: lr_light_state, text: "ON"}
+                  - lvgl.widget.update: {id: lr_light_state, text_color: 0xD1FAE5}
+                  - lvgl.widget.update: {id: lr_light_row_btn, bg_color: 0x166534}
+                else:
+                  - lvgl.label.update: {id: lr_light_state, text: "OFF"}
+                  - lvgl.widget.update: {id: lr_light_state, text_color: 0xFCA5A5}
+                  - lvgl.widget.update: {id: lr_light_row_btn, bg_color: 0x374151}
+
+            - lvgl.slider.update:
+                id: mbr_light_slider
+                value: !lambda |-
+                  std::string s = id(ha_mbr_lights_brightness_txt).state;
+                  if (s.empty() || s == "None" || s == "none" || s == "unknown" || s == "unavailable") return 0;
+                  float raw = atof(s.c_str());
+                  int pct = (raw <= 100.0f) ? (int) roundf(raw) : (int) roundf((raw * 100.0f) / 255.0f);
+                  if (pct < 0) pct = 0;
+                  if (pct > 100) pct = 100;
+                  return pct;
+                animated: false
+            - lvgl.label.update:
+                id: mbr_light_pct
+                text: !lambda |-
+                  std::string s = id(ha_mbr_lights_brightness_txt).state;
+                  if (s.empty() || s == "None" || s == "none" || s == "unknown" || s == "unavailable") return std::string("0%");
+                  float raw = atof(s.c_str());
+                  int pct = (raw <= 100.0f) ? (int) roundf(raw) : (int) roundf((raw * 100.0f) / 255.0f);
+                  if (pct < 0) pct = 0;
+                  if (pct > 100) pct = 100;
+                  char buf[16];
+                  snprintf(buf, sizeof(buf), "%d%%", pct);
+                  return std::string(buf);
+
+            - lvgl.slider.update:
+                id: fr_light_slider
+                value: !lambda |-
+                  float raw = id(ha_fr_lights_brightness).state;
+                  if (isnan(raw)) return 0;
+                  int pct = (raw <= 100.0f) ? (int) roundf(raw) : (int) roundf((raw * 100.0f) / 255.0f);
+                  if (pct < 0) pct = 0;
+                  if (pct > 100) pct = 100;
+                  return pct;
+                animated: false
+            - lvgl.label.update:
+                id: fr_light_pct
+                text: !lambda |-
+                  float raw = id(ha_fr_lights_brightness).state;
+                  int pct = 0;
+                  if (!isnan(raw)) pct = (raw <= 100.0f) ? (int) roundf(raw) : (int) roundf((raw * 100.0f) / 255.0f);
+                  if (pct < 0) pct = 0;
+                  if (pct > 100) pct = 100;
+                  char buf[16];
+                  snprintf(buf, sizeof(buf), "%d%%", pct);
+                  return std::string(buf);
+
+            - lvgl.slider.update:
+                id: lr_light_slider
+                value: !lambda |-
+                  std::string sa = id(ha_library_lights_brightness_txt).state;
+                  std::string sb = id(ha_living_room_lights_brightness_txt).state;
+                  bool va = !(sa.empty() || sa == "None" || sa == "none" || sa == "unknown" || sa == "unavailable");
+                  bool vb = !(sb.empty() || sb == "None" || sb == "none" || sb == "unknown" || sb == "unavailable");
+                  float raw = 0.0f;
+                  if (va && vb) raw = (atof(sa.c_str()) + atof(sb.c_str())) * 0.5f;
+                  else if (va) raw = atof(sa.c_str());
+                  else if (vb) raw = atof(sb.c_str());
+                  int pct = (raw <= 100.0f) ? (int) roundf(raw) : (int) roundf((raw * 100.0f) / 255.0f);
+                  if (pct < 0) pct = 0;
+                  if (pct > 100) pct = 100;
+                  return pct;
+                animated: false
+            - lvgl.label.update:
+                id: lr_light_pct
+                text: !lambda |-
+                  std::string sa = id(ha_library_lights_brightness_txt).state;
+                  std::string sb = id(ha_living_room_lights_brightness_txt).state;
+                  bool va = !(sa.empty() || sa == "None" || sa == "none" || sa == "unknown" || sa == "unavailable");
+                  bool vb = !(sb.empty() || sb == "None" || sb == "none" || sb == "unknown" || sb == "unavailable");
+                  float raw = 0.0f;
+                  if (va && vb) raw = (atof(sa.c_str()) + atof(sb.c_str())) * 0.5f;
+                  else if (va) raw = atof(sa.c_str());
+                  else if (vb) raw = atof(sb.c_str());
+                  int pct = (raw <= 100.0f) ? (int) roundf(raw) : (int) roundf((raw * 100.0f) / 255.0f);
+                  if (pct < 0) pct = 0;
+                  if (pct > 100) pct = 100;
+                  char buf[16];
+                  snprintf(buf, sizeof(buf), "%d%%", pct);
+                  return std::string(buf);
+
+
+
+

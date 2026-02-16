@@ -1,0 +1,168 @@
+﻿script:
+  - id: fo_mark_interaction
+    then:
+      - lambda: |-
+          uint32_t now = millis();
+          id(last_interaction_ms) = now;
+          id(last_auto_scroll_ms) = now;
+
+  - id: ov_toggle_cleaners
+    then:
+      - script.execute: fo_mark_interaction
+      - if:
+          condition:
+            lambda: 'return id(ha_cleaners_toggle).state;'
+          then:
+            - homeassistant.service: {service: input_boolean.turn_off, data: {entity_id: input_boolean.cleaners_toggle}}
+          else:
+            - homeassistant.service: {service: input_boolean.turn_on, data: {entity_id: input_boolean.cleaners_toggle}}
+
+  - id: ov_toggle_dani
+    then:
+      - script.execute: fo_mark_interaction
+      - if:
+          condition:
+            lambda: 'return id(ha_dani_mode_on).state;'
+          then:
+            - homeassistant.service: {service: input_boolean.turn_off, data: {entity_id: input_boolean.dani_mode_on}}
+          else:
+            - homeassistant.service: {service: input_boolean.turn_on, data: {entity_id: input_boolean.dani_mode_on}}
+
+  - id: ov_toggle_front_lock
+    then:
+      - script.execute: fo_mark_interaction
+      - if:
+          condition:
+            lambda: 'return id(ha_front_door_auto_lock_off).state;'
+          then:
+            - homeassistant.service: {service: input_boolean.turn_off, data: {entity_id: input_boolean.front_door_auto_lock_off}}
+          else:
+            - homeassistant.service: {service: input_boolean.turn_on, data: {entity_id: input_boolean.front_door_auto_lock_off}}
+
+  - id: ov_toggle_tod
+    then:
+      - script.execute: fo_mark_interaction
+      - if:
+          condition:
+            lambda: 'return id(ha_tod_control).state;'
+          then:
+            - homeassistant.service: {service: input_boolean.turn_off, data: {entity_id: input_boolean.automation_time_of_day_trigger}}
+          else:
+            - homeassistant.service: {service: input_boolean.turn_on, data: {entity_id: input_boolean.automation_time_of_day_trigger}}
+
+  - id: ov_toggle_motion_all
+    then:
+      - script.execute: fo_mark_interaction
+      - if:
+          condition:
+            lambda: 'return id(ha_motion_automation_off).state;'
+          then:
+            - homeassistant.service: {service: input_boolean.turn_off, data: {entity_id: input_boolean.motion_automation_off}}
+          else:
+            - homeassistant.service: {service: input_boolean.turn_on, data: {entity_id: input_boolean.motion_automation_off}}
+
+  - id: ov_toggle_motion_entry
+    then:
+      - script.execute: fo_mark_interaction
+      - if:
+          condition:
+            lambda: 'return id(ha_entry_motion_automation_off).state;'
+          then:
+            - homeassistant.service: {service: input_boolean.turn_off, data: {entity_id: input_boolean.entry_motion_automation_off}}
+          else:
+            - homeassistant.service: {service: input_boolean.turn_on, data: {entity_id: input_boolean.entry_motion_automation_off}}
+
+  - id: ov_toggle_motion_garage
+    then:
+      - script.execute: fo_mark_interaction
+      - if:
+          condition:
+            lambda: 'return id(ha_garage_light_automation_off).state;'
+          then:
+            - homeassistant.service: {service: input_boolean.turn_off, data: {entity_id: input_boolean.garage_light_automation_off}}
+          else:
+            - homeassistant.service: {service: input_boolean.turn_on, data: {entity_id: input_boolean.garage_light_automation_off}}
+
+  - id: ov_toggle_motion_mbr
+    then:
+      - script.execute: fo_mark_interaction
+      - if:
+          condition:
+            lambda: 'return id(ha_mbr_motion_off).state;'
+          then:
+            - homeassistant.service: {service: input_boolean.turn_off, data: {entity_id: input_boolean.mbr_motion_off}}
+          else:
+            - homeassistant.service: {service: input_boolean.turn_on, data: {entity_id: input_boolean.mbr_motion_off}}
+
+  - id: fan_fr_off
+    then:
+      - script.execute: fo_mark_interaction
+      - homeassistant.service: {service: fan.turn_off, data: {entity_id: fan.in_wall_fan_speed_control_500s}}
+
+  - id: fan_fr_low
+    then:
+      - script.execute: fo_mark_interaction
+      - homeassistant.service: {service: fan.set_percentage, data: {entity_id: fan.in_wall_fan_speed_control_500s, percentage: "33"}}
+
+  - id: fan_fr_med
+    then:
+      - script.execute: fo_mark_interaction
+      - homeassistant.service: {service: fan.set_percentage, data: {entity_id: fan.in_wall_fan_speed_control_500s, percentage: "66"}}
+
+  - id: fan_fr_high
+    then:
+      - script.execute: fo_mark_interaction
+      - homeassistant.service: {service: fan.set_percentage, data: {entity_id: fan.in_wall_fan_speed_control_500s, percentage: "100"}}
+
+  - id: fan_mbr_off
+    then:
+      - script.execute: fo_mark_interaction
+      - homeassistant.service: {service: fan.turn_off, data: {entity_id: fan.mbr_fan_light}}
+
+  - id: fan_mbr_low
+    then:
+      - script.execute: fo_mark_interaction
+      - homeassistant.service: {service: fan.set_percentage, data: {entity_id: fan.mbr_fan_light, percentage: "33"}}
+
+  - id: fan_mbr_med
+    then:
+      - script.execute: fo_mark_interaction
+      - homeassistant.service: {service: fan.set_percentage, data: {entity_id: fan.mbr_fan_light, percentage: "66"}}
+
+  - id: fan_mbr_high
+    then:
+      - script.execute: fo_mark_interaction
+      - homeassistant.service: {service: fan.set_percentage, data: {entity_id: fan.mbr_fan_light, percentage: "100"}}
+
+  - id: fan_mbr_toggle_dir
+    then:
+      - script.execute: fo_mark_interaction
+      - if:
+          condition:
+            lambda: 'return id(ha_mbr_fan_dir).state == "forward";'
+          then:
+            - homeassistant.service: {service: fan.set_direction, data: {entity_id: fan.mbr_fan_light, direction: reverse}}
+          else:
+            - homeassistant.service: {service: fan.set_direction, data: {entity_id: fan.mbr_fan_light, direction: forward}}
+
+  - id: fan_attic_low_toggle
+    then:
+      - script.execute: fo_mark_interaction
+      - if:
+          condition:
+            lambda: 'return id(ha_attic_fan_on).state;'
+          then:
+            - homeassistant.service: {service: switch.turn_off, data: {entity_id: switch.attic_fan}}
+          else:
+            - homeassistant.service: {service: switch.turn_on, data: {entity_id: switch.attic_fan}}
+
+  - id: fan_attic_high_toggle
+    then:
+      - script.execute: fo_mark_interaction
+      - if:
+          condition:
+            lambda: 'return id(ha_attic_fan2_on).state;'
+          then:
+            - homeassistant.service: {service: switch.turn_off, data: {entity_id: switch.attic_fan_2}}
+          else:
+            - homeassistant.service: {service: switch.turn_on, data: {entity_id: switch.attic_fan_2}}

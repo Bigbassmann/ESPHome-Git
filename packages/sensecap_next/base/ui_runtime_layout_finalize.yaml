@@ -1,0 +1,34 @@
+script:
+  - id: layout_finalize_boot
+    mode: restart
+    then:
+      # Initial snapshot right after page load.
+      - lambda: |-
+          ESP_LOGD("boot_layout", "on_load pre  group(x=%d y=%d w=%d h=%d) spinner(x=%d y=%d w=%d h=%d)",
+            lv_obj_get_x(id(boot_center_group)), lv_obj_get_y(id(boot_center_group)),
+            lv_obj_get_width(id(boot_center_group)), lv_obj_get_height(id(boot_center_group)),
+            lv_obj_get_x(id(boot_spinner)), lv_obj_get_y(id(boot_spinner)),
+            lv_obj_get_width(id(boot_spinner)), lv_obj_get_height(id(boot_spinner)));
+
+      # Give LVGL one frame to settle layout before final positioning.
+      - delay: 120ms
+      - lambda: |-
+          lv_obj_update_layout(lv_scr_act());
+          lv_obj_align(id(boot_center_group), LV_ALIGN_CENTER, 0, 0);
+          lv_obj_align(id(boot_spinner), LV_ALIGN_TOP_MID, 0, 0);
+          lv_obj_update_layout(lv_scr_act());
+          ESP_LOGD("boot_layout", "post align group(x=%d y=%d w=%d h=%d) spinner(x=%d y=%d w=%d h=%d)",
+            lv_obj_get_x(id(boot_center_group)), lv_obj_get_y(id(boot_center_group)),
+            lv_obj_get_width(id(boot_center_group)), lv_obj_get_height(id(boot_center_group)),
+            lv_obj_get_x(id(boot_spinner)), lv_obj_get_y(id(boot_spinner)),
+            lv_obj_get_width(id(boot_spinner)), lv_obj_get_height(id(boot_spinner)));
+
+      # One more delayed sample to catch any late overrides.
+      - delay: 120ms
+      - lambda: |-
+          lv_obj_update_layout(lv_scr_act());
+          ESP_LOGD("boot_layout", "late sample group(x=%d y=%d w=%d h=%d) spinner(x=%d y=%d w=%d h=%d)",
+            lv_obj_get_x(id(boot_center_group)), lv_obj_get_y(id(boot_center_group)),
+            lv_obj_get_width(id(boot_center_group)), lv_obj_get_height(id(boot_center_group)),
+            lv_obj_get_x(id(boot_spinner)), lv_obj_get_y(id(boot_spinner)),
+            lv_obj_get_width(id(boot_spinner)), lv_obj_get_height(id(boot_spinner)));

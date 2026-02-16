@@ -1,0 +1,5 @@
+packages:
+  home_lvgl: !include home_lvgl.yaml
+  home_ha: !include home_ha.yaml
+  home_runtime: !include home_runtime.yaml
+  home_actions: !include home_actions.yaml

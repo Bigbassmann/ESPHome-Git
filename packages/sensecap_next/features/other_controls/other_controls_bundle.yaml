@@ -1,0 +1,5 @@
+packages:
+  other_controls_lvgl: !include other_controls_lvgl.yaml
+  other_controls_ha: !include other_controls_ha.yaml
+  other_controls_runtime: !include other_controls_runtime.yaml
+  other_controls_actions: !include other_controls_actions.yaml

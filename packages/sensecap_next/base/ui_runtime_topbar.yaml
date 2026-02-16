@@ -1,0 +1,54 @@
+﻿interval:
+  - interval: 1s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(boot_ready);'
+          then:
+            - if:
+                condition:
+                  lambda: 'return id(ha_time).now().is_valid();'
+                then:
+                  - lvgl.label.update:
+                      id: clock_label
+                      text: !lambda 'return id(ha_time).now().strftime("%I:%M:%S %p");'
+                  - lvgl.label.update:
+                      id: date_label
+                      text: !lambda 'return id(ha_time).now().strftime("%d %b %Y");'
+
+            - if:
+                condition:
+                  lambda: |-
+                    return (!id(ssid_sensor).state.empty()) && (id(ip_sensor).state != "0.0.0.0");
+                then:
+                  - if:
+                      condition:
+                        lambda: 'return id(wi_fi_signal).state >= -60;'
+                      then:
+                        - lvgl.image.update:
+                            id: wifi_icon
+                            src: icon_wifi_3_32
+                      else:
+                        - if:
+                            condition:
+                              lambda: 'return id(wi_fi_signal).state >= -70;'
+                            then:
+                              - lvgl.image.update:
+                                  id: wifi_icon
+                                  src: icon_wifi_2_32
+                            else:
+                              - if:
+                                  condition:
+                                    lambda: 'return id(wi_fi_signal).state >= -80;'
+                                  then:
+                                    - lvgl.image.update:
+                                        id: wifi_icon
+                                        src: icon_wifi_1_32
+                                  else:
+                                    - lvgl.image.update:
+                                        id: wifi_icon
+                                        src: icon_wifi_0_32
+                else:
+                  - lvgl.image.update:
+                      id: wifi_icon
+                      src: icon_wifi_off_32

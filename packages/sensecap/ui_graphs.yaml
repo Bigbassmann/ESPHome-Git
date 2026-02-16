@@ -1,6 +1,16 @@
 lvgl:
   pages:
     - id: page_graphs
+      on_load:
+        - lambda: |-
+            id(graph_page_active) = true;
+            id(last_interaction_ms) = millis();
+            id(last_auto_scroll_ms) = id(last_interaction_ms);
+        - script.execute: graph_render
+      on_unload:
+        - lambda: |-
+            id(graph_page_active) = false;
+            id(graph_touch_valid) = false;
       widgets:
         - obj:
             id: graph_box
@@ -804,7 +814,8 @@ lvgl:
             bg_color: 0x1F2933
             text_color: 0xC0C0C0
             text_font: montserrat_18
-            on_press:
+            on_release:
+              - logger.log: "graph_btn period=1h"
               - lambda: 'id(graph_period_min) = 60;'
               - script.execute: graph_render
 
@@ -819,7 +830,8 @@ lvgl:
             bg_color: 0x1F2933
             text_color: 0xC0C0C0
             text_font: montserrat_18
-            on_press:
+            on_release:
+              - logger.log: "graph_btn period=6h"
               - lambda: 'id(graph_period_min) = 360;'
               - script.execute: graph_render
 
@@ -834,7 +846,8 @@ lvgl:
             bg_color: 0x1F2933
             text_color: 0xC0C0C0
             text_font: montserrat_18
-            on_press:
+            on_release:
+              - logger.log: "graph_btn period=24h"
               - lambda: 'id(graph_period_min) = 1440;'
               - script.execute: graph_render
 
@@ -857,7 +870,8 @@ lvgl:
             bg_color: 0x1F2933
             text_color: 0xC0C0C0
             text_font: montserrat_18
-            on_press:
+            on_release:
+              - logger.log: "graph_btn step=1m"
               - lambda: 'id(graph_step_min) = 1;'
               - script.execute: graph_render
 
@@ -872,7 +886,8 @@ lvgl:
             bg_color: 0x1F2933
             text_color: 0xC0C0C0
             text_font: montserrat_18
-            on_press:
+            on_release:
+              - logger.log: "graph_btn step=5m"
               - lambda: 'id(graph_step_min) = 5;'
               - script.execute: graph_render
 
@@ -887,7 +902,8 @@ lvgl:
             bg_color: 0x1F2933
             text_color: 0xC0C0C0
             text_font: montserrat_18
-            on_press:
+            on_release:
+              - logger.log: "graph_btn step=15m"
               - lambda: 'id(graph_step_min) = 15;'
               - script.execute: graph_render
 
@@ -900,3 +916,4 @@ lvgl:
 #            on_press:
 #              - lvgl.page.show:
 #                  id: page_home
+

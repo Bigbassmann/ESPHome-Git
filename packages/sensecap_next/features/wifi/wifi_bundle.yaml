@@ -1,0 +1,5 @@
+packages:
+  wifi_lvgl: !include wifi_lvgl.yaml
+  wifi_ha: !include wifi_ha.yaml
+  wifi_runtime: !include wifi_runtime.yaml
+  wifi_actions: !include wifi_actions.yaml

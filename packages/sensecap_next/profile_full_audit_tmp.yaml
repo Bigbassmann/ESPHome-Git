@@ -1,0 +1,14 @@
+packages:
+  profile_core: !include profile_core_full.yaml
+
+  feature_home: !include features/home/home_bundle.yaml
+  feature_settings: !include features/settings/settings_bundle.yaml
+  feature_admin: !include features/admin/admin_bundle.yaml
+  feature_wifi: !include features/wifi/wifi_bundle.yaml
+  feature_menu: !include features/menu/menu_bundle.yaml
+  feature_overrides: !include features/overrides/overrides_bundle.yaml
+  feature_fans: !include features/fans/fans_bundle.yaml
+  feature_thermostat: !include features/thermostat/thermostat_bundle.yaml
+  feature_lighting: !include features/lighting/lighting_bundle.yaml
+  feature_other_controls: !include features/other_controls/other_controls_bundle.yaml
+

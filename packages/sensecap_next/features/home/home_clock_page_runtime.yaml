@@ -1,0 +1,76 @@
+interval:
+  - interval: 1s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(boot_ready) && !id(screen_off) && id(nav_page_index) == 0;'
+          then:
+            - lambda: |-
+                static uint32_t last_warn = 0;
+                auto t = id(ha_time).now();
+                if (!t.is_valid()) {
+                  uint32_t now = millis();
+                  if (now - last_warn > 10000u) {
+                    ESP_LOGW("clock", "ha_time invalid; clock waiting for sync");
+                    last_warn = now;
+                  }
+                }
+            - if:
+                condition:
+                  lambda: 'return id(ha_time).now().is_valid();'
+                then:
+                  - lvgl.label.update:
+                      id: home_clock_digital
+                      text: !lambda 'return id(ha_time).now().strftime("%I:%M:%S %p");'
+                  - lvgl.label.update:
+                      id: home_clock_date
+                      text: !lambda 'return id(ha_time).now().strftime("%d %b %Y");'
+
+                  - lvgl.line.update:
+                      id: home_clock_second_hand
+                      points:
+                        - x: 140
+                          y: 140
+                        - x: !lambda |-
+                            auto t = id(ha_time).now();
+                            float sec = (float) t.second;
+                            float ang = (sec * 6.0f - 90.0f) * 0.01745329252f;
+                            return (int) roundf(140.0f + cosf(ang) * 64.0f);
+                          y: !lambda |-
+                            auto t = id(ha_time).now();
+                            float sec = (float) t.second;
+                            float ang = (sec * 6.0f - 90.0f) * 0.01745329252f;
+                            return (int) roundf(140.0f + sinf(ang) * 64.0f);
+
+                  - lvgl.line.update:
+                      id: home_clock_minute_hand
+                      points:
+                        - x: 140
+                          y: 140
+                        - x: !lambda |-
+                            auto t = id(ha_time).now();
+                            float minute = (float) t.minute + ((float) t.second / 60.0f);
+                            float ang = (minute * 6.0f - 90.0f) * 0.01745329252f;
+                            return (int) roundf(140.0f + cosf(ang) * 70.0f);
+                          y: !lambda |-
+                            auto t = id(ha_time).now();
+                            float minute = (float) t.minute + ((float) t.second / 60.0f);
+                            float ang = (minute * 6.0f - 90.0f) * 0.01745329252f;
+                            return (int) roundf(140.0f + sinf(ang) * 70.0f);
+
+                  - lvgl.line.update:
+                      id: home_clock_hour_hand
+                      points:
+                        - x: 140
+                          y: 140
+                        - x: !lambda |-
+                            auto t = id(ha_time).now();
+                            float hour12 = (float) (t.hour % 12) + ((float) t.minute / 60.0f);
+                            float ang = (hour12 * 30.0f - 90.0f) * 0.01745329252f;
+                            return (int) roundf(140.0f + cosf(ang) * 46.0f);
+                          y: !lambda |-
+                            auto t = id(ha_time).now();
+                            float hour12 = (float) (t.hour % 12) + ((float) t.minute / 60.0f);
+                            float ang = (hour12 * 30.0f - 90.0f) * 0.01745329252f;
+                            return (int) roundf(140.0f + sinf(ang) * 46.0f);
+

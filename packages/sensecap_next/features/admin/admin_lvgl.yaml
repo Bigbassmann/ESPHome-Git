@@ -1,0 +1,157 @@
+lvgl:
+  pages:
+    - id: page_admin
+      widgets:
+        - label:
+            id: admin_title
+            text: "Admin Panel"
+            align: TOP_MID
+            y: 44
+            text_font: montserrat_32
+            text_color: 0x1D4ED8
+
+        - label:
+            id: wifi_ssid_label
+            text: "WiFi SSID: --"
+            align: TOP_LEFT
+            x: 20
+            y: 98
+            text_font: montserrat_18
+            text_color: 0xCBD5E1   # 0xFFFFFF
+
+        - label:
+            id: ip_label
+            text: "IP: --"
+            align: TOP_LEFT
+            x: 20
+            y: 124
+            text_font: montserrat_18
+            text_color: 0xCBD5E1   # 0xFFFFFF
+
+        - label:
+            id: wifi_bssid_label
+            text: "WiFi BSSID: --"
+            align: TOP_LEFT
+            x: 20
+            y: 150
+            text_font: montserrat_18
+            text_color: 0xCBD5E1   # 0xFFFFFF
+
+        - label:
+            id: wi_fi_signal_label
+            text: "WiFi Signal: --"
+            align: TOP_LEFT
+            x: 20
+            y: 176
+            text_font: montserrat_18
+            text_color: 0xCBD5E1   # 0xFFFFFF
+
+        - label:
+            id: uptime_sensor_label
+            text: "Uptime: --"
+            align: TOP_LEFT
+            x: 20
+            y: 202
+            text_font: montserrat_18
+            text_color: 0xCBD5E1   # 0xFFFFFF
+
+        - label:
+            id: internal_temp_label
+            text: "MCU Temp: --"
+            align: TOP_LEFT
+            x: 20
+            y: 228
+            text_font: montserrat_18
+            text_color: 0xCBD5E1   # 0xFFFFFF
+
+        - label:
+            id: admin_device_id_label
+            text: "Device: ${device_id} | Site: ${site_id}"
+            align: TOP_LEFT
+            x: 20
+            y: 254
+            text_font: montserrat_16
+            text_color: 0xCBD5E1
+
+        - label:
+            id: admin_device_name_label
+            text: "Name: ${friendly_name}"
+            align: TOP_LEFT
+            x: 20
+            y: 274
+            text_font: montserrat_16
+            text_color: 0xCBD5E1
+
+        - label:
+            id: admin_friendly_name_label
+            text: "Reset: -- | CPU: -- MHz | Flash: -- MB"
+            align: TOP_LEFT
+            x: 20
+            y: 294
+            text_font: montserrat_14
+            text_color: 0x94A3B8
+
+        - label:
+            id: admin_site_id_label
+            text: "PSRAM: --/-- KB | RP2040: --s"
+            align: TOP_LEFT
+            x: 20
+            y: 312
+            text_font: montserrat_14
+            text_color: 0x94A3B8
+
+        - label:
+            id: admin_version_label
+            text: "ESPHome: --"
+            align: TOP_LEFT
+            x: 20
+            y: 330
+            text_font: montserrat_14
+            text_color: 0x94A3B8
+
+        - button:
+            id: btn_wifi_setup
+            text: "WiFi"
+            text_color: 0xFFFFFF
+            bg_color: 0x2563EB
+            radius: 8
+            border_width: 0
+            align: BOTTOM_MID
+            x: -136
+            y: -74
+            width: 126
+            height: 42
+            on_press:
+              - script.execute: nav_show_wifi_user
+
+        - button:
+            id: btn_restart
+            text: "Restart"
+            text_color: 0xFFFFFF
+            bg_color: 0x374151
+            radius: 8
+            border_width: 0
+            align: BOTTOM_MID
+            x: 0
+            y: -74
+            width: 126
+            height: 42
+            on_press:
+              - switch.turn_on: restart_switch
+
+        - button:
+            id: btn_factory_reset
+            text: "Factory Reset"
+            text_color: 0xFFFFFF
+            bg_color: 0x7F1D1D
+            radius: 8
+            border_width: 0
+            align: BOTTOM_MID
+            x: 136
+            y: -74
+            width: 126
+            height: 42
+            on_press:
+              - switch.turn_on: factory_reset_switch
+
+

@@ -1,0 +1,94 @@
+interval:
+  - interval: 2s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(boot_ready) && !id(screen_off) && id(nav_page_index) == 0;'
+          then:
+            - lvgl.label.update:
+                id: temp_label
+                text: !lambda |-
+                  char buf[32];
+                  float f_temp = (id(temp).state * 9.0 / 5.0) + 32.0;
+                  snprintf(buf, sizeof(buf), "%.1f F", f_temp);
+                  return std::string(buf);
+
+            - lvgl.label.update:
+                id: humid_label
+                text: !lambda |-
+                  char buf[32];
+                  snprintf(buf, sizeof(buf), "%.0f%%", id(humid).state);
+                  return std::string(buf);
+
+            - lvgl.label.update:
+                id: co2_label
+                text: !lambda |-
+                  char buf[32];
+                  snprintf(buf, sizeof(buf), "%.0f", id(co2).state);
+                  return std::string(buf);
+
+            - lvgl.label.update:
+                id: voc_label
+                text: !lambda |-
+                  char buf[32];
+                  snprintf(buf, sizeof(buf), "%.0f", id(voc).state);
+                  return std::string(buf);
+
+            - if:
+                condition:
+                  lambda: 'return id(co2).state < 1000;'
+                then:
+                  - lvgl.label.update:
+                      id: co2_status_label
+                      text: "Healthy AQ"
+                  - lvgl.widget.update:
+                      id: co2_status_label
+                      text_color: 0x00C853
+                else:
+                  - if:
+                      condition:
+                        lambda: 'return id(co2).state < 2000;'
+                      then:
+                        - lvgl.label.update:
+                            id: co2_status_label
+                            text: "Poor AQ"
+                        - lvgl.widget.update:
+                            id: co2_status_label
+                            text_color: 0xFFB300
+                      else:
+                        - lvgl.label.update:
+                            id: co2_status_label
+                            text: "Unhealthy AQ"
+                        - lvgl.widget.update:
+                            id: co2_status_label
+                            text_color: 0xD50000
+
+            - if:
+                condition:
+                  lambda: 'return id(voc).state < 100;'
+                then:
+                  - lvgl.label.update:
+                      id: voc_status_label
+                      text: "Low"
+                  - lvgl.widget.update:
+                      id: voc_status_label
+                      text_color: 0x00C853
+                else:
+                  - if:
+                      condition:
+                        lambda: 'return id(voc).state < 400;'
+                      then:
+                        - lvgl.label.update:
+                            id: voc_status_label
+                            text: "Medium"
+                        - lvgl.widget.update:
+                            id: voc_status_label
+                            text_color: 0xFFB300
+                      else:
+                        - lvgl.label.update:
+                            id: voc_status_label
+                            text: "High"
+                        - lvgl.widget.update:
+                            id: voc_status_label
+                            text_color: 0xD50000
+

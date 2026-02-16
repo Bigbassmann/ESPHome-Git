@@ -1,0 +1,5 @@
+packages:
+  overrides_lvgl: !include overrides_lvgl.yaml
+  overrides_ha: !include overrides_ha.yaml
+  overrides_runtime: !include overrides_runtime.yaml
+  overrides_actions: !include overrides_actions.yaml

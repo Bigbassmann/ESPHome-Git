@@ -1,0 +1,2 @@
+packages:
+  settings_runtime: !include settings_page_runtime.yaml

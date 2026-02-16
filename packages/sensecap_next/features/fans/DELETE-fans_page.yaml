@@ -1,0 +1,217 @@
+lvgl:
+  pages:
+    - id: page_fans
+      widgets:
+        - label:
+            id: fans_title
+            text: "Fan Controls"
+            align: TOP_MID
+            y: 40
+            text_font: montserrat_32
+            text_color: 0x0F766E
+
+        - label:
+            text: "FR Fan"
+            align: TOP_LEFT
+            x: 20
+            y: 88
+            text_font: montserrat_24
+            text_color: 0xFFFFFF
+        - label:
+            id: fr_fan_status
+            text: "OFF"
+            align: TOP_LEFT
+            x: 140
+            y: 90
+            text_font: montserrat_20
+            text_color: 0xFCA5A5
+
+        - button:
+            id: fr_fan_off_btn
+            text: "OFF"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 20
+            y: 122
+            width: 100
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - script.execute: fan_fr_off
+        - button:
+            id: fr_fan_low_btn
+            text: "LOW"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 130
+            y: 122
+            width: 100
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - script.execute: fan_fr_low
+        - button:
+            id: fr_fan_med_btn
+            text: "MED"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 240
+            y: 122
+            width: 100
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - script.execute: fan_fr_med
+        - button:
+            id: fr_fan_high_btn
+            text: "HIGH"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 350
+            y: 122
+            width: 100
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - script.execute: fan_fr_high
+
+        - label:
+            text: "MBR Fan"
+            align: TOP_LEFT
+            x: 20
+            y: 190
+            text_font: montserrat_24
+            text_color: 0xFFFFFF
+        - label:
+            id: mbr_fan_status
+            text: "OFF"
+            align: TOP_LEFT
+            x: 140
+            y: 192
+            text_font: montserrat_20
+            text_color: 0xFCA5A5
+        - label:
+            id: mbr_fan_dir
+            text: "Dir: --"
+            align: TOP_LEFT
+            x: 300
+            y: 192
+            text_font: montserrat_18
+            text_color: 0xC0C0C0
+
+        - button:
+            id: mbr_fan_off_btn
+            text: "OFF"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 20
+            y: 224
+            width: 88
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - script.execute: fan_mbr_off
+        - button:
+            id: mbr_fan_low_btn
+            text: "LOW"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 116
+            y: 224
+            width: 88
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - script.execute: fan_mbr_low
+        - button:
+            id: mbr_fan_med_btn
+            text: "MED"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 212
+            y: 224
+            width: 88
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - script.execute: fan_mbr_med
+        - button:
+            id: mbr_fan_high_btn
+            text: "HIGH"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 308
+            y: 224
+            width: 88
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - script.execute: fan_mbr_high
+        - button:
+            id: mbr_fan_dir_btn
+            text: "DIR"
+            text_color: 0xFFFFFF
+            align: TOP_LEFT
+            x: 404
+            y: 224
+            width: 46
+            height: 48
+            bg_color: 0x374151
+            on_press:
+              - script.execute: fan_mbr_toggle_dir
+
+        - label:
+            text: "Attic Fans"
+            align: TOP_LEFT
+            x: 20
+            y: 296
+            text_font: montserrat_24
+            text_color: 0xFFFFFF
+        - button:
+            id: attic_fan_low_btn
+            align: TOP_LEFT
+            x: 20
+            y: 330
+            width: 210
+            height: 56
+            bg_color: 0x374151
+            on_press:
+              - script.execute: fan_attic_low_toggle
+            widgets:
+              - label:
+                  text: "Attic Low"
+                  align: LEFT_MID
+                  x: 10
+                  text_font: montserrat_20
+                  text_color: 0xFFFFFF
+              - label:
+                  id: attic_fan_low_state
+                  text: "OFF"
+                  align: RIGHT_MID
+                  x: -10
+                  text_font: montserrat_20
+                  text_color: 0xFCA5A5
+        - button:
+            id: attic_fan_high_btn
+            align: TOP_RIGHT
+            x: -20
+            y: 330
+            width: 210
+            height: 56
+            bg_color: 0x374151
+            on_press:
+              - script.execute: fan_attic_high_toggle
+            widgets:
+              - label:
+                  text: "Attic High"
+                  align: LEFT_MID
+                  x: 10
+                  text_font: montserrat_20
+                  text_color: 0xFFFFFF
+              - label:
+                  id: attic_fan_high_state
+                  text: "OFF"
+                  align: RIGHT_MID
+                  x: -10
+                  text_font: montserrat_20
+                  text_color: 0xFCA5A5

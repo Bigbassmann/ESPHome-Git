@@ -1,0 +1,254 @@
+lvgl:
+  pages:
+    - id: page_settings
+      widgets:
+        - label:
+            id: settings_title
+            text: "Settings"
+            align: TOP_MID
+            y: 34
+            text_font: montserrat_32
+            text_color: 0x1D4ED8
+
+        - button:
+            id: brightness_label
+            align: TOP_LEFT
+            x: 20
+            y: 112
+            width: 170
+            height: 40
+            bg_color: 0x312E81
+            radius: 8
+            border_width: 0
+            widgets:
+              - label:
+                  text: "Brightness"
+                  align: LEFT_MID
+                  x: 10
+                  text_font: montserrat_16
+                  text_color: 0xFFFFFF
+
+        - slider:
+            id: brightness_slider
+            align: TOP_LEFT
+            x: 206
+            y: 124
+            width: 210
+            height: 20  # 16
+            min_value: 0
+            max_value: 100
+            bg_color: 0x374151
+            knob:
+              bg_color: 0xFFFFFF
+              border_color: 0x6366F1
+              border_width: 2
+            indicator:
+              bg_color: 0x6366F1
+            on_value:
+              then:
+                - lambda: |-
+                    id(display_brightness_pct) = x;
+                    id(last_interaction_ms) = millis();
+                    id(last_auto_scroll_ms) = id(last_interaction_ms);
+                - light.control:
+                    id: backlight
+                    state: ON
+                    brightness: !lambda |-
+                      if (id(display_brightness_pct) <= 0) return 0.0f;
+                      return id(display_brightness_pct) / 100.0f;
+
+        - label:
+            id: brightness_value
+            text: "50%"
+            align: TOP_LEFT
+            x: 424
+            y: 118
+            text_font: montserrat_18
+            text_color: 0xC0C0C0
+
+        - button:
+            id: idle_scroll_enable_btn
+            align: TOP_LEFT
+            x: 20
+            y: 172
+            width: 170
+            height: 40
+            bg_color: 0x0E3A42
+            radius: 8
+            border_width: 0
+            on_press:
+              then:
+                - lambda: |-
+                    id(display_idle_scroll_enabled) = !id(display_idle_scroll_enabled);
+                    if (id(display_idle_scroll_enabled)) id(display_sleep_enabled) = false;
+                    id(last_interaction_ms) = millis();
+                    id(last_auto_scroll_ms) = id(last_interaction_ms);
+            widgets:
+              - label:
+                  text: "Scroll / Delay"
+                  align: LEFT_MID
+                  x: 10
+                  text_font: montserrat_14
+                  text_color: 0xFFFFFF
+              - label:
+                  id: idle_scroll_enable_state
+                  text: "OFF"
+                  align: RIGHT_MID
+                  x: -5
+                  text_font: montserrat_14
+                  text_color: 0xFCA5A5
+
+        - slider:
+            id: idle_scroll_timeout_slider
+            align: TOP_LEFT
+            x: 206
+            y: 184
+            width: 210
+            height: 20  # 16
+            min_value: 15
+            max_value: 300
+            bg_color: 0x374151
+            knob:
+              bg_color: 0xFFFFFF
+              border_color: 0x06B6D4
+              border_width: 2
+            indicator:
+              bg_color: 0x06B6D4
+            on_value:
+              then:
+                - lambda: |-
+                    id(display_idle_scroll_s) = x;
+                    id(last_interaction_ms) = millis();
+                    id(last_auto_scroll_ms) = id(last_interaction_ms);
+
+        - label:
+            id: idle_scroll_timeout_value
+            text: "30s"
+            align: TOP_LEFT
+            x: 424
+            y: 178
+            text_font: montserrat_18
+            text_color: 0xC0C0C0
+
+        - button:
+            id: idle_scroll_rate_btn
+            align: TOP_LEFT
+            x: 20
+            y: 232
+            width: 170
+            height: 40
+            bg_color: 0x0E3A42
+            radius: 8
+            border_width: 0
+            widgets:
+              - label:
+                  text: "Scroll Rate"
+                  align: LEFT_MID
+                  x: 10
+                  text_font: montserrat_16
+                  text_color: 0xFFFFFF
+
+        - slider:
+            id: idle_scroll_rate_slider
+            align: TOP_LEFT
+            x: 206
+            y: 244
+            width: 210
+            height: 20  # 16
+            min_value: 1
+            max_value: 30
+            bg_color: 0x374151
+            knob:
+              bg_color: 0xFFFFFF
+              border_color: 0x0891B2
+              border_width: 2
+            indicator:
+              bg_color: 0x0891B2
+            on_value:
+              then:
+                - lambda: |-
+                    id(display_idle_scroll_rate_s) = x;
+                    id(last_interaction_ms) = millis();
+                    id(last_auto_scroll_ms) = id(last_interaction_ms);
+
+        - label:
+            id: idle_scroll_rate_value
+            text: "5s"
+            align: TOP_LEFT
+            x: 424
+            y: 238
+            text_font: montserrat_18
+            text_color: 0xC0C0C0
+
+        - button:
+            id: sleep_enable_btn
+            align: TOP_LEFT
+            x: 20
+            y: 292
+            width: 170
+            height: 40
+            bg_color: 0x3F2D16
+            radius: 8
+            border_width: 0
+            on_press:
+              then:
+                - lambda: |-
+                    id(display_sleep_enabled) = !id(display_sleep_enabled);
+                    if (id(display_sleep_enabled)) id(display_idle_scroll_enabled) = false;
+                    id(last_interaction_ms) = millis();
+                    id(last_auto_scroll_ms) = id(last_interaction_ms);
+                - if:
+                    condition:
+                      lambda: 'return !id(display_sleep_enabled) && id(screen_off);'
+                    then:
+                      - lvgl.resume:
+                      - script.execute: apply_display_brightness
+                      - lambda: 'id(screen_off) = false;'
+            widgets:
+              - label:
+                  text: "Sleep / Delay"
+                  align: LEFT_MID
+                  x: 10
+                  text_font: montserrat_14
+                  text_color: 0xFFFFFF
+              - label:
+                  id: sleep_enable_state
+                  text: "ON"
+                  align: RIGHT_MID
+                  x: -5
+                  text_font: montserrat_14
+                  text_color: 0xD1FAE5
+
+        - slider:
+            id: sleep_timeout_slider
+            align: TOP_LEFT
+            x: 206
+            y: 304
+            width: 210
+            height: 20  # 16
+            min_value: 15
+            max_value: 300
+            bg_color: 0x374151
+            knob:
+              bg_color: 0xFFFFFF
+              border_color: 0xF59E0B
+              border_width: 2
+            indicator:
+              bg_color: 0xF59E0B
+            on_value:
+              then:
+                - lambda: |-
+                    id(display_sleep_timeout_s) = x;
+                    id(last_interaction_ms) = millis();
+                    id(last_auto_scroll_ms) = id(last_interaction_ms);
+
+        - label:
+            id: sleep_timeout_value
+            text: "60s"
+            align: TOP_LEFT
+            x: 424
+            y: 298
+            text_font: montserrat_18
+            text_color: 0xC0C0C0
+
+

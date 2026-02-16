@@ -1,0 +1,35 @@
+lvgl:
+  pages:
+    - id: page_boot
+      on_load:
+        - script.execute: layout_finalize_boot
+      widgets:
+        - obj:
+            id: boot_center_group
+            align: CENTER
+            width: 240
+            height: 220
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            pad_all: 0
+            widgets:
+              - spinner:
+                  id: boot_spinner
+                  align: TOP_MID
+                  y: 0
+                  width: 60 # 100
+                  height: 60 # 100
+                  arc_length: 70deg
+                  spin_time: 3000ms
+                  indicator:
+                    arc_color: 0x4F46E5
+                    arc_width: 12 # 8
+                  main:
+                    arc_color: 0x374151
+                    arc_width: 10 # 6
+              - label:
+                  text: "Starting..."
+                  align: TOP_MID
+                  y: 140  # 130
+                  text_font: montserrat_32
+                  text_color: 0xFFFFFF

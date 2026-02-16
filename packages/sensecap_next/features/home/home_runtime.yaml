@@ -1,0 +1,39 @@
+packages:
+  home_runtime: !include home_page_runtime.yaml
+  home_clock_runtime: !include home_clock_page_runtime.yaml
+
+interval:
+  - interval: 60s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(boot_ready);'
+          then:
+            - lambda: |-
+                const int HIST = 1440;
+                if (id(temp_hist).size() != HIST) id(temp_hist).assign(HIST, NAN);
+                if (id(humid_hist).size() != HIST) id(humid_hist).assign(HIST, NAN);
+                if (id(co2_hist).size() != HIST) id(co2_hist).assign(HIST, NAN);
+                if (id(voc_hist).size() != HIST) id(voc_hist).assign(HIST, NAN);
+
+                int idx = id(hist_index);
+                if (idx < 0 || idx >= HIST) idx = 0;
+
+                float temp_f = NAN;
+                if (!isnan(id(temp).state)) temp_f = (id(temp).state * 9.0f / 5.0f) + 32.0f;
+                id(temp_hist)[idx] = temp_f;
+                id(humid_hist)[idx] = id(humid).state;
+                id(co2_hist)[idx] = id(co2).state;
+                id(voc_hist)[idx] = id(voc).state;
+
+                idx++;
+                if (idx >= HIST) idx = 0;
+                id(hist_index) = idx;
+
+  - interval: 10s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(boot_ready) && !id(screen_off) && id(graph_page_active);'
+          then:
+            - script.execute: graph_render

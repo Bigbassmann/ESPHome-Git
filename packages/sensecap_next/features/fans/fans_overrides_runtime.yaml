@@ -1,0 +1,224 @@
+interval:
+  - interval: 2s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(boot_ready) && !id(screen_off) && (id(nav_page_index) == 3 || id(nav_page_index) == 4);'
+          then:
+            - if:
+                condition:
+                  lambda: 'return id(ha_cleaners_toggle).state;'
+                then:
+                  - lvgl.label.update: {id: ov_cleaners_state, text: "ON"}
+                  - lvgl.widget.update: {id: ov_cleaners_state, text_color: 0xD1FAE5}
+                  - lvgl.widget.update: {id: ov_cleaners_btn, bg_color: 0x166534}
+                else:
+                  - lvgl.label.update: {id: ov_cleaners_state, text: "OFF"}
+                  - lvgl.widget.update: {id: ov_cleaners_state, text_color: 0xFCA5A5}
+                  - lvgl.widget.update: {id: ov_cleaners_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_dani_mode_on).state;'
+                then:
+                  - lvgl.label.update: {id: ov_dani_state, text: "ON"}
+                  - lvgl.widget.update: {id: ov_dani_state, text_color: 0xD1FAE5}
+                  - lvgl.widget.update: {id: ov_dani_btn, bg_color: 0x166534}
+                else:
+                  - lvgl.label.update: {id: ov_dani_state, text: "OFF"}
+                  - lvgl.widget.update: {id: ov_dani_state, text_color: 0xFCA5A5}
+                  - lvgl.widget.update: {id: ov_dani_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_front_door_auto_lock_off).state;'
+                then:
+                  - lvgl.label.update: {id: ov_front_lock_state, text: "ON"}
+                  - lvgl.widget.update: {id: ov_front_lock_state, text_color: 0xD1FAE5}
+                  - lvgl.widget.update: {id: ov_front_lock_btn, bg_color: 0x166534}
+                else:
+                  - lvgl.label.update: {id: ov_front_lock_state, text: "OFF"}
+                  - lvgl.widget.update: {id: ov_front_lock_state, text_color: 0xFCA5A5}
+                  - lvgl.widget.update: {id: ov_front_lock_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_tod_control).state;'
+                then:
+                  - lvgl.label.update: {id: ov_tod_state, text: "ON"}
+                  - lvgl.widget.update: {id: ov_tod_state, text_color: 0xD1FAE5}
+                  - lvgl.widget.update: {id: ov_tod_btn, bg_color: 0x166534}
+                else:
+                  - lvgl.label.update: {id: ov_tod_state, text: "OFF"}
+                  - lvgl.widget.update: {id: ov_tod_state, text_color: 0xFCA5A5}
+                  - lvgl.widget.update: {id: ov_tod_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_motion_automation_off).state;'
+                then:
+                  - lvgl.label.update: {id: ov_motion_all_state, text: "ON"}
+                  - lvgl.widget.update: {id: ov_motion_all_state, text_color: 0xD1FAE5}
+                  - lvgl.widget.update: {id: ov_motion_all_btn, bg_color: 0x166534}
+                else:
+                  - lvgl.label.update: {id: ov_motion_all_state, text: "OFF"}
+                  - lvgl.widget.update: {id: ov_motion_all_state, text_color: 0xFCA5A5}
+                  - lvgl.widget.update: {id: ov_motion_all_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_entry_motion_automation_off).state;'
+                then:
+                  - lvgl.label.update: {id: ov_motion_entry_state, text: "ON"}
+                  - lvgl.widget.update: {id: ov_motion_entry_state, text_color: 0xD1FAE5}
+                  - lvgl.widget.update: {id: ov_motion_entry_btn, bg_color: 0x166534}
+                else:
+                  - lvgl.label.update: {id: ov_motion_entry_state, text: "OFF"}
+                  - lvgl.widget.update: {id: ov_motion_entry_state, text_color: 0xFCA5A5}
+                  - lvgl.widget.update: {id: ov_motion_entry_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_garage_light_automation_off).state;'
+                then:
+                  - lvgl.label.update: {id: ov_motion_garage_state, text: "ON"}
+                  - lvgl.widget.update: {id: ov_motion_garage_state, text_color: 0xD1FAE5}
+                  - lvgl.widget.update: {id: ov_motion_garage_btn, bg_color: 0x166534}
+                else:
+                  - lvgl.label.update: {id: ov_motion_garage_state, text: "OFF"}
+                  - lvgl.widget.update: {id: ov_motion_garage_state, text_color: 0xFCA5A5}
+                  - lvgl.widget.update: {id: ov_motion_garage_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_mbr_motion_off).state;'
+                then:
+                  - lvgl.label.update: {id: ov_motion_mbr_state, text: "ON"}
+                  - lvgl.widget.update: {id: ov_motion_mbr_state, text_color: 0xD1FAE5}
+                  - lvgl.widget.update: {id: ov_motion_mbr_btn, bg_color: 0x166534}
+                else:
+                  - lvgl.label.update: {id: ov_motion_mbr_state, text: "OFF"}
+                  - lvgl.widget.update: {id: ov_motion_mbr_state, text_color: 0xFCA5A5}
+                  - lvgl.widget.update: {id: ov_motion_mbr_btn, bg_color: 0x374151}
+
+            - lvgl.label.update:
+                id: fr_fan_status
+                text: !lambda |-
+                  if (!id(ha_fr_fan_on).state) return std::string("OFF");
+                  char buf[24];
+                  snprintf(buf, sizeof(buf), "%.0f%%", id(ha_fr_fan_pct).state);
+                  return std::string(buf);
+
+            - lvgl.widget.update:
+                id: fr_fan_status
+                text_color: !lambda |-
+                  if (!id(ha_fr_fan_on).state) return lv_color_hex(0xFCA5A5);
+                  return lv_color_hex(0xD1FAE5);
+
+            - lvgl.label.update:
+                id: mbr_fan_status
+                text: !lambda |-
+                  if (!id(ha_mbr_fan_on).state) return std::string("OFF");
+                  char buf[24];
+                  snprintf(buf, sizeof(buf), "%.0f%%", id(ha_mbr_fan_pct).state);
+                  return std::string(buf);
+
+            - lvgl.widget.update:
+                id: mbr_fan_status
+                text_color: !lambda |-
+                  if (!id(ha_mbr_fan_on).state) return lv_color_hex(0xFCA5A5);
+                  return lv_color_hex(0xD1FAE5);
+
+            - lvgl.label.update:
+                id: mbr_fan_dir
+                text: !lambda |-
+                  if (id(ha_mbr_fan_dir).state.empty()) return std::string("Dir: --");
+                  return std::string("Dir: ") + id(ha_mbr_fan_dir).state;
+
+            - if:
+                condition:
+                  lambda: 'return !id(ha_fr_fan_on).state;'
+                then:
+                  - lvgl.widget.update: {id: fr_fan_off_btn, bg_color: 0x166534}
+                  - lvgl.widget.update: {id: fr_fan_low_btn, bg_color: 0x374151}
+                  - lvgl.widget.update: {id: fr_fan_med_btn, bg_color: 0x374151}
+                  - lvgl.widget.update: {id: fr_fan_high_btn, bg_color: 0x374151}
+                else:
+                  - if:
+                      condition:
+                        lambda: 'return id(ha_fr_fan_pct).state < 50.0f;'
+                      then:
+                        - lvgl.widget.update: {id: fr_fan_off_btn, bg_color: 0x374151}
+                        - lvgl.widget.update: {id: fr_fan_low_btn, bg_color: 0x166534}
+                        - lvgl.widget.update: {id: fr_fan_med_btn, bg_color: 0x374151}
+                        - lvgl.widget.update: {id: fr_fan_high_btn, bg_color: 0x374151}
+                      else:
+                        - if:
+                            condition:
+                              lambda: 'return id(ha_fr_fan_pct).state < 85.0f;'
+                            then:
+                              - lvgl.widget.update: {id: fr_fan_off_btn, bg_color: 0x374151}
+                              - lvgl.widget.update: {id: fr_fan_low_btn, bg_color: 0x374151}
+                              - lvgl.widget.update: {id: fr_fan_med_btn, bg_color: 0x166534}
+                              - lvgl.widget.update: {id: fr_fan_high_btn, bg_color: 0x374151}
+                            else:
+                              - lvgl.widget.update: {id: fr_fan_off_btn, bg_color: 0x374151}
+                              - lvgl.widget.update: {id: fr_fan_low_btn, bg_color: 0x374151}
+                              - lvgl.widget.update: {id: fr_fan_med_btn, bg_color: 0x374151}
+                              - lvgl.widget.update: {id: fr_fan_high_btn, bg_color: 0x166534}
+
+            - if:
+                condition:
+                  lambda: 'return !id(ha_mbr_fan_on).state;'
+                then:
+                  - lvgl.widget.update: {id: mbr_fan_off_btn, bg_color: 0x166534}
+                  - lvgl.widget.update: {id: mbr_fan_low_btn, bg_color: 0x374151}
+                  - lvgl.widget.update: {id: mbr_fan_med_btn, bg_color: 0x374151}
+                  - lvgl.widget.update: {id: mbr_fan_high_btn, bg_color: 0x374151}
+                else:
+                  - if:
+                      condition:
+                        lambda: 'return id(ha_mbr_fan_pct).state < 50.0f;'
+                      then:
+                        - lvgl.widget.update: {id: mbr_fan_off_btn, bg_color: 0x374151}
+                        - lvgl.widget.update: {id: mbr_fan_low_btn, bg_color: 0x166534}
+                        - lvgl.widget.update: {id: mbr_fan_med_btn, bg_color: 0x374151}
+                        - lvgl.widget.update: {id: mbr_fan_high_btn, bg_color: 0x374151}
+                      else:
+                        - if:
+                            condition:
+                              lambda: 'return id(ha_mbr_fan_pct).state < 85.0f;'
+                            then:
+                              - lvgl.widget.update: {id: mbr_fan_off_btn, bg_color: 0x374151}
+                              - lvgl.widget.update: {id: mbr_fan_low_btn, bg_color: 0x374151}
+                              - lvgl.widget.update: {id: mbr_fan_med_btn, bg_color: 0x166534}
+                              - lvgl.widget.update: {id: mbr_fan_high_btn, bg_color: 0x374151}
+                            else:
+                              - lvgl.widget.update: {id: mbr_fan_off_btn, bg_color: 0x374151}
+                              - lvgl.widget.update: {id: mbr_fan_low_btn, bg_color: 0x374151}
+                              - lvgl.widget.update: {id: mbr_fan_med_btn, bg_color: 0x374151}
+                              - lvgl.widget.update: {id: mbr_fan_high_btn, bg_color: 0x166534}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_attic_fan_on).state;'
+                then:
+                  - lvgl.label.update: {id: attic_fan_low_state, text: "ON"}
+                  - lvgl.widget.update: {id: attic_fan_low_state, text_color: 0xD1FAE5}
+                  - lvgl.widget.update: {id: attic_fan_low_btn, bg_color: 0x166534}
+                else:
+                  - lvgl.label.update: {id: attic_fan_low_state, text: "OFF"}
+                  - lvgl.widget.update: {id: attic_fan_low_state, text_color: 0xFCA5A5}
+                  - lvgl.widget.update: {id: attic_fan_low_btn, bg_color: 0x374151}
+
+            - if:
+                condition:
+                  lambda: 'return id(ha_attic_fan2_on).state;'
+                then:
+                  - lvgl.label.update: {id: attic_fan_high_state, text: "ON"}
+                  - lvgl.widget.update: {id: attic_fan_high_state, text_color: 0xD1FAE5}
+                  - lvgl.widget.update: {id: attic_fan_high_btn, bg_color: 0x166534}
+                else:
+                  - lvgl.label.update: {id: attic_fan_high_state, text: "OFF"}
+                  - lvgl.widget.update: {id: attic_fan_high_state, text_color: 0xFCA5A5}
+                  - lvgl.widget.update: {id: attic_fan_high_btn, bg_color: 0x374151}

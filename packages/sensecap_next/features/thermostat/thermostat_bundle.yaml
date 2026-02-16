@@ -1,0 +1,5 @@
+packages:
+  thermostat_lvgl: !include thermostat_lvgl.yaml
+  thermostat_ha: !include thermostat_ha.yaml
+  thermostat_runtime: !include thermostat_runtime.yaml
+  thermostat_actions: !include thermostat_actions.yaml

@@ -1,0 +1,125 @@
+lvgl:
+  pages:
+    - id: page_overrides
+      widgets:
+        - label:
+            id: overrides_title
+            text: "Overrides"
+            align: TOP_MID
+            y: 40
+            text_font: montserrat_32
+            text_color: 0x0F766E
+
+        - button:
+            id: ov_cleaners_btn
+            align: TOP_LEFT
+            x: 20
+            y: 90
+            width: 215
+            height: 64
+            bg_color: 0x374151
+            on_press:
+              - script.execute: ov_toggle_cleaners
+            widgets:
+              - label: {text: "Cleaners OV", align: LEFT_MID, x: 8, text_font: montserrat_16, text_color: 0xFFFFFF}
+              - label: {id: ov_cleaners_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}
+
+        - button:
+            id: ov_dani_btn
+            align: TOP_RIGHT
+            x: -20
+            y: 90
+            width: 215
+            height: 64
+            bg_color: 0x374151
+            on_press:
+              - script.execute: ov_toggle_dani
+            widgets:
+              - label: {text: "Dani Mode", align: LEFT_MID, x: 8, text_font: montserrat_16, text_color: 0xFFFFFF}
+              - label: {id: ov_dani_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}
+
+        - button:
+            id: ov_front_lock_btn
+            align: TOP_LEFT
+            x: 20
+            y: 164
+            width: 215
+            height: 64
+            bg_color: 0x374151
+            on_press:
+              - script.execute: ov_toggle_front_lock
+            widgets:
+              - label: {text: "Lock OV", align: LEFT_MID, x: 8, text_font: montserrat_16, text_color: 0xFFFFFF}
+              - label: {id: ov_front_lock_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}
+
+        - button:
+            id: ov_tod_btn
+            align: TOP_RIGHT
+            x: -20
+            y: 164
+            width: 215
+            height: 64
+            bg_color: 0x374151
+            on_press:
+              - script.execute: ov_toggle_tod
+            widgets:
+              - label: {text: "ToD On/Off", align: LEFT_MID, x: 8, text_font: montserrat_16, text_color: 0xFFFFFF}
+              - label: {id: ov_tod_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}
+
+        - button:
+            id: ov_motion_all_btn
+            align: TOP_LEFT
+            x: 20
+            y: 238
+            width: 215
+            height: 64
+            bg_color: 0x374151
+            on_press:
+              - script.execute: ov_toggle_motion_all
+            widgets:
+              - label: {text: "All Motion OV", align: LEFT_MID, x: 8, text_font: montserrat_16, text_color: 0xFFFFFF}
+              - label: {id: ov_motion_all_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}
+
+        - button:
+            id: ov_motion_entry_btn
+            align: TOP_RIGHT
+            x: -20
+            y: 238
+            width: 215
+            height: 64
+            bg_color: 0x374151
+            on_press:
+              - script.execute: ov_toggle_motion_entry
+            widgets:
+              - label: {text: "Entry OV", align: LEFT_MID, x: 8, text_font: montserrat_16, text_color: 0xFFFFFF}
+              - label: {id: ov_motion_entry_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}
+
+        - button:
+            id: ov_motion_garage_btn
+            align: TOP_LEFT
+            x: 20
+            y: 312
+            width: 215
+            height: 64
+            bg_color: 0x374151
+            on_press:
+              - script.execute: ov_toggle_motion_garage
+            widgets:
+              - label: {text: "Garage OV", align: LEFT_MID, x: 8, text_font: montserrat_16, text_color: 0xFFFFFF}
+              - label: {id: ov_motion_garage_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}
+
+        - button:
+            id: ov_motion_mbr_btn
+            align: TOP_RIGHT
+            x: -20
+            y: 312
+            width: 215
+            height: 64
+            bg_color: 0x374151
+            on_press:
+              - script.execute: ov_toggle_motion_mbr
+            widgets:
+              - label: {text: "MBR OV", align: LEFT_MID, x: 8, text_font: montserrat_16, text_color: 0xFFFFFF}
+              - label: {id: ov_motion_mbr_state, text: "OFF", align: RIGHT_MID, x: -12, text_font: montserrat_20, text_color: 0xFCA5A5}
+
+

@@ -1,0 +1,5 @@
+packages:
+  fans_lvgl: !include fans_lvgl.yaml
+  fans_ha: !include fans_ha.yaml
+  fans_runtime: !include fans_runtime.yaml
+  fans_actions: !include fans_actions.yaml
