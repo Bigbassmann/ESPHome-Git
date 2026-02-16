@@ -17,7 +17,7 @@ lvgl:
             x: 20
             y: 98
             text_font: montserrat_18
-            text_color: 0xFFFFFF
+            text_color: 0xCBD5E1   # 0xFFFFFF
 
         - label:
             id: ip_label
@@ -26,7 +26,7 @@ lvgl:
             x: 20
             y: 124
             text_font: montserrat_18
-            text_color: 0xFFFFFF
+            text_color: 0xCBD5E1   # 0xFFFFFF
 
         - label:
             id: wifi_bssid_label
@@ -35,7 +35,7 @@ lvgl:
             x: 20
             y: 150
             text_font: montserrat_18
-            text_color: 0xFFFFFF
+            text_color: 0xCBD5E1   # 0xFFFFFF
 
         - label:
             id: wi_fi_signal_label
@@ -44,7 +44,7 @@ lvgl:
             x: 20
             y: 176
             text_font: montserrat_18
-            text_color: 0xFFFFFF
+            text_color: 0xCBD5E1   # 0xFFFFFF
 
         - label:
             id: uptime_sensor_label
@@ -53,7 +53,7 @@ lvgl:
             x: 20
             y: 202
             text_font: montserrat_18
-            text_color: 0xFFFFFF
+            text_color: 0xCBD5E1   # 0xFFFFFF
 
         - label:
             id: internal_temp_label
@@ -62,7 +62,7 @@ lvgl:
             x: 20
             y: 228
             text_font: montserrat_18
-            text_color: 0xFFFFFF
+            text_color: 0xCBD5E1   # 0xFFFFFF
 
         - label:
             id: admin_device_id_label

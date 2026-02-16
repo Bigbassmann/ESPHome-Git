@@ -276,7 +276,7 @@ lvgl:
             x: 20
             y: 84
             text_font: montserrat_22
-            text_color: 0xFFFFFF
+            text_color: 0x9CA3AF   # 0xFFFFFF
         - label:
             id: tstat_mode_label
             text: "--"
@@ -292,7 +292,7 @@ lvgl:
             x: 250
             y: 84
             text_font: montserrat_22
-            text_color: 0xFFFFFF
+            text_color: 0x9CA3AF   # 0xFFFFFF
         - label:
             id: tstat_fan_mode_label
             text: "--"
@@ -308,7 +308,7 @@ lvgl:
             x: 20
             y: 118
             text_font: montserrat_22
-            text_color: 0xFFFFFF
+            text_color: 0x9CA3AF   # 0xFFFFFF
         - label:
             id: tstat_current_label
             text: "--"
@@ -324,7 +324,7 @@ lvgl:
             x: 250
             y: 118
             text_font: montserrat_22
-            text_color: 0xFFFFFF
+            text_color: 0x9CA3AF   # 0xFFFFFF
         - label:
             id: tstat_target_label
             text: "--"

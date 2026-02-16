@@ -17,16 +17,16 @@ lvgl:
                   id: boot_spinner
                   align: TOP_MID
                   y: 0
-                  width: 80 # 100
-                  height: 80 # 100
+                  width: 60 # 100
+                  height: 60 # 100
                   arc_length: 70deg
                   spin_time: 3000ms
                   indicator:
                     arc_color: 0x4F46E5
-                    arc_width: 10 # 8
+                    arc_width: 12 # 8
                   main:
                     arc_color: 0x374151
-                    arc_width: 8 # 6
+                    arc_width: 10 # 6
               - label:
                   text: "Starting..."
                   align: TOP_MID

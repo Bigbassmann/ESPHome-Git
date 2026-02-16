@@ -17,6 +17,9 @@ globals:
   - id: ui_menu_active
     type: bool
     initial_value: "false"
+  - id: nav_auto_advance_active
+    type: bool
+    initial_value: "false"
   - id: display_idle_scroll_enabled
     type: bool
     restore_value: true
@@ -97,3 +100,4 @@ globals:
   - id: tstat_runtime_syncing
     type: bool
     initial_value: "false"
+

@@ -95,7 +95,7 @@ lvgl:
                   id: mbr_light_state
                   text: "OFF"
                   align: RIGHT_MID
-                  x: -10
+                  x: -5
                   text_font: montserrat_14
                   text_color: 0xFCA5A5
 

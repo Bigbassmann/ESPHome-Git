@@ -34,7 +34,7 @@ lvgl:
             x: 206
             y: 124
             width: 210
-            height: 16
+            height: 20  # 16
             min_value: 0
             max_value: 100
             bg_color: 0x374151
@@ -94,7 +94,7 @@ lvgl:
                   id: idle_scroll_enable_state
                   text: "OFF"
                   align: RIGHT_MID
-                  x: -10
+                  x: -5
                   text_font: montserrat_14
                   text_color: 0xFCA5A5
 
@@ -104,7 +104,7 @@ lvgl:
             x: 206
             y: 184
             width: 210
-            height: 16
+            height: 20  # 16
             min_value: 15
             max_value: 300
             bg_color: 0x374151
@@ -154,7 +154,7 @@ lvgl:
             x: 206
             y: 244
             width: 210
-            height: 16
+            height: 20  # 16
             min_value: 1
             max_value: 30
             bg_color: 0x374151
@@ -215,7 +215,7 @@ lvgl:
                   id: sleep_enable_state
                   text: "ON"
                   align: RIGHT_MID
-                  x: -10
+                  x: -5
                   text_font: montserrat_14
                   text_color: 0xD1FAE5
 
@@ -225,7 +225,7 @@ lvgl:
             x: 206
             y: 304
             width: 210
-            height: 16
+            height: 20  # 16
             min_value: 15
             max_value: 300
             bg_color: 0x374151
