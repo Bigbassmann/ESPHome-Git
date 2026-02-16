@@ -339,7 +339,7 @@ lvgl:
             align: TOP_MID
             y: 154
             width: 320
-            height: 18
+            height: 20  # 16 18
             min_value: 50
             max_value: 85
             value: 68

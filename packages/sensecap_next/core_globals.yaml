@@ -1,4 +1,4 @@
-globals:
+﻿globals:
   - id: boot_ready
     type: bool
     initial_value: "false"
@@ -32,6 +32,17 @@ globals:
     type: int
     restore_value: true
     initial_value: "5"
+  - id: display_scroll_sleep_enabled
+    type: bool
+    restore_value: true
+    initial_value: "false"
+  - id: display_scroll_sleep_min
+    type: int
+    restore_value: true
+    initial_value: "30"
+  - id: scroll_sleep_start_ms
+    type: uint32_t
+    initial_value: "0"
   - id: display_sleep_enabled
     type: bool
     restore_value: true
@@ -100,4 +111,3 @@ globals:
   - id: tstat_runtime_syncing
     type: bool
     initial_value: "false"
-
