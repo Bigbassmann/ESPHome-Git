@@ -1,4 +1,4 @@
-script:
+﻿script:
   - id: apply_display_brightness
     then:
       - lambda: |-
@@ -21,7 +21,8 @@ script:
           id(ui_menu_active) = false;
           uint32_t now = millis();
           if (!id(nav_auto_advance_active)) id(last_interaction_ms) = now;
-          if (!id(nav_auto_advance_active)) id(last_auto_scroll_ms) = now;
+          
+          if (!id(nav_auto_advance_active)) id(scroll_sleep_start_ms) = 0;
       - lvgl.page.show:
           id: page_home
 
@@ -32,7 +33,8 @@ script:
           id(ui_menu_active) = false;
           uint32_t now = millis();
           if (!id(nav_auto_advance_active)) id(last_interaction_ms) = now;
-          if (!id(nav_auto_advance_active)) id(last_auto_scroll_ms) = now;
+          
+          if (!id(nav_auto_advance_active)) id(scroll_sleep_start_ms) = 0;
       - lvgl.page.show:
           id: page_home_clock
 
@@ -43,7 +45,8 @@ script:
           id(ui_menu_active) = false;
           uint32_t now = millis();
           if (!id(nav_auto_advance_active)) id(last_interaction_ms) = now;
-          if (!id(nav_auto_advance_active)) id(last_auto_scroll_ms) = now;
+          
+          if (!id(nav_auto_advance_active)) id(scroll_sleep_start_ms) = 0;
       - lvgl.page.show:
           id: page_settings
 
@@ -54,7 +57,8 @@ script:
           id(ui_menu_active) = false;
           uint32_t now = millis();
           if (!id(nav_auto_advance_active)) id(last_interaction_ms) = now;
-          if (!id(nav_auto_advance_active)) id(last_auto_scroll_ms) = now;
+          
+          if (!id(nav_auto_advance_active)) id(scroll_sleep_start_ms) = 0;
       - lvgl.page.show:
           id: ${page_admin_id}
 
@@ -65,7 +69,8 @@ script:
           id(ui_menu_active) = false;
           uint32_t now = millis();
           if (!id(nav_auto_advance_active)) id(last_interaction_ms) = now;
-          if (!id(nav_auto_advance_active)) id(last_auto_scroll_ms) = now;
+          
+          if (!id(nav_auto_advance_active)) id(scroll_sleep_start_ms) = 0;
       - lvgl.page.show:
           id: page_wifi
 
@@ -75,7 +80,8 @@ script:
           id(ui_menu_active) = true;
           uint32_t now = millis();
           if (!id(nav_auto_advance_active)) id(last_interaction_ms) = now;
-          if (!id(nav_auto_advance_active)) id(last_auto_scroll_ms) = now;
+          
+          if (!id(nav_auto_advance_active)) id(scroll_sleep_start_ms) = 0;
       - lvgl.page.show:
           id: page_menu
 
@@ -85,7 +91,8 @@ script:
           id(nav_page_index) = 3;
           id(ui_menu_active) = false;
           if (!id(nav_auto_advance_active)) id(last_interaction_ms) = millis();
-          if (!id(nav_auto_advance_active)) id(last_auto_scroll_ms) = id(last_interaction_ms);
+          
+          if (!id(nav_auto_advance_active)) id(scroll_sleep_start_ms) = 0;
       - lvgl.page.show:
           id: ${page_overrides_id}
 
@@ -95,7 +102,8 @@ script:
           id(nav_page_index) = 4;
           id(ui_menu_active) = false;
           if (!id(nav_auto_advance_active)) id(last_interaction_ms) = millis();
-          if (!id(nav_auto_advance_active)) id(last_auto_scroll_ms) = id(last_interaction_ms);
+          
+          if (!id(nav_auto_advance_active)) id(scroll_sleep_start_ms) = 0;
       - lvgl.page.show:
           id: ${page_fans_id}
 
@@ -105,7 +113,8 @@ script:
           id(nav_page_index) = 5;
           id(ui_menu_active) = false;
           if (!id(nav_auto_advance_active)) id(last_interaction_ms) = millis();
-          if (!id(nav_auto_advance_active)) id(last_auto_scroll_ms) = id(last_interaction_ms);
+          
+          if (!id(nav_auto_advance_active)) id(scroll_sleep_start_ms) = 0;
       - lvgl.page.show:
           id: ${page_thermostat_v2_id}
 
@@ -115,7 +124,8 @@ script:
           id(nav_page_index) = 8;
           id(ui_menu_active) = false;
           if (!id(nav_auto_advance_active)) id(last_interaction_ms) = millis();
-          if (!id(nav_auto_advance_active)) id(last_auto_scroll_ms) = id(last_interaction_ms);
+          
+          if (!id(nav_auto_advance_active)) id(scroll_sleep_start_ms) = 0;
       - lvgl.page.show:
           id: ${page_thermostat_legacy_id}
 
@@ -125,7 +135,8 @@ script:
           id(nav_page_index) = 6;
           id(ui_menu_active) = false;
           if (!id(nav_auto_advance_active)) id(last_interaction_ms) = millis();
-          if (!id(nav_auto_advance_active)) id(last_auto_scroll_ms) = id(last_interaction_ms);
+          
+          if (!id(nav_auto_advance_active)) id(scroll_sleep_start_ms) = 0;
       - lvgl.page.show:
           id: ${page_lighting_id}
 
@@ -135,7 +146,8 @@ script:
           id(nav_page_index) = 7;
           id(ui_menu_active) = false;
           if (!id(nav_auto_advance_active)) id(last_interaction_ms) = millis();
-          if (!id(nav_auto_advance_active)) id(last_auto_scroll_ms) = id(last_interaction_ms);
+          
+          if (!id(nav_auto_advance_active)) id(scroll_sleep_start_ms) = 0;
       - lvgl.page.show:
           id: ${page_other_controls_id}
 
@@ -687,6 +699,7 @@ script:
             - lvgl.widget.update: { id: graph_step_15m, bg_color: 0x0F766E, text_color: 0xFFFFFF }
           else:
             - lvgl.widget.update: { id: graph_step_15m, bg_color: 0x1F2933, text_color: 0xC0C0C0 }
+
 
 
 

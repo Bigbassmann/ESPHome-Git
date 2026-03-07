@@ -1,4 +1,4 @@
-lvgl:
+﻿lvgl:
   pages:
     - id: page_settings
       widgets:
@@ -50,6 +50,7 @@ lvgl:
                     id(display_brightness_pct) = x;
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
+                    id(scroll_sleep_start_ms) = 0;
                 - light.control:
                     id: backlight
                     state: ON
@@ -83,6 +84,7 @@ lvgl:
                     if (id(display_idle_scroll_enabled)) id(display_sleep_enabled) = false;
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
+                    id(scroll_sleep_start_ms) = 0;
             widgets:
               - label:
                   text: "Scroll / Delay"
@@ -120,6 +122,7 @@ lvgl:
                     id(display_idle_scroll_s) = x;
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
+                    id(scroll_sleep_start_ms) = 0;
 
         - label:
             id: idle_scroll_timeout_value
@@ -170,6 +173,7 @@ lvgl:
                     id(display_idle_scroll_rate_s) = x;
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
+                    id(scroll_sleep_start_ms) = 0;
 
         - label:
             id: idle_scroll_rate_value
@@ -197,6 +201,7 @@ lvgl:
                     if (id(display_sleep_enabled)) id(display_idle_scroll_enabled) = false;
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
+                    id(scroll_sleep_start_ms) = 0;
                 - if:
                     condition:
                       lambda: 'return !id(display_sleep_enabled) && id(screen_off);'
@@ -241,6 +246,7 @@ lvgl:
                     id(display_sleep_timeout_s) = x;
                     id(last_interaction_ms) = millis();
                     id(last_auto_scroll_ms) = id(last_interaction_ms);
+                    id(scroll_sleep_start_ms) = 0;
 
         - label:
             id: sleep_timeout_value
@@ -248,6 +254,70 @@ lvgl:
             align: TOP_LEFT
             x: 424
             y: 298
+            text_font: montserrat_18
+            text_color: 0xC0C0C0
+        - button:
+            id: scroll_sleep_enable_btn
+            align: TOP_LEFT
+            x: 20
+            y: 352
+            width: 170
+            height: 40
+            bg_color: 0x3D1F5C
+            radius: 8
+            border_width: 0
+            on_press:
+              then:
+                - lambda: |-
+                    id(display_scroll_sleep_enabled) = !id(display_scroll_sleep_enabled);
+                    id(last_interaction_ms) = millis();
+                    id(last_auto_scroll_ms) = id(last_interaction_ms);
+                    id(scroll_sleep_start_ms) = 0;
+            widgets:
+              - label:
+                  text: "Scroll Sleep"
+                  align: LEFT_MID
+                  x: 10
+                  text_font: montserrat_14
+                  text_color: 0xFFFFFF
+              - label:
+                  id: scroll_sleep_enable_state
+                  text: "OFF"
+                  align: RIGHT_MID
+                  x: -5
+                  text_font: montserrat_14
+                  text_color: 0xFCA5A5
+
+        - slider:
+            id: scroll_sleep_timeout_slider
+            align: TOP_LEFT
+            x: 206
+            y: 364
+            width: 210
+            height: 20
+            min_value: 15
+            max_value: 120
+            bg_color: 0x374151
+            knob:
+              bg_color: 0xFFFFFF
+              border_color: 0xA855F7
+              border_width: 2
+            indicator:
+              bg_color: 0xA855F7
+            on_value:
+              then:
+                - lambda: |-
+                    id(display_scroll_sleep_min) = x;
+                    id(last_interaction_ms) = millis();
+                    id(last_auto_scroll_ms) = id(last_interaction_ms);
+                    id(scroll_sleep_start_ms) = 0;
+
+        - label:
+            id: scroll_sleep_timeout_value
+            text: "30m"
+            align: TOP_LEFT
+            x: 424
+            y: 358
             text_font: montserrat_18
             text_color: 0xC0C0C0
 
