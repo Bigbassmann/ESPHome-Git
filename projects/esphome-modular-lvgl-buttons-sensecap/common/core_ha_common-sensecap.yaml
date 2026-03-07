@@ -1,0 +1,199 @@
+time:
+  - platform: homeassistant
+    id: ha_time
+
+binary_sensor:
+  - platform: homeassistant
+    id: ha_cleaners_toggle
+    entity_id: ${ent_cleaners_toggle}
+    internal: true
+  - platform: homeassistant
+    id: ha_dani_mode_on
+    entity_id: ${ent_dani_mode_on}
+    internal: true
+  - platform: homeassistant
+    id: ha_front_door_auto_lock_off
+    entity_id: ${ent_front_door_auto_lock_off}
+    internal: true
+  - platform: homeassistant
+    id: ha_tod_control
+    entity_id: ${ent_tod_control}
+    internal: true
+  - platform: homeassistant
+    id: ha_motion_automation_off
+    entity_id: ${ent_motion_automation_off}
+    internal: true
+  - platform: homeassistant
+    id: ha_entry_motion_automation_off
+    entity_id: ${ent_entry_motion_automation_off}
+    internal: true
+  - platform: homeassistant
+    id: ha_garage_light_automation_off
+    entity_id: ${ent_garage_light_automation_off}
+    internal: true
+  - platform: homeassistant
+    id: ha_mbr_motion_off
+    entity_id: ${ent_mbr_motion_off}
+    internal: true
+  - platform: homeassistant
+    id: ha_attic_fan_on
+    entity_id: ${ent_attic_fan_switch}
+    internal: true
+  - platform: homeassistant
+    id: ha_attic_fan2_on
+    entity_id: ${ent_attic_fan_switch}_2
+    internal: true
+  - platform: homeassistant
+    id: ha_fr_fan_on
+    entity_id: ${ent_fr_fan}
+    internal: true
+  - platform: homeassistant
+    id: ha_mbr_fan_on
+    entity_id: ${ent_mbr_fan}
+    internal: true
+  - platform: homeassistant
+    id: ha_all_lights_toggle
+    entity_id: ${ent_all_lights_toggle}
+    internal: true
+  - platform: homeassistant
+    id: ha_outdoor_lights_toggle
+    entity_id: ${ent_outdoor_lights_toggle}
+    internal: true
+  - platform: homeassistant
+    id: ha_mbr_lights_on
+    entity_id: ${ent_mbr_lights}
+    internal: true
+  - platform: homeassistant
+    id: ha_fr_lights_on
+    entity_id: ${ent_fr_lights}
+    internal: true
+  - platform: homeassistant
+    id: ha_library_lights_on
+    entity_id: ${ent_library_lights}
+    internal: true
+  - platform: homeassistant
+    id: ha_living_room_lights_on
+    entity_id: ${ent_living_room_lights}
+    internal: true
+
+sensor:
+  - platform: homeassistant
+    id: ha_fr_fan_pct
+    entity_id: ${ent_fr_fan}
+    attribute: ${attr_percentage}
+    internal: true
+  - platform: homeassistant
+    id: ha_mbr_fan_pct
+    entity_id: ${ent_mbr_fan}
+    attribute: ${attr_percentage}
+    internal: true
+  - platform: homeassistant
+    id: ha_fr_lights_brightness
+    entity_id: ${ent_fr_lights}
+    attribute: ${attr_brightness}
+    internal: true
+
+  - platform: template
+    id: ha_tstat_current_temp
+    internal: true
+    update_interval: never
+    lambda: |-
+      static float last_valid = 66.0f;
+      std::string s = id(ha_tstat_current_temp_txt).state;
+      if (s.empty() || s == "None" || s == "none" || s == "unknown" || s == "unavailable") return last_valid;
+      char* end = nullptr;
+      float v = strtof(s.c_str(), &end);
+      if (end == s.c_str() || std::isnan(v) || std::isinf(v)) return last_valid;
+      if (v < 40.0f || v > 90.0f) {
+        ESP_LOGW("tstat_sync", "Ignoring out-of-range current temp %.1f from HA text state '%s'", v, s.c_str());
+        return last_valid;
+      }
+      last_valid = v;
+      return v;
+
+  - platform: template
+    id: ha_tstat_target_temp
+    internal: true
+    update_interval: never
+    lambda: |-
+      static float last_valid = 68.0f;
+      std::string s = id(ha_tstat_target_temp_txt).state;
+      if (s.empty() || s == "None" || s == "none" || s == "unknown" || s == "unavailable") return last_valid;
+      float v = atof(s.c_str());
+      if (std::isnan(v)) return last_valid;
+      static std::string last_bad;
+      if (v < 50.0f || v > 85.0f) {
+        if (s != last_bad) {
+          ESP_LOGW("tstat_sync", "Ignoring out-of-range target temp %.1f from HA text state '%s'", v, s.c_str());
+          last_bad = s;
+        }
+        return last_valid;
+      }
+      last_bad.clear();
+      last_valid = v;
+      return v;
+
+text_sensor:
+  - platform: homeassistant
+    id: ha_mbr_fan_dir
+    entity_id: ${ent_mbr_fan}
+    attribute: ${attr_direction}
+    internal: true
+  - platform: homeassistant
+    id: ha_mbr_lights_brightness_txt
+    entity_id: ${ent_mbr_lights}
+    attribute: ${attr_brightness}
+    internal: true
+  - platform: homeassistant
+    id: ha_library_lights_brightness_txt
+    entity_id: ${ent_library_lights}
+    attribute: ${attr_brightness}
+    internal: true
+  - platform: homeassistant
+    id: ha_living_room_lights_brightness_txt
+    entity_id: ${ent_living_room_lights}
+    attribute: ${attr_brightness}
+    internal: true
+  - platform: homeassistant
+    id: ha_front_door_lock_state
+    entity_id: ${ent_front_door_lock}
+    internal: true
+
+  - platform: homeassistant
+    id: ha_tstat_mode
+    entity_id: ${ent_thermostat}
+    internal: true
+  - platform: homeassistant
+    id: ha_tstat_hvac_action
+    entity_id: ${ent_thermostat}
+    attribute: ${attr_hvac_action}
+    internal: true
+  - platform: homeassistant
+    id: ha_tstat_current_temp_txt
+    entity_id: ${ent_thermostat}
+    attribute: ${attr_current_temperature}
+    internal: true
+  - platform: homeassistant
+    id: ha_tstat_target_temp_txt
+    entity_id: ${ent_thermostat}
+    attribute: ${attr_temperature}
+    internal: true
+  
+  - platform: homeassistant
+    id: ha_tstat_fan_mode
+    entity_id: ${ent_thermostat}
+    attribute: ${attr_fan_mode}
+    internal: true
+  - platform: homeassistant
+    id: ha_tstat_fan_state
+    entity_id: ${ent_thermostat}
+    attribute: ${attr_fan_state}
+    internal: true
+  - platform: homeassistant
+    id: ha_tstat_fan_entity
+    entity_id: ${ent_thermostat_fan}
+    internal: true
+
+
+
+
