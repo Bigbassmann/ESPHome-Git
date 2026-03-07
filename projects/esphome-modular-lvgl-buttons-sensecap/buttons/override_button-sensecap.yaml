@@ -99,13 +99,13 @@ binary_sensor:
                       text: ${on_icon | default("")}
             - lvgl.widget.update:
                 id: label_${uid}
-                text_color: $label_on_color
+                text_color: white
             - lvgl.label.update:
                 id: value_${uid}
                 text: ${value_on | default("ON")}
             - lvgl.widget.update:
                 id: value_${uid}
-                text_color: $label_on_color
+                text_color: white
           else:
             - lvgl.widget.update:
                 id: button_${uid}
@@ -122,16 +122,19 @@ binary_sensor:
                       text: ${off_icon | default("")}
             - lvgl.widget.update:
                 id: label_${uid}
-                text_color: sense_text
+                text_color: white
             - lvgl.label.update:
                 id: value_${uid}
                 text: ${value_off | default("OFF")}
             - lvgl.widget.update:
                 id: value_${uid}
-                text_color: sense_text
+                text_color: white
             - lvgl.label.update:
                 id: value_${uid}
                 text: ${value_off | default("OFF")}
+
+
+
 
 
 
