@@ -1,5 +1,5 @@
----
-# Override toggle button with icon + text + value (ON/OFF)
+﻿---
+# Override tile button (icon + label, no value)
 # vars:
 #   uid:
 #   page_id:
@@ -10,13 +10,17 @@
 #   text:
 #   icon:
 #   entity_id:
-#   value_on:
-#   value_off:
-#   show_value: (optional, default true)
 #   on_bg_color: (optional)
 #   off_bg_color: (optional)
 #   on_icon: (optional)
 #   off_icon: (optional)
+#   tile_radius: (optional)
+#   tile_pad_left: (optional)
+#   tile_pad_right: (optional)
+#   tile_pad_top: (optional)
+#   tile_pad_bottom: (optional)
+#   tile_icon_font: (optional)
+#   tile_label_font: (optional)
 
 lvgl:
   pages:
@@ -35,40 +39,25 @@ lvgl:
                   id: button_${uid}
                   width: 100%
                   height: 100%
-                  radius: 8
-                  pad_left: 8
-                  pad_right: 8
-                  pad_top: 4
-                  pad_bottom: 4
-                  layout:
-                    type: grid
-                    grid_rows: [fr(1)]
-                    grid_columns: [content, fr(1), content]
+                  radius: ${tile_radius | default(8)}
+                  pad_left: ${tile_pad_left | default(8)}
+                  pad_right: ${tile_pad_right | default(8)}
+                  pad_top: ${tile_pad_top | default(4)}
+                  pad_bottom: ${tile_pad_bottom | default(4)}
+                  bg_color: ${off_bg_color | default("$button_off_color")}
                   widgets:
                     - label:
                         id: icon_${uid}
-                        text_font: $icon_font
+                        text_font: ${tile_icon_font | default("mdi_icons_40")}
                         text: ${icon}
-                        grid_cell_row_pos: 0
-                        grid_cell_column_pos: 0
-                        grid_cell_x_align: start
-                        grid_cell_y_align: center
+                        align: TOP_LEFT
+                        text_color: white
                     - label:
                         id: label_${uid}
-                        text_font: nunito_20  # 16
+                        text_font: ${tile_label_font | default("nunito_20")}
                         text: ${text}
-                        grid_cell_row_pos: 0
-                        grid_cell_column_pos: 1
-                        grid_cell_x_align: start
-                        grid_cell_y_align: center
-                    - label:
-                        id: value_${uid}
-                        text_font: nunito_18
-                        text: ${value_off | default("OFF")}
-                        grid_cell_row_pos: 0
-                        grid_cell_column_pos: 2
-                        grid_cell_x_align: end
-                        grid_cell_y_align: center
+                        align: BOTTOM_LEFT
+                        text_color: white
                   on_short_click:
                     - homeassistant.action:
                         action: homeassistant.toggle
@@ -101,23 +90,6 @@ binary_sensor:
             - lvgl.widget.update:
                 id: label_${uid}
                 text_color: white
-            - if:
-                condition:
-                  lambda: 'return std::string("${show_value | default("true")}") == "true";'
-                then:
-                  - lvgl.widget.update:
-                      id: value_${uid}
-                      hidden: false
-                  - lvgl.label.update:
-                      id: value_${uid}
-                      text: ${value_on | default("ON")}
-                  - lvgl.widget.update:
-                      id: value_${uid}
-                      text_color: white
-                else:
-                  - lvgl.widget.update:
-                      id: value_${uid}
-                      hidden: true
           else:
             - lvgl.widget.update:
                 id: button_${uid}
@@ -135,20 +107,3 @@ binary_sensor:
             - lvgl.widget.update:
                 id: label_${uid}
                 text_color: white
-            - if:
-                condition:
-                  lambda: 'return std::string("${show_value | default("true")}") == "true";'
-                then:
-                  - lvgl.widget.update:
-                      id: value_${uid}
-                      hidden: false
-                  - lvgl.label.update:
-                      id: value_${uid}
-                      text: ${value_off | default("OFF")}
-                  - lvgl.widget.update:
-                      id: value_${uid}
-                      text_color: white
-                else:
-                  - lvgl.widget.update:
-                      id: value_${uid}
-                      hidden: true

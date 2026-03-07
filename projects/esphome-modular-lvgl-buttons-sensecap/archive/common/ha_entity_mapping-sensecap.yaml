@@ -1,0 +1,239 @@
+# HA Entity Mapping for SenseCAP devices.
+
+# HA Defenitions
+substitutions:
+# input_boolean.dani_mode_on - Panic All ON for Daniela
+  ha_dani_mode_ov:
+    entity_id: "input_boolean.dani_mode_on"            # ${ha_dani_mode_ov.entity_id}
+    friendly_name: "Dani Mode On"                      # ${ha_dani_mode_ov.friendly_name}
+    icon: "mdi:alarm-light"                            # ${ha_dani_mode_ov.icon}
+    name: "Dani Mode On"                               # ${ha_dani_mode_ov.name}
+    state: "off"                                       # ${ha_dani_mode_ov.state}
+    last_changed: "2024-01-01T00:00:00+00:00"          # ${ha_dani_mode_ov.last_changed}
+    last_updated: "2024-01-01T00:00:00+00:00"          # ${ha_dani_mode_ov.last_updated}
+    entity_category: ""                                # ${ha_dani_mode_ov.entity_category}
+    device_class: "switch"                             # ${ha_dani_mode_ov.device_class}
+    state_class: null                                  # ${ha_dani_mode_ov.state_class}
+    integration: "input_boolean"                       # ${ha_dani_mode_ov.integration}
+    internal: true                                     # ${ha_dani_mode_ov.internal}
+# -----------------------------------------------
+# SenseCap Attributes / Variables / Substitutions
+# -----------------------------------------------
+  ui_dani_mode_ov:                                             # SenseCap Attributes / Variables / Substitutions
+    page_location_1: "home_page_3x3_grid-sensecap.yaml"        # ${ui_dani_mode_ov.page_location_1}
+    pl1_file: "pages/home_page_3x3_grid.yaml"                  # ${ui_dani_mode_ov.pl1_file}
+    page_location_2: "overrides_grid-sensecap.yaml"            # ${ui_dani_mode_ov.page_location_2}
+    pl2_file: pages/overrides_grid-sensecap.yaml"              # ${ui_dani_mode_ov.pl2_file}
+    pl1_layout: "3x3_grid_layout"                              # ${ui_dani_mode_ov.pl1_layout}
+    pl2_layout: "2x4_grid_layout"                              # ${ui_dani_mode_ov.pl2_layout}
+    pl1_id: "dani_mode_ov_btn_home"                            # ${ui_dani_mode_ov.pl1_id}
+    pl2_id: "dani_mode_ov_btn_overrides"                       # ${ui_dani_mode_ov.pl2_id}
+    pl1_text: "Dani Mode"                                      # ${ui_dani_mode_ov.pl1_text}  
+    pl1_btn1_bg_color: "sense_tile_red_off"                    # ${ui_dani_mode_ov.pl1_btn1_bg_color}
+    pl1_btn1_on_bg_color: "sense_tile_red"                     # ${ui_dani_mode_ov.pl1_btn1_on_bg_color}
+    pl1_btn1_off_bg_color: "sense_tile_red_off"                # ${ui_dani_mode_ov.pl1_btn_1_off_bg_color}
+    pl1_btn1_row_pos: 0                                        # ${ui_dani_mode_ov.pl1_btn1_row_pos}
+    pl1_btn1_col_pos: 0                                        # ${ui_dani_mode_ov.pl1_btn1_col_pos}
+    pl2_btn1_row_pos: 0                                        # ${ui_dani_mode_ov.pl2_btn1_row_pos}
+    pl2_btn1_col_pos: 1                                        # ${ui_dani_mode_ov.pl2_btn1_col_pos}
+    pl1_on_press_action_data: "input_boolean.dani_mode_on"     # ${ui_dani_mode_ov.pl1_on_press_action_data}
+    pl1_label_1_id: "dani_mode_icon_home"                      # ${ui_dani_mode_ov.pl1_label_1_id}
+    pl1_widgets.btn1.widget_label_1_text: "\U000F078F"         # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_label_1_text}  # "mdi:alarm-light"
+    pl1_widgets.btn1.widget_label_1_color: "sense_text_muted"  # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_label_1_color}
+    pl1_widgets_btn1.widget_label_1_on_icon_color: "\U000F078F"      # "mdi:alarm-light" # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_label_1_on_icon}
+    pl1_widgets_btn1.widget_label_1_off_icon_color: "\U000F078F"     # "mdi:alarm-light" # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_label_1_off_icon}
+    pl1_widgets.btn1.widget_label_1_hidden: "false"            # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_label_1_hidden}
+    pl1_label_2_id: "dani_mode_label_home"                       # ${ui_dani_mode_ov.pl1_label_2_id}
+    pl1_widgets.btn1.widget_label_2_text: "Dani Mode"          # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_label_2_text}  # "Dani Mode"
+    pl1_widgets.btn1.widget_label_2_color: "sense_text_muted"  # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_label_2_color}
+    pl1_widgets_btn1.widget_label_2_on_text_color: "white"     # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_label_2_on_text_color}
+    pl1_widgets_btn1.widget_label_2_off_text_color: "white"    # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_label_2_off_text_color}
+    pl1_widgets.btn1.widget_label_2_hidden: "false"            # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_label_2_hidden}
+    pl1_label_3_id: "dani_mode_value_home"                     # ${ui_dani_mode_ov.pl1_label_3_id}
+    pl1_widgets.btn1.widget_label_3_text: "---"                # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_label_3_text}  # Placeholder for value, can be set to "ON"/"OFF" or left blank as needed
+    pl1_widgets.btn1.widget_label_3_color: "sense_text_muted"  # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_label_3_color}
+    pl1_widgets.btn1.widget_label_3_hidden: "false"            # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_label_3_hidden}
+    pl1_widgets.btn1.widget_value_on: "ON"                     # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_value_on}
+    pl1_widgets.btn1.widget_value_off: "OFF"                   # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_value_off}
+    pl1_widgets_btn1.widget_value_on_color: "white"            # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_value_on_color}
+    pl1_widgets_btn1.widget_value_off_color: "white"           # ${ui_dani_mode_ov.pl1_widgets.btn1.widget_value_off_color}
+  
+  # input_boolean.sleepy_mode_on - Sleepy Mode Lights - Late Night Dimming
+  ha_sleepy_mode_ov:
+    entity_id: "input_boolean.sleepy_mode_on"          # ${ha_sleepy_mode_ov.entity_id}
+    friendly_name: "Sleepy Mode On"                    # ${ha_sleepy_mode_ov.friendly_name}
+    icon: "mdi_weather_night"                          # ${ha_sleepy_mode_ov.icon}
+    name: "Sleepy Mode On"                             # ${ha_sleepy_mode_ov.name}
+    state: "off"                                       # ${ha_sleepy_mode_ov.state}
+    last_changed: "2024-01-01T00:00:00+00:00"          # ${ha_sleepy_mode_ov.last_changed}
+    last_updated: "2024-01-01T00:00:00+00:00"          # ${ha_sleepy_mode_ov.last_updated}
+    entity_category: ""                                # ${ha_sleepy_mode_ov.entity_category}
+    device_class: "switch"                             # ${ha_sleepy_mode_ov.device_class}
+    state_class: null                                  # ${ha_sleepy_mode_ov.state_class}
+    integration: "input_boolean"                       # ${ha_sleepy_mode_ov.integration}
+    internal: true                                     # ${ha_sleepy_mode_ov.internal}
+# -----------------------------------------------
+# SenseCap Attributes / Variables / Substitutions
+# -----------------------------------------------
+  ui_sleepy_mode_ov:  
+    page_location_1: "home_page_3x3_grid-sensecap.yaml"        # ${ui_sleepy_mode_ov.page_location_1}
+    pl1_file: "pages/home_page_3x3_grid.yaml"                  # ${ui_sleepy_mode_ov.pl1_file}
+    page_location_2: "lighting_dimmers_grid-sensecap.yaml"           # ${ui_sleepy_mode_ov.page_location_2}
+    pl2_file: pages/lighting_dimmers_grid-sensecap.yaml"              # ${ui_sleepy_mode_ov.pl2_file}
+    pl1_layout: "3x3_grid_layout"                              # ${ui_sleepy_mode_ov.pl1_layout}
+    pl2_layout: "1x4_btn_3x4_dimmer_layout"                              # ${ui_sleepy_mode_ov.pl2_layout}
+    pl1_id: "sleepy_mode_ov_btn_home"                            # ${ui_sleepy_mode_ov.pl1_id}
+    pl2_id: "sleepy_mode_ov_btn_overrides"                       # ${ui_sleepy_mode_ov.pl2_id}
+    pl1_text: "Sleepy Mode"                                      # ${ui_sleepy_mode_ov.pl1_text}  
+    pl1_btn1_bg_color: "sense_tile_teal_off"                  # ${ui_sleepy_mode_ov.pl1_btn1_bg_color}
+    pl1_btn1_on_bg_color: "sense_tile_teal"                    # ${ui_sleepy_mode_ov.pl1_btn1_on_bg_color}
+    pl1_btn1_off_bg_color: "sense_tile_teal_off"               # ${ui_sleepy_mode_ov.pl1_btn_1_off_bg_color}
+    pl1_btn1_row_pos: 0                                        # ${ui_sleepy_mode_ov.pl1_btn1_row_pos}
+    pl1_btn1_col_pos: 1                                         # ${ui_sleepy_mode_ov.pl1_btn1_col_pos}
+    pl2_btn1_row_pos: 1                                        # ${ui_sleepy_mode_ov.pl2_btn1_row_pos}
+    pl2_btn1_col_pos: 0                                        # ${ui_sleepy_mode_ov.pl2_btn1_col_pos}
+    pl1_on_press_action_data: "input_boolean.sleepy_mode_on"     # ${ui_sleepy_mode_ov.pl1_on_press_action_data}
+    pl1_label_1_id: "sleepy_mode_icon_home"                      # ${ui_sleepy_mode_ov.pl1_label_1_id}
+    pl1_widgets.btn1.widget_label_1_text: "\U000F0594"         # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_label_1_text}  # "mdi:alarm-light"
+    pl1_widgets.btn1.widget_label_1_color: "sense_text_muted"  # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_label_1_color}
+   # pl1_widgets_btn1.widget_label_1_on_icon_color: "sense_tile_teal"    # "mdi:alarm-light" # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_label_1_on_icon}
+   # pl1_widgets_btn1.widget_label_1_off_icon_color: "\U000F0594"    # "mdi:alarm-light" # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_label_1_off_icon}
+    pl1_widgets.btn1.widget_label_1_hidden: "false"            # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_label_1_hidden}
+    pl1_label_2_id: "sleepy_mode_label_home"                       # ${ui_sleepy_mode_ov.pl1_label_2_id}
+    pl1_widgets.btn1.widget_label_2_text: "Sleepy Mode"          # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_label_2_text}  # "Sleepy Mode"
+    pl1_widgets.btn1.widget_label_2_color: "sense_text_muted"  # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_label_2_color}
+    pl1_widgets_btn1.widget_label_2_on_text_color: "white"     # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_label_2_on_text_color}
+    pl1_widgets_btn1.widget_label_2_off_text_color: "white"    # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_label_2_off_text_color}
+    pl1_widgets.btn1.widget_label_2_hidden: "false"            # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_label_2_hidden}
+    pl1_label_3_id: "sleepy_mode_value_home"                     # ${ui_sleepy_mode_ov.pl1_label_3_id}
+    pl1_widgets.btn1.widget_label_3_text: "---"                # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_label_3_text}  # Placeholder for value, can be set to "ON"/"OFF" or left blank as needed
+    pl1_widgets.btn1.widget_label_3_color: "sense_text_muted"  # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_label_3_color}
+    pl1_widgets.btn1.widget_label_3_hidden: "false"            # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_label_3_hidden}
+    pl1_widgets.btn1.widget_value_on: "ON"                     # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_value_on}
+    pl1_widgets.btn1.widget_value_off: "OFF"                   # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_value_off}
+    pl1_widgets_btn1.widget_value_on_color: "white"            # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_value_on_color}
+    pl1_widgets_btn1.widget_value_off_color: "white"           # ${ui_sleepy_mode_ov.pl1_widgets.btn1.widget_value_off_color}
+
+#    layout: 
+#    text: "Dani Mode"
+#    icon: "\U000F078F"  # "mdi:alarm
+  # ui_dani_icon: "\U000F078F"  # "mdi:alarm-light"
+  # ui_dani_on_bg: "sense_tile_red"
+  #  on_bg_color: "sense_tile_red"
+  #  off_bg_color: "sense_tile_red_off"
+  # ui_dani_off_bg: "sense_tile_red_off"
+#    on_icon: "\U000F078F"  # "mdi:alarm-light"
+#    off_icon: "\U000F078F"  # "mdi:alarm-light"
+#    value_on: "ON"
+#    value_off: "OFF"
+  
+#  substitutions:
+#    ent_dani_mode_on: "input_boolean.dani_mode_on"
+#    data: 
+#      entity_id: ${ent_dani_mode_on}
+#  package_list:
+#    - "homev2_dani_mode_btn"  
+#  package_vars:
+#    overrides_grid:
+#      file: pages/overrides_grid-sensecap.yaml
+#      vars:
+#        sense_page_overrides_id: "page_overrides"
+#        ui_overrides_dani_entity_id: ${ent_dani_mode_on}
+#        ui_overrides_dani_text: ${ui_dani_text}
+#        ui_overrides_dani_icon: ${ui_dani_icon}
+#        ui_overrides_dani_on_bg: ${ui_dani_on_bg}
+#        ui_overrides_dani_off_bg: ${ui_dani_off_bg}
+#        ui_overrides_dani_on_icon: ${ui_dani_on_icon}
+#        ui_overrides_dani_off_icon: ${ui_dani_off_icon} 
+#        ui_overrides_dani_value_on: ${ui_dani_value_on}
+##        ui_overrides_dani_value_off: ${ui_dani_value_off}
+#        ui_overrides_dani_icon_on_color: "$icon_on_color"
+#        ui_overrides_dani_icon_off_color: "sense_text_muted"
+##        ui_overrides_dani_text_on_color: "white"
+ #       ui_overrides_dani_text_off_color: "white"
+ #       ui_overrides_dani_value_on_color: "white"
+#        ui_overrides_dani_value_off_color: "white"
+#        ui_overrides_dani_show_icon: "true"
+#        ui_overrides_dani_show_text: "true"
+#        ui_overrides_dani_show_value: "true"
+        
+
+
+#    home_page_3x3_layout_row_0_col_0_btn:         # homev2_dani_mode_btn:   # Should be home_page_3x3_layout_row_0_col_0_btn, but keeping old ID for now to avoid breaking existing overrides
+ #     file: buttons/home_page_3x3_grid.yaml       # home_grid_button-sensecap.yaml # This is the file path to the button package that defines the layout and behavior of the Dani Mode button on the Home page. By including this package and passing the appropriate variables, we can create a consistent and reusable button that reflects the state of the input_boolean.dani_mode_on entity in Home Assistant, allowing for easy toggling of Dani Mode from the UI.
+  #    vars:      # Define variables for the Dani Mode button, allowing for dynamic configuration and reuse across different pages or contexts. This includes the entity ID, text, icon, background colors, and value representations for both ON and OFF states. By using substitutions for these variables, we can easily update the appearance and behavior of the button across the entire UI by changing the underlying substitutions, ensuring consistency and reducing maintenance overhead.
+   #     uid: home_page_3x3_layout_row_0_col_0_btn  # homev2_dani_mode_btn   Should be home_page_3x3_layout_row_0_col_0_btn, but keeping old ID for now to avoid breaking existing overrides
+    #    row: ${row_dani_mode_btn}         # 0  Define the row position of the Dani Mode button within the grid layout of the Home page. This allows for precise placement of the button in the desired location on the UI, ensuring a logical and user-friendly arrangement of controls.
+     #   column: ${column_dani_mode_btn}   # 0  Define the column position of the Dani Mode button within the grid layout of the Home page. This, combined with the row variable, allows for precise placement of the button in the desired location on the UI, ensuring a logical and user-friendly arrangement of controls.
+      #  text: ${text_dani_mode}           # "Dani Mode" # Define the text label for the Dani Mode button, which will be displayed on the UI. This provides a clear and descriptive name for the button, making it easy for users to understand its purpose and functionality at a glance.
+#        icon: ${icon_dani_mode}           # $mdi_alarm_light  # Define the icon for the Dani Mode button using a Material Design Icon (MDI) token. This visual representation helps users quickly identify the button's function, enhancing the overall user experience and making the UI more intuitive.
+ #       entity_id: ${ent_dani_mode_on}  # Reference to the input_boolean.dani_mode_on entity defined in substitutions, allowing for dynamic mapping and easier maintenance. This means if the underlying entity ID changes, only the substitution needs to be updated, and all references to this button will automatically use the new entity ID, ensuring consistent behavior across the UI.
+  #      on_bg_color: ${on_bg_color_dani_mode}    # sense_tile_red     # Define the background color for the ON state of the Dani Mode button, using a predefined color from the theme. This visual cue helps users quickly identify when Dani Mode is active, enhancing the overall user experience and making the UI more intuitive.
+   #     off_bg_color: ${off_bg_color_dani_mode}  # sense_tile_red_off # Define the background color for the OFF state of the Dani Mode button, using a predefined color from the theme. This visual cue helps users quickly identify when Dani Mode is inactive, enhancing the overall user experience and making the UI more intuitive. 
+    #    value_on: ${value_on_dani_mode}          # "ON"  # Define the text representation for the ON state of the Dani Mode button, which can be used in various parts of the UI to indicate the active state of Dani Mode. This provides a clear and consistent way to represent the state of the button across different contexts.
+     #   value_off: ${value_off_dani_mode}        # "OFF" # Define the text representation for the OFF state of the Dani Mode button, which can be used in various parts of the UI to indicate the inactive state of Dani Mode. This provides a clear and consistent way to represent the state of the button across different contexts.
+#  binary_sensor_list:                 # Populate with binary sensors as needed, following the same pattern as ha_dani_mode_on
+ #   - "ha_dani_mode_on"               # Define a binary sensor that maps to the Home Assistant entity specified by ent_dani_mode_on, allowing the ESPHome device to track the state of this entity and use it for automations, UI updates, and other logic. This creates a bridge between Home Assistant and ESPHome, enabling the use of Home Assistant's state and attributes within the ESPHome environment.
+#  binary_sensor_vars:                 # 
+ #   ha_dani_mode_on:                  # Define a binary sensor that maps to the Home Assistant entity specified by ent_dani_mode_on, allowing the ESPHome device to track the state of this entity and use it for automations, UI updates, and other logic. This creates a bridge between Home Assistant and ESPHome, enabling the use of Home Assistant's state and attributes within the ESPHome environment.
+  #    platform: homeassistant         # Define a binary sensor that maps to the Home Assistant entity specified by ent_dani_mode_on, allowing the ESPHome device to track the state of this entity and use it for automations, UI updates, and other logic. This creates a bridge between Home Assistant and ESPHome, enabling the use of Home Assistant's state and attributes within the ESPHome environment.
+   #   entity_id: ${ent_dani_mode_on}  # Reference to the input_boolean.dani_mode_on entity defined in substitutions, allowing for dynamic mapping and easier maintenance. This means if the underlying entity ID changes, only the substitution needs to be updated, and all references to ha_dani_mode_on will automatically use the new entity ID.
+    #  internal: true       # Marking this as internal to indicate it's not meant for direct use in UI or automations, but rather for internal logic and state tracking. This can help prevent accidental use in places where the raw binary sensor state might not be appropriate, and encourages using the provided UI variables and packages for consistent behavior and appearance.
+#      id: ha_dani_mode_on  # Unique ID for this binary sensor, used for referencing in automations and UI updates#  text_sensor_list: []     # Populate with text sensors as needed, following the same pattern as binary_sensor_list and binary_sensor_vars
+#  sensor_list: []          # Populate with sensors as needed, following the same pattern as binary_sensor_list and binary_sensor_vars
+#  switch_list: []          # Populate with switches as needed, following the same pattern as binary_sensor_list and binary_sensor_vars
+#  fan_list: []             # Populate with fans as needed, following the same pattern as binary_sensor_list and binary_sensor_vars
+#  template_sensor_list: [] # Populate with template sensors as needed, following the same pattern as binary_sensor_list and binary_sensor_vars
+#  template_binary_sensor_list: [] # Populate with template binary sensors as needed, following the same pattern as binary_sensor_list and binary_sensor_vars
+      
+  
+  
+  
+
+  # Sleepy icon default stays in entity vars (mdi_weather_night = U+F0594).
+#  ui_sleepy_text: "Sleepy"
+#  ui_sleepy_icon: "\U000F0594"
+#  ui_sleepy_on_bg: "sense_tile_teal"
+#  ui_sleepy_off_bg: "sense_tile_teal_off"
+#  ui_sleepy_on_icon: "\U000F0594"
+#  ui_sleepy_off_icon: "\U000F0594"
+#  ui_sleepy_value_on: "ON"
+#  ui_sleepy_value_off: "OFF"
+
+# binary_sensor:
+#  - platform: homeassistant
+#    id: ha_cleaners_toggle
+#    entity_id: ${ent_cleaners_toggle}
+#    internal: true
+#  - platform: homeassistant
+#    id: ha_dani_mode_on
+#    entity_id: ${ent_dani_mode_on}  
+#    internal: true  
+
+packages:
+    homev2_sleepy_btn: !include
+    file: buttons/switch_button-sensecap.yaml
+    vars:
+      uid: ${ui_sleepy_mode_ov.pl1_id}  # homev2_sleepy_btn
+      page_id: ${sense_page_lighting_dimmers_id}
+      row: ${ui_sleepy_mode_ov.pl2_btn1_row_pos}
+      column: ${ui_sleepy_mode_ov.pl2_btn1_col_pos}
+      text: ${ui_sleepy_mode_ov.pl1_text} # "Sleepy"
+      icon: ${ha_sleepy_mode_ov.icon}   # $mdi_weather_night
+      entity_id: ${ha_sleepy_mode_ov.entity_id}
+      on_bg_color: ${ui_sleepy_mode_ov.pl1_btn1_on_bg_color}
+      off_bg_color: ${ui_sleepy_mode_ov.pl1_btn1_off_bg_color}
+
+#
+#  homev2_bedtime_btn: !include
+#    file: buttons/switch_button-sensecap.yaml
+#    vars:
+#      uid: homev2_bedtime_btn
+#      page_id: ${sense_page_lighting_dimmers_id}
+#     row: 2
+#      column: 0
+#      text: "Bedtime"
+#      icon: $mdi_bed
+#      entity_id: ${ent_bedtime_toggle}
+#      on_bg_color: sense_tile_indigo
+#      off_bg_color: sense_tile_indigo_off
