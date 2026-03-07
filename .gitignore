@@ -4,3 +4,4 @@
 /.esphome/
 /secrets.yaml
 *.py
+projects/esphome-modular-lvgl-buttons-sensecap/custom_components/noaa_tides/manifest.json
