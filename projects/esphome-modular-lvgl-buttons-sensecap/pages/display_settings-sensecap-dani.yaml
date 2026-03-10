@@ -1,5 +1,8 @@
 substitutions:
   sense_page_display_settings_id: "page_display_settings"
+  display_title_font: "${ui_page_title_font}"
+  display_title_color: "${ui_page_title_color}"
+  display_title_y: "${ui_page_title_y_offset}"
 
 script:
   - id: display_settings_refresh_ui
@@ -50,30 +53,42 @@ script:
             lambda: 'return id(sense_display_idle_scroll_enabled);'
           then:
             - lvgl.label.update: {id: display_idle_scroll_state, text: "ON"}
-            - lvgl.widget.update: {id: display_idle_scroll_toggle, bg_color: sense_teal}
+            - lvgl.widget.update:
+                id: display_idle_scroll_toggle
+                bg_color: ${ui_display_idle_scroll_on_bg}
           else:
             - lvgl.label.update: {id: display_idle_scroll_state, text: "OFF"}
-            - lvgl.widget.update: {id: display_idle_scroll_toggle, bg_color: sense_surface_alt}
+            - lvgl.widget.update:
+                id: display_idle_scroll_toggle
+                bg_color: ${ui_display_idle_scroll_off_bg}
 
       - if:
           condition:
             lambda: 'return id(sense_display_sleep_enabled);'
           then:
             - lvgl.label.update: {id: display_sleep_state, text: "ON"}
-            - lvgl.widget.update: {id: display_sleep_toggle, bg_color: sense_success}
+            - lvgl.widget.update:
+                id: display_sleep_toggle
+                bg_color: ${ui_display_sleep_on_bg}
           else:
             - lvgl.label.update: {id: display_sleep_state, text: "OFF"}
-            - lvgl.widget.update: {id: display_sleep_toggle, bg_color: sense_surface_alt}
+            - lvgl.widget.update:
+                id: display_sleep_toggle
+                bg_color: ${ui_display_sleep_off_bg}
 
       - if:
           condition:
             lambda: 'return id(sense_display_scroll_sleep_enabled);'
           then:
             - lvgl.label.update: {id: display_scroll_sleep_state, text: "ON"}
-            - lvgl.widget.update: {id: display_scroll_sleep_toggle, bg_color: sense_tile_indigo}
+            - lvgl.widget.update:
+                id: display_scroll_sleep_toggle
+                bg_color: ${ui_display_scroll_sleep_on_bg}
           else:
             - lvgl.label.update: {id: display_scroll_sleep_state, text: "OFF"}
-            - lvgl.widget.update: {id: display_scroll_sleep_toggle, bg_color: sense_surface_alt}
+            - lvgl.widget.update:
+                id: display_scroll_sleep_toggle
+                bg_color: ${ui_display_scroll_sleep_off_bg}
 
 lvgl:
   pages:
@@ -93,39 +108,39 @@ lvgl:
               - label:
                   text: "Display Settings"
                   align: TOP_MID
-                  y: 6
-                  text_font: nunito_36
-                  text_color: sense_info
+                  y: ${display_title_y}
+                  text_font: ${display_title_font}
+                  text_color: ${display_title_color}
 
               - button:
                   id: display_brightness_label
                   align: TOP_LEFT
                   x: 14
                   y: 48
-                  width: 142
-                  height: 36
+                  width: 104
+                  height: 28
                   styles: sense_display_row_btn_style
                   widgets:
                     - label:
                         text: "Brightness"
                         align: CENTER
                         text_font: nunito_16
-                        text_color: sense_text
+                        text_color: "${ui_page_text_color}"
 
               - slider:
                   id: display_brightness_slider
                   align: TOP_LEFT
-                  x: 166
-                  y: 58
-                  width: 178
-                  height: 14
+                  x: 126
+                  y: 56
+                  width: 224
+                  height: 10
                   min_value: 5
                   max_value: 100
-                  bg_color: sense_surface_alt
+                  bg_color: ${ui_display_slider_track_bg}
                   indicator:
-                    bg_color: sense_info
+                    bg_color: ${ui_display_brightness_indicator_bg}
                   knob:
-                    bg_color: sense_text
+                    bg_color: ${ui_display_slider_knob_bg}
                   on_value:
                     then:
                       - lambda: |-
@@ -146,17 +161,17 @@ lvgl:
                   text: "50%"
                   align: TOP_RIGHT
                   x: -12
-                  y: 52
+                  y: 50
                   text_font: nunito_18
-                  text_color: sense_text
+                  text_color: "${ui_page_text_color}"
 
               - button:
                   id: display_idle_scroll_toggle
                   align: TOP_LEFT
                   x: 14
-                  y: 92
-                  width: 142
-                  height: 36
+                  y: 82
+                  width: 104
+                  height: 28
                   styles: sense_display_row_btn_style
                   on_press:
                     then:
@@ -168,23 +183,23 @@ lvgl:
                           id(sense_display_scroll_sleep_start_ms) = 0;
                       - script.execute: display_settings_refresh_ui
                   widgets:
-                    - label: {text: "Scroll", align: LEFT_MID, x: 10, text_font: nunito_16, text_color: sense_text}
-                    - label: {id: display_idle_scroll_state, text: "OFF", align: RIGHT_MID, x: -10, text_font: nunito_16, text_color: sense_text}
+                    - label: {text: "Scroll", align: LEFT_MID, x: 10, text_font: nunito_16, text_color: "${ui_page_text_color}"}
+                    - label: {id: display_idle_scroll_state, text: "OFF", align: RIGHT_MID, x: -10, text_font: nunito_16, text_color: "${ui_page_text_color}"}
 
               - slider:
                   id: display_idle_scroll_slider
                   align: TOP_LEFT
-                  x: 166
-                  y: 102
-                  width: 178
-                  height: 14
+                  x: 126
+                  y: 90
+                  width: 224
+                  height: 10
                   min_value: 15
                   max_value: 300
-                  bg_color: sense_surface_alt
+                  bg_color: ${ui_display_slider_track_bg}
                   indicator:
-                    bg_color: sense_teal
+                    bg_color: ${ui_display_idle_scroll_indicator_bg}
                   knob:
-                    bg_color: sense_text
+                    bg_color: ${ui_display_slider_knob_bg}
                   on_value:
                     then:
                       - lambda: |-
@@ -202,39 +217,39 @@ lvgl:
                   text: "30s"
                   align: TOP_RIGHT
                   x: -12
-                  y: 96
+                  y: 84
                   text_font: nunito_18
-                  text_color: sense_text
+                  text_color: "${ui_page_text_color}"
 
               - button:
                   id: display_scroll_rate_label
                   align: TOP_LEFT
                   x: 14
-                  y: 136
-                  width: 142
-                  height: 36
+                  y: 116
+                  width: 104
+                  height: 28
                   styles: sense_display_row_btn_style
                   widgets:
                     - label:
                         text: "Rate"
                         align: CENTER
                         text_font: nunito_16
-                        text_color: sense_text
+                        text_color: "${ui_page_text_color}"
 
               - slider:
                   id: display_scroll_rate_slider
                   align: TOP_LEFT
-                  x: 166
-                  y: 146
-                  width: 178
-                  height: 14
+                  x: 126
+                  y: 124
+                  width: 224
+                  height: 10
                   min_value: 1
                   max_value: 30
-                  bg_color: sense_surface_alt
+                  bg_color: ${ui_display_slider_track_bg}
                   indicator:
-                    bg_color: sense_primary
+                    bg_color: ${ui_display_scroll_rate_indicator_bg}
                   knob:
-                    bg_color: sense_text
+                    bg_color: ${ui_display_slider_knob_bg}
                   on_value:
                     then:
                       - lambda: |-
@@ -252,17 +267,17 @@ lvgl:
                   text: "5s"
                   align: TOP_RIGHT
                   x: -12
-                  y: 140
+                  y: 118
                   text_font: nunito_18
-                  text_color: sense_text
+                  text_color: "${ui_page_text_color}"
 
               - button:
                   id: display_sleep_toggle
                   align: TOP_LEFT
                   x: 14
-                  y: 180
-                  width: 142
-                  height: 36
+                  y: 150
+                  width: 104
+                  height: 28
                   styles: sense_display_row_btn_style
                   on_press:
                     then:
@@ -284,23 +299,23 @@ lvgl:
                             - script.execute: sense_display_apply_brightness
                       - script.execute: display_settings_refresh_ui
                   widgets:
-                    - label: {text: "Sleep", align: LEFT_MID, x: 10, text_font: nunito_16, text_color: sense_text}
-                    - label: {id: display_sleep_state, text: "ON", align: RIGHT_MID, x: -10, text_font: nunito_16, text_color: sense_text}
+                    - label: {text: "Sleep", align: LEFT_MID, x: 10, text_font: nunito_16, text_color: "${ui_page_text_color}"}
+                    - label: {id: display_sleep_state, text: "ON", align: RIGHT_MID, x: -10, text_font: nunito_16, text_color: "${ui_page_text_color}"}
 
               - slider:
                   id: display_sleep_timeout_slider
                   align: TOP_LEFT
-                  x: 166
-                  y: 190
-                  width: 178
-                  height: 14
+                  x: 126
+                  y: 158
+                  width: 224
+                  height: 10
                   min_value: 15
                   max_value: 300
-                  bg_color: sense_surface_alt
+                  bg_color: ${ui_display_slider_track_bg}
                   indicator:
-                    bg_color: sense_warn
+                    bg_color: ${ui_display_sleep_timeout_indicator_bg}
                   knob:
-                    bg_color: sense_text
+                    bg_color: ${ui_display_slider_knob_bg}
                   on_value:
                     then:
                       - lambda: |-
@@ -318,17 +333,17 @@ lvgl:
                   text: "60s"
                   align: TOP_RIGHT
                   x: -12
-                  y: 184
+                  y: 152
                   text_font: nunito_18
-                  text_color: sense_text
+                  text_color: "${ui_page_text_color}"
 
               - button:
                   id: display_scroll_sleep_toggle
                   align: TOP_LEFT
                   x: 14
-                  y: 224
-                  width: 142
-                  height: 36
+                  y: 184
+                  width: 104
+                  height: 28
                   styles: sense_display_row_btn_style
                   on_press:
                     then:
@@ -339,23 +354,23 @@ lvgl:
                           id(sense_display_scroll_sleep_start_ms) = 0;
                       - script.execute: display_settings_refresh_ui
                   widgets:
-                    - label: {text: "Scroll Sleep", align: LEFT_MID, x: 10, text_font: nunito_16, text_color: sense_text}
-                    - label: {id: display_scroll_sleep_state, text: "OFF", align: RIGHT_MID, x: -10, text_font: nunito_16, text_color: sense_text}
+                    - label: {text: "Scroll Sleep", align: LEFT_MID, x: 10, text_font: nunito_16, text_color: "${ui_page_text_color}"}
+                    - label: {id: display_scroll_sleep_state, text: "OFF", align: RIGHT_MID, x: -10, text_font: nunito_16, text_color: "${ui_page_text_color}"}
 
               - slider:
                   id: display_scroll_sleep_slider
                   align: TOP_LEFT
-                  x: 166
-                  y: 234
-                  width: 178
-                  height: 14
+                  x: 126
+                  y: 192
+                  width: 224
+                  height: 10
                   min_value: 15
                   max_value: 120
-                  bg_color: sense_surface_alt
+                  bg_color: ${ui_display_slider_track_bg}
                   indicator:
-                    bg_color: sense_cat_overrides
+                    bg_color: ${ui_display_scroll_sleep_indicator_bg}
                   knob:
-                    bg_color: sense_text
+                    bg_color: ${ui_display_slider_knob_bg}
                   on_value:
                     then:
                       - lambda: |-
@@ -373,6 +388,16 @@ lvgl:
                   text: "30m"
                   align: TOP_RIGHT
                   x: -12
-                  y: 228
+                  y: 186
                   text_font: nunito_18
-                  text_color: sense_text
+                  text_color: "${ui_page_text_color}"
+              # Row 6 (bottom) intentionally reserved for future controls.
+
+
+
+
+
+
+
+
+

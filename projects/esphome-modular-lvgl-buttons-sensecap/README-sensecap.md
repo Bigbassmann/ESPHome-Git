@@ -4,11 +4,13 @@ This file documents the current working pattern for this fork and the immediate 
 
 ## Current State (March 7, 2026)
 
-- Active device entrypoint in repo: `sensecap-d1s-v2-001.yaml`
+- Active device entrypoint in repo: `sensecap-d1s-v2-001.yaml` (root currently composes via `sensecap-d1s-v2-001-dani.yaml`)
 - SenseCAP modules are in `common/`, `pages/`, `buttons/`, `widgets/`, `hardware/`
 - Demo package calls in `sensecap-d1s-v2-001.yaml` (`button_1`, `button_4`, `button_4_page`) are disabled
 - Font include paths in `common/fonts-sensecap.yaml` now use `assets/fonts/Nunito-SemiBold.ttf`
 - Unused experimental files were moved under `archive/`
+- Instance mapping is centralized in `common/package_instance_mapping-sensecap-dani.yaml`
+- Page title/text defaults are centralized as `ui_page_*` vars and mapped to Dani family tokens
 
 ## Repo Rules (SenseCAP Fork)
 
@@ -160,6 +162,15 @@ Hard constraints (must follow):
 36 [Always approved] After an in-scope edit batch, run self-checks on edited files (spot-checks, grep/select-string, line checks) without extra confirmation.
 37 [Always approved] If a self-check finds a small in-scope issue from the same batch, apply a corrective patch and re-check without extra confirmation.
 38 [Always approved] Keep duplicated rule blocks (README list and prompt block) synchronized without extra confirmation.
+39 [Always approved] After declaring touched in-scope files, execute full edit -> self-check -> root-validate loops without re-asking.
+40 [Always approved] If a touched in-scope file is accidentally damaged in the same batch, restore from its in-scope baseline counterpart, then reapply only declared changes.
+41 [Always approved after failed validation] If failure is caused by the same batch, apply focused in-scope corrective patches (duplicate keys/syntax/indentation) until compile is green.
+42 [Always approved] Read adjacent line ranges in touched files for diagnosis without extra confirmation.
+43 [Always approved] For risky YAML rewrites, switch to deterministic line-targeted edits without extra confirmation.
+44 [Maintenance] After meaningful structure, token, constraints, or workflow changes, update README-sensecap.md and CHAT_RECOVERY_PROMPT-sensecap.md in the same edit batch.
+45 [Maintenance trigger] Treat docs refresh as required when 3+ config files change in a task, or when any architecture/rules decision changes.
+46 [Rule hygiene] Keep constraint numbering contiguous and unique; when adding/removing rules, renumber the block in the same edit batch.
+47 [Color pass DoD] Before flash, require token update + wiring update + root validate + drift scan for hardcoded color literals in touched scope.
 ```
 
 ## Image Assets
@@ -290,3 +301,6 @@ This fork uses a token-first color model so page files do not hardcode one-off h
 8. Validation rule
 - After each color batch, run root validation:
 `esphome config /config/esphome/sensecap-d1s-v2.yaml`
+
+
+

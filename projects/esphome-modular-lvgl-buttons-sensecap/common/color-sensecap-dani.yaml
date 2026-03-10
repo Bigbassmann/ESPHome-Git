@@ -1,13 +1,13 @@
-
+﻿
 color:
     # SenseCAP-inspired palette (additive, non-breaking)
     # Dani dark top-level background palette options:
-    # ACTIVE: 1B1A38 (dani dark blue)
+    # ACTIVE: 1B1A38 (dani dark blue) now Black 0D0D0D
     # ALT: 1A3738 (dani dark green)
     # ALT: 381B1A (dani dark red)
     # ALT: 37381A (dani dark yellow)
     - id: sense_bg
-      hex: '1B1A38'
+      hex: '0d0d0d'   # '1B1A38'
     - id: sense_surface
       hex: '1B1A38'
     - id: sense_surface_alt
@@ -18,6 +18,12 @@ color:
       hex: 'E5E7EB'
     - id: sense_text_muted
       hex: '9CA3AF'
+    - id: dani_page_title
+      hex: 'FFFFFF'
+    - id: dani_page_text
+      hex: 'FFFFFF'
+    - id: dani_page_text_muted
+      hex: 'BDBDBD'
     - id: sense_primary
       hex: '1D4ED8'
     - id: sense_info
@@ -60,6 +66,10 @@ color:
       hex: '192457'
 
     # Dani 6-family button palette matrix
+    # Nomenclature:
+    # - *_bg_on / *_bg_off: tile background colors
+    # - *_slider_on / *_slider_off: slider indicator (filled) colors
+    # - *_knob_on / *_knob_off: slider knob colors
     - id: dani_family_teal_bg_on
       hex: '3C8F89'
     - id: dani_family_teal_bg_off
@@ -73,9 +83,9 @@ color:
     - id: dani_family_teal_value_off
       hex: 'E0E0E0'
     - id: dani_family_teal_slider_on
-      hex: '3C8F89'
+      hex: '4FA39C'
     - id: dani_family_teal_slider_off
-      hex: '19574C'
+      hex: '2A6E67'
     - id: dani_family_teal_knob_on
       hex: '68CCC4'
     - id: dani_family_teal_knob_off
@@ -94,9 +104,9 @@ color:
     - id: dani_family_blue_value_off
       hex: 'E0E0E0'
     - id: dani_family_blue_slider_on
-      hex: '3C6B8F'
+      hex: '4E7FA3'
     - id: dani_family_blue_slider_off
-      hex: '194357'
+      hex: '2A5A6E'
     - id: dani_family_blue_knob_on
       hex: '68A2CC'
     - id: dani_family_blue_knob_off
@@ -115,9 +125,9 @@ color:
     - id: dani_family_indigo_value_off
       hex: 'E0E0E0'
     - id: dani_family_indigo_slider_on
-      hex: '3C428F'
+      hex: '4F57A3'
     - id: dani_family_indigo_slider_off
-      hex: '192457'
+      hex: '2A3A6E'
     - id: dani_family_indigo_knob_on
       hex: '6870CC'
     - id: dani_family_indigo_knob_off
@@ -136,9 +146,9 @@ color:
     - id: dani_family_red_value_off
       hex: 'E0E0E0'
     - id: dani_family_red_slider_on
-      hex: '8F3C42'
+      hex: 'A34F57'
     - id: dani_family_red_slider_off
-      hex: '571924'
+      hex: '6E2A3A'
     - id: dani_family_red_knob_on
       hex: 'CC6870'
     - id: dani_family_red_knob_off
@@ -157,9 +167,9 @@ color:
     - id: dani_family_yellow_value_off
       hex: 'E0E0E0'
     - id: dani_family_yellow_slider_on
-      hex: '8F893C'
+      hex: 'A39D4F'
     - id: dani_family_yellow_slider_off
-      hex: '574C19'
+      hex: '6E5F2A'
     - id: dani_family_yellow_knob_on
       hex: 'CCC468'
     - id: dani_family_yellow_knob_off
@@ -178,9 +188,9 @@ color:
     - id: dani_family_orange_value_off
       hex: 'E0E0E0'
     - id: dani_family_orange_slider_on
-      hex: 'A8840F'
+      hex: 'BC9922'
     - id: dani_family_orange_slider_off
-      hex: '574C19'
+      hex: '6E5F2A'
     - id: dani_family_orange_knob_on
       hex: 'DED1AB'
     - id: dani_family_orange_knob_off
@@ -616,3 +626,7 @@ color:
 #   hex: 'FFFF00'
 # - id: yellowgreen
 #   hex: '9ACD32'
+
+
+
+
