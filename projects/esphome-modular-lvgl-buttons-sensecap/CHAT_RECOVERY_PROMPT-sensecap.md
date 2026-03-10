@@ -1,4 +1,4 @@
-﻿# SenseCAP Chat Recovery Prompt
+# SenseCAP Chat Recovery Prompt
 
 Use this prompt to restart work in a fresh chat and preserve project goals/constraints.
 
@@ -30,17 +30,19 @@ Startup read order (first pass):
 3. /config/esphome/esphome-modular-lvgl-buttons/SENSECAP_SIMPLE_PATTERN-sensecap.md
 4. /config/esphome/esphome-modular-lvgl-buttons/sensecap-d1s-v2-001.yaml
 5. /config/esphome/esphome-modular-lvgl-buttons/sensecap-d1s-v2-001-dani.yaml
-6. /config/esphome/esphome-modular-lvgl-buttons/common/ha_entities-sensecap.yaml
+6. /config/esphome/esphome-modular-lvgl-buttons/common/ha_entities-sensecap-dani.yaml
 7. /config/esphome/esphome-modular-lvgl-buttons/common/ha_entities-sensecap-dani.yaml
-8. /config/esphome/esphome-modular-lvgl-buttons/common/color-sensecap.yaml
+8. /config/esphome/esphome-modular-lvgl-buttons/common/color-sensecap-dani.yaml
 9. /config/esphome/esphome-modular-lvgl-buttons/common/color-sensecap-dani.yaml
 10. /config/esphome/esphome-modular-lvgl-buttons/common/page_mapping-sensecap.yaml
-11. /config/esphome/esphome-modular-lvgl-buttons/common/core_ha_common-sensecap.yaml
-12. /config/esphome/esphome-modular-lvgl-buttons/pages/home_grid-sensecap.yaml
-13. /config/esphome/esphome-modular-lvgl-buttons/pages/overrides_grid-sensecap.yaml
+11. /config/esphome/esphome-modular-lvgl-buttons/common/package_instance_mapping-sensecap-dani.yaml
+12. /config/esphome/esphome-modular-lvgl-buttons/common/top_level_lvgl_defualts-001-dani.yaml
+13. /config/esphome/esphome-modular-lvgl-buttons/common/core_ha_common-sensecap.yaml
+14. /config/esphome/esphome-modular-lvgl-buttons/pages/home_grid-sensecap.yaml
+15. /config/esphome/esphome-modular-lvgl-buttons/pages/overrides_grid-sensecap.yaml
 14. /config/esphome/esphome-modular-lvgl-buttons/pages/lighting_dimmers_grid_template-sensecap.yaml
-15. /config/esphome/esphome-modular-lvgl-buttons/pages/fans_grid-sensecap.yaml
-16. /config/esphome/esphome-modular-lvgl-buttons/pages/thermostat_v2_lvgl-sensecap.yaml
+15. /config/esphome/esphome-modular-lvgl-buttons/pages/fans_grid-sensecap-dani.yaml
+16. /config/esphome/esphome-modular-lvgl-buttons/pages/thermostat_v2_lvgl-sensecap-dani.yaml
 17. /config/esphome/esphome-modular-lvgl-buttons/pages/page_shell_480-sensecap.yaml
 18. /config/esphome/esphome-modular-lvgl-buttons/pages/loading_480px-sensecap.yaml
 
@@ -51,3 +53,11 @@ Then:
 Current task to continue:
 <PASTE CURRENT TASK HERE>
 ```
+
+
+- Verify each \\pages/*-sensecap*.yaml\\ file retains the \\PAGE EDIT GUIDE (SenseCAP)\\ header before major page edits.
+
+
+- Baseline status: use `sensecap-d1s-v2-001-dani.yaml` as authoritative baseline; retired non-dani duplicates are under `archive/retired_baseline_2026-03-10/`.
+
+- Keep common/core_globals-sensecap.yaml retired; p2040_last_seen_ms is defined in common/sensecap_indicator_sensors-sensecap.yaml.

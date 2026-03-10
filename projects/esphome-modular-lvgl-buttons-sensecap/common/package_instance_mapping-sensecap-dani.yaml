@@ -1,3 +1,12 @@
+# FILE EDIT GUIDE (SenseCAP)
+# Role: Shared defaults/tokens/mappings/include wiring.
+# Update here for:
+# - Color tokens and family palettes (common/color-*.yaml).
+# - UI defaults and entity attributes (common/ha_entities-*.yaml).
+# - Global runtime/state controls (intervals, globals, boot/runtime hooks).
+# - Page-to-entity mapping controls when used by this file.
+# Page files should consume these defaults via ui_* vars and page-level overrides.
+# Avoid hardcoded page layout geometry in common files.
 packages:
   page_lighting_dimmers_sensecap: !include
     file: ../pages/lighting_dimmers_grid_template-sensecap.yaml
@@ -64,8 +73,7 @@ packages:
 
   thermostat_v2: !include ../pages/thermostat_v2_lvgl-sensecap-dani.yaml
   # core_boot: !include ../common/core_boot-sensecap.yaml
-  core_globals: !include ../common/core_globals-sensecap.yaml
-  # legacy_globals: !include ../common/core_globals_legacy_compat-sensecap.yaml
+  # rp2040_last_seen_ms global is now declared in ../common/sensecap_indicator_sensors-sensecap.yaml
   ha_entities_sensecap: !include ../common/ha_entities-sensecap-dani.yaml
   page_mapping_sensecap: !include ../common/page_mapping-sensecap.yaml
   core_ha_common: !include ../common/core_ha_common-sensecap.yaml
@@ -315,7 +323,7 @@ packages:
     vars:
       uid: sensor_local_temp
       page_id: ${sense_page_sensors_id}
-      row: 0
+      row: 1
       column: 0
       column_span: 1
       text: "Local Temp"
@@ -329,7 +337,7 @@ packages:
     vars:
       uid: sensor_fr_temp
       page_id: ${sense_page_sensors_id}
-      row: 0
+      row: 1
       column: 1
       column_span: 1
       text: "FR Temp"
@@ -343,7 +351,7 @@ packages:
     vars:
       uid: sensor_osat_temp
       page_id: ${sense_page_sensors_id}
-      row: 0
+      row: 1
       column: 2
       column_span: 1
       text: "OSAT"
@@ -357,7 +365,7 @@ packages:
     vars:
       uid: sensor_kitchen_temp
       page_id: ${sense_page_sensors_id}
-      row: 1
+      row: 2
       column: 0
       column_span: 1
       text: "Kitchen"
@@ -371,7 +379,7 @@ packages:
     vars:
       uid: sensor_freezer_temp
       page_id: ${sense_page_sensors_id}
-      row: 1
+      row: 2
       column: 1
       column_span: 1
       text: "Freezer"
@@ -385,7 +393,7 @@ packages:
     vars:
       uid: sensor_fridge_temp
       page_id: ${sense_page_sensors_id}
-      row: 1
+      row: 2
       column: 2
       column_span: 1
       text: "Fridge"
@@ -399,7 +407,7 @@ packages:
     vars:
       uid: sensor_voc
       page_id: ${sense_page_sensors_id}
-      row: 2
+      row: 3
       column: 0
       column_span: 1
       text: "VOC"
@@ -413,7 +421,7 @@ packages:
     vars:
       uid: sensor_co2
       page_id: ${sense_page_sensors_id}
-      row: 2
+      row: 3
       column: 1
       column_span: 1
       text: "CO2"
@@ -427,7 +435,7 @@ packages:
     vars:
       uid: sensor_humid
       page_id: ${sense_page_sensors_id}
-      row: 2
+      row: 3
       column: 2
       column_span: 1
       text: "Humid"
@@ -501,6 +509,11 @@ packages:
       secondary_entity_id: ${ent_outdoor_garage_lights}
       on_bg_color: ${ui_switch_outdoor_on_bg}
       off_bg_color: ${ui_switch_outdoor_off_bg}
+
+
+
+
+
 
 
 
