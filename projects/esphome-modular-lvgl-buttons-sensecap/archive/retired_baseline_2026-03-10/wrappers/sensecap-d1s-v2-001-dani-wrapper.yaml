@@ -1,0 +1,5 @@
+# FILE EDIT GUIDE (SenseCAP)
+# Role: Compatibility wrapper retained for root includes.
+# Authoritative baseline is sensecap-d1s-v2-001.yaml.
+packages:
+  sensecap_001_baseline: !include sensecap-d1s-v2-001.yaml

@@ -21,6 +21,7 @@ substitutions:
 lvgl:
   pages:
     - id: page_menu
+      skip: true
       styles: sense_page_style
       widgets:
         - obj:

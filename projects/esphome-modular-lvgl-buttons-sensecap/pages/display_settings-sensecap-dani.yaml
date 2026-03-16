@@ -60,6 +60,15 @@ script:
             char buf[12];
             snprintf(buf, sizeof(buf), "%dm", id(sense_display_scroll_sleep_min));
             return std::string(buf);
+      - lvgl.dropdown.update:
+          id: display_theme_dropdown
+          selected_index: !lambda |-
+            auto idx = id(current_theme).active_index();
+            return idx.has_value() ? (int) idx.value() : 0;
+      - lvgl.label.update:
+          id: display_theme_status
+          text: !lambda |-
+            return std::string("Applied: ") + id(current_theme).current_option();
 
       - if:
           condition:
@@ -106,10 +115,17 @@ script:
 lvgl:
   pages:
     - id: ${sense_page_display_settings_id}
+      skip: true
       styles: sense_page_style
       on_load:
         - script.execute: display_settings_refresh_ui
       widgets:
+        - label:
+            text: "Display Settings"
+            align: TOP_MID
+            y: ${display_title_y}
+            text_font: ${display_title_font}
+            text_color: ${display_title_color}
         - obj:
             id: display_settings_card
             align: TOP_MID
@@ -118,12 +134,6 @@ lvgl:
             height: ${sense_content_h | default("366")}
             styles: sense_card_flat_style
             widgets:
-              - label:
-                  text: "Display Settings"
-                  align: TOP_MID
-                  y: ${display_title_y}
-                  text_font: ${display_title_font}
-                  text_color: ${display_title_color}
 
               - button:
                   id: display_brightness_label
@@ -404,7 +414,62 @@ lvgl:
                   y: 186
                   text_font: nunito_18
                   text_color: "${ui_page_text_color}"
-              # Row 6 (bottom) intentionally reserved for future controls.
+
+              - button:
+                  id: display_theme_label
+                  align: TOP_LEFT
+                  x: 14
+                  y: 218
+                  width: 104
+                  height: 28
+                  styles: sense_display_row_btn_style
+                  widgets:
+                    - label:
+                        text: "Theme"
+                        align: CENTER
+                        text_font: nunito_16
+                        text_color: "${ui_page_text_color}"
+
+              - dropdown:
+                  id: display_theme_dropdown
+                  align: TOP_LEFT
+                  x: 126
+                  y: 216
+                  width: 224
+                  height: 32
+                  text_font: montserrat_14
+                  options:
+                    - "Dark"
+                    - "Dani"
+                    - "Split"
+                  selected_index: 1
+                  on_value:
+                    then:
+                      - select.set:
+                          id: current_theme
+                          option: !lambda |-
+                            if (x == 1) return std::string("Dani");
+                            if (x == 2) return std::string("Split");
+                            return std::string("Dark");
+                      - script.execute: display_settings_refresh_ui
+
+              - label:
+                  id: display_theme_status
+                  text: "Applied: Dani"
+                  align: TOP_LEFT
+                  x: 126
+                  y: 252
+                  text_font: nunito_14
+                  text_color: "${ui_page_text_color}"
+
+
+
+
+
+
+
+
+
 
 
 

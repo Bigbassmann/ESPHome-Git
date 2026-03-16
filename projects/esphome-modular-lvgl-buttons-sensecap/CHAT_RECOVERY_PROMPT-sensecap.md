@@ -1,4 +1,4 @@
-# SenseCAP Chat Recovery Prompt
+﻿# SenseCAP Chat Recovery Prompt
 
 Use this prompt to restart work in a fresh chat and preserve project goals/constraints.
 
@@ -29,7 +29,7 @@ Startup read order (first pass):
 2. /config/esphome/esphome-modular-lvgl-buttons/README-sensecap.md
 3. /config/esphome/esphome-modular-lvgl-buttons/SENSECAP_SIMPLE_PATTERN-sensecap.md
 4. /config/esphome/esphome-modular-lvgl-buttons/sensecap-d1s-v2-001.yaml
-5. /config/esphome/esphome-modular-lvgl-buttons/sensecap-d1s-v2-001-dani.yaml
+5. /config/esphome/esphome-modular-lvgl-buttons/sensecap-d1s-v2-001.yaml
 6. /config/esphome/esphome-modular-lvgl-buttons/common/ha_entities-sensecap-dani.yaml
 7. /config/esphome/esphome-modular-lvgl-buttons/common/ha_entities-sensecap-dani.yaml
 8. /config/esphome/esphome-modular-lvgl-buttons/common/color-sensecap-dani.yaml
@@ -58,6 +58,21 @@ Current task to continue:
 - Verify each \\pages/*-sensecap*.yaml\\ file retains the \\PAGE EDIT GUIDE (SenseCAP)\\ header before major page edits.
 
 
-- Baseline status: use `sensecap-d1s-v2-001-dani.yaml` as authoritative baseline; retired non-dani duplicates are under `archive/retired_baseline_2026-03-10/`.
+- Baseline status: use `sensecap-d1s-v2-001.yaml` as authoritative baseline; retired non-dani duplicates are under `archive/retired_baseline_2026-03-10/` (including retired wrapper `wrappers/sensecap-d1s-v2-001-dani-wrapper.yaml`).
 
-- Keep common/core_globals-sensecap.yaml retired; p2040_last_seen_ms is defined in common/sensecap_indicator_sensors-sensecap.yaml.
+- Keep `common/core_globals-sensecap.yaml` retired; `rp2040_last_seen_ms` is defined in `common/sensecap_indicator_sensors-sensecap.yaml`.
+
+- Theme test path: use Display Settings dropdown `display_theme_dropdown` to switch `current_theme` between `Dark`, `Dani`, and `Split` and verify style updates/redraw.
+
+
+## Maintenance Notes
+- 2026-03-10: Theme runtime logic now uses numeric slot `sense_theme_slot` (index-based) instead of `current_option()=="name"` comparisons in page/style conditionals. Keep new theme additions index-first and avoid name-based branching.
+
+
+- 2026-03-10: Theme selector labels are tokenized as ui_theme_label_0..ui_theme_label_9. Page/runtime logic must use numeric slots (sense_theme_slot), while labels are UI-only.
+
+
+- 2026-03-10: Theme slots 3..9 now have distinct style mappings in theme_style-sensecap-dani.yaml; display dropdown uses ui_theme_label_0..ui_theme_label_9 and slot-based selection.
+
+- 2026-03-15: First broad page cleanup pass moved reusable page/button defaults toward canonical `ui_base_*` and `ui_sensor_*` tokens. Fans local slot overrides were removed; `pages/light_color-sensecap.yaml` remains the intentional hardcoded-color exemption for now.
+
