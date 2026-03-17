@@ -14,7 +14,6 @@
 
 substitutions:
   tstat_title_font: "${ui_page_title_font}"
-  tstat_title_color: "${ui_page_title_color}"
   tstat_title_y: "${ui_page_title_y_offset}"
 
 globals:
@@ -30,7 +29,7 @@ globals:
 lvgl:
   pages:
     - id: page_thermostat_v2
-      styles: sense_page_style
+      styles: page_style
       on_load:
         - lambda: 'id(tstat_page_active) = true;'
         - component.update: ha_tstat_current_temp
@@ -55,14 +54,14 @@ lvgl:
                   align: TOP_MID
                   y: -26
                   text_font: ${tstat_title_font}
-                  text_color: ${tstat_title_color}
+                  styles: sense_text_title_style
               - label:
                   text: "HVAC Status"
                   align: TOP_LEFT
                   x: 10   # 20
                   y: 50    # 96
                   text_font: montserrat_16     # 14
-                  text_color: ${ui_page_text_muted_color}
+                  styles: sense_text_muted_style
 
               - label:
                   text: "Fan Status"
@@ -70,7 +69,7 @@ lvgl:
                   x: -10     # -20
                   y: 50      # 96
                   text_font: montserrat_16     # 14
-                  text_color: ${ui_page_text_muted_color}
+                  styles: sense_text_muted_style
 
               - label:
                   id: tstat2_hvac_action_label
@@ -79,7 +78,7 @@ lvgl:
                   x: 10   # 20
                   y: 70     # 114
                   text_font: montserrat_16
-                  text_color: ${ui_page_text_color}
+                  styles: sense_text_primary_style
 
               - label:
                   id: tstat2_fan_state_label
@@ -88,7 +87,7 @@ lvgl:
                   x: -10     # -20
                   y: 70      # 114
                   text_font: montserrat_16
-                  text_color: ${ui_page_text_color}
+                  styles: sense_text_primary_style
 
 
               - arc:
@@ -111,7 +110,7 @@ lvgl:
                     pad_all: -10  # negative pad to make the arc thicker without increasing overall widget size
                     
                   knob:
-                    bg_color: ${ui_page_text_color}
+                    bg_color: ${ui_tstat_mode_off_active_color}
                     pad_all: 3
                   on_value:     # add mode: normal for heat and reverse for cool, with color feedback (cool=blue, heat=red, off/auto=gray)
                     then:
@@ -145,7 +144,7 @@ lvgl:
                   x: 0
                   y: 170
                   text_font: montserrat_16    # 14
-                  text_color: ${ui_page_text_muted_color}
+                  styles: sense_text_muted_style
 
               - label:
                   id: tstat2_current_value
@@ -154,7 +153,7 @@ lvgl:
                   x: 0
                   y: 188
                   text_font: montserrat_20
-                  text_color: ${ui_page_text_color}
+                  styles: sense_text_primary_style
 
               - label:
                   text: "Target"
@@ -162,7 +161,7 @@ lvgl:
                   x: 0
                   y: 214
                   text_font: montserrat_16     # 14
-                  text_color: ${ui_page_text_muted_color}
+                  styles: sense_text_muted_style
 
               - label:
                   id: tstat2_target_value
@@ -171,7 +170,7 @@ lvgl:
                   x: 0
                   y: 232
                   text_font: montserrat_20
-                  text_color: ${ui_page_text_color}
+                  styles: sense_text_primary_style
 
               - label:
                   text: "Humidity"
@@ -179,7 +178,7 @@ lvgl:
                   x: 0
                   y: 258
                   text_font: montserrat_16     # 14
-                  text_color: ${ui_page_text_muted_color}
+                  styles: sense_text_muted_style
 
               - label:
                   id: tstat2_humidity_value
@@ -188,7 +187,7 @@ lvgl:
                   x: 0
                   y: 276
                   text_font: montserrat_16
-                  text_color: ${ui_page_text_muted_color}
+                  styles: sense_text_muted_style
 
               - label:
                   text: "HVAC Mode"
@@ -196,7 +195,7 @@ lvgl:
                   x: 0    # 24    # 28
                   y: -42   # 42
                   text_font: montserrat_14
-                  text_color: ${ui_page_text_color}
+                  styles: sense_text_primary_style
 
               - dropdown:
                   id: tstat2_mode_dropdown
@@ -206,6 +205,7 @@ lvgl:
                   width: 138
                   height: 30  # 32
                   text_font: montserrat_14
+                  styles: sense_display_row_btn_style
                   options:
                     - "Off"
                     - "Heat"
@@ -251,7 +251,7 @@ lvgl:
                   x: 0    # -24    # -28
                   y: -42    # 42
                   text_font: montserrat_14
-                  text_color: ${ui_page_text_color}
+                  styles: sense_text_primary_style
 
               - dropdown:
                   id: tstat2_fan_dropdown
@@ -262,6 +262,7 @@ lvgl:
                   width: 138
                   height: 30  # 32
                   text_font: montserrat_14
+                  styles: sense_display_row_btn_style
                   options:
                     - "Auto low"
                     - "Low"
@@ -473,6 +474,8 @@ interval:
                       id: tstat2_target_arc
                       indicator:
                         arc_color: ${ui_tstat_mode_cool_active_color}
+                      knob:
+                        bg_color: ${ui_tstat_mode_cool_active_color}
 
             - if:
                 condition:
@@ -482,6 +485,8 @@ interval:
                       id: tstat2_target_arc
                       indicator:
                         arc_color: ${ui_tstat_mode_heat_active_color}
+                      knob:
+                        bg_color: ${ui_tstat_mode_heat_active_color}
 
             - if:
                 condition:
@@ -491,6 +496,8 @@ interval:
                       id: tstat2_target_arc
                       indicator:
                         arc_color: ${ui_tstat_mode_off_active_color}
+                      knob:
+                        bg_color: ${ui_tstat_mode_off_active_color}
 
 
 

@@ -1,4 +1,4 @@
-﻿# SenseCAP D1S Fork README
+# SenseCAP D1S Fork README
 
 This file documents the current working pattern for this fork and the immediate cleanup/refactor plan.
 
@@ -12,6 +12,8 @@ This file documents the current working pattern for this fork and the immediate 
 - Instance mapping is centralized in `common/package_instance_mapping-sensecap-dani.yaml`
 - Page title/text defaults are centralized as `ui_page_*` vars and mapped to Dani family tokens
 - First cleanup pass moved reusable page/button template defaults onto canonical `ui_base_*` / `ui_sensor_*` tokens so structural defaults now resolve from one source more consistently
+- Thermostat internals now follow shared theme text styles for title/labels/values; thermostat mode dropdowns use shared themed control styling, and the arc knob follows the same local mode accent as the indicator.
+- Home page wiring is now normalized through generic `page0_slot*` aliases in `common/page_mapping-sensecap.yaml`; the page keeps existing behavior but no longer uses entity-named tile IDs in the active page/theme-refresh path.
 
 ## Repo Rules (SenseCAP Fork)
 
@@ -225,10 +227,12 @@ The SenseCAP fork is still actively cleaning up both:
 
 This means layout/schema may continue to evolve while keeping root validation green.
 
-Current intentional theme exceptions still to clean up:
+Current intentional theme exception/status:
 
-- `pages/fans_grid-sensecap-dani.yaml` now uses the canonical fan token set without local theme-slot override blocks
+- Shared page/fan/sensor/per-entity defaults plus nav/template/static-style fallbacks now point at generic `theme_*` color IDs instead of `dani_*` IDs where cleaned; runtime theme slots 0..9 now use slot-scoped `theme_slot*` IDs instead of direct `sense_*`/`dani_*`/`split_*` color refs in the theme engine; theme change now also repaints the three stateful home tiles (`Dani`, `Sleepy`, `Bedtime`) from centralized runtime logic
 - `pages/light_color-sensecap.yaml` is intentionally exempt for now and still contains hardcoded color literals
+- Legacy non-`-sensecap` dimmer pages (`pages/lighting_dimmers_grid_template.yaml`, `pages/lighting_dimmers_grid.yaml`, `pages/lighting_dimmers_grid_2.yaml`) were archived to `archive/retired_baseline_2026-03-15/pages/`; active dimmer layout now comes from `pages/lighting_dimmers_grid_template-sensecap.yaml` via `common/package_instance_mapping-sensecap-dani.yaml`
+- `common/core_boot-sensecap.yaml` was archived to `archive/retired_baseline_2026-03-15/common/`; the active fork uses `pages/loading_480px-sensecap.yaml` plus `common/display_runtime-sensecap.yaml` instead of the older `core_boot` orchestration path
 
 ### Specific page layouts currently in use
 
@@ -337,4 +341,22 @@ This fork uses a token-first color model so page files do not hardcode one-off h
 
 
 - 2026-03-10: Theme slots 3..9 now have distinct style mappings in theme_style-sensecap-dani.yaml; display dropdown uses ui_theme_label_0..ui_theme_label_9 and slot-based selection.
+- Theme runtime refresh: centralized runtime repaint remains enabled for the three home tiles (`Dani`, `Sleepy`, `Bedtime`). Fans, Overrides, and Dimmers now follow theme changes through shared LVGL style bindings (`page_style`, `sense_display_row_btn_style`, `sense_nav_btn_style`, `sense_menu_cat*`) instead of page-level repaint scripts; local page/button logic updates only state text, icon/value content, and slider state where needed.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- Fixed the backing `current_theme` selector in `theme_style-sensecap-dani.yaml` so it now exposes `ui_theme_label_0..9`; the Display dropdown and the actual theme selector now advertise the same 10 themes.
+
+- Restored `theme_style-sensecap-dani.yaml` from the provided copy and expanded the backing `current_theme` selector to `ui_theme_label_0..9` so the Display dropdown and selector stay aligned.

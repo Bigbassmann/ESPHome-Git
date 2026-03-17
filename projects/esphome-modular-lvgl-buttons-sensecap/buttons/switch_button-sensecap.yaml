@@ -1,4 +1,4 @@
-﻿# FILE EDIT GUIDE (SenseCAP)
+# FILE EDIT GUIDE (SenseCAP)
 # Role: Reusable button template (structure + behavior hooks).
 # Update here for:
 # - Size/shape defaults: width/height/radius/padding/alignment.
@@ -7,7 +7,7 @@
 # Keep entity wiring out of this file:
 # - Entity/attribute mapping belongs in common/ha_entities-*.yaml.
 # - Page placement/layout belongs in pages/*-sensecap*.yaml.
-# - Color defaults should resolve via ui_* vars and family color tokens.
+# - Color defaults should resolve via shared theme styles/tokens first, with per-page overrides only when needed.
 ---
 # Switch (or light) toggle button
 # vars:
@@ -39,6 +39,7 @@ lvgl:
             widgets:
               - button:
                   id: button_${uid}
+                  styles: sense_nav_btn_style
                   widgets:
                     - label:
                         text_font: $icon_font
@@ -46,6 +47,7 @@ lvgl:
                         x: 8
                         y: 8
                         id: icon_${uid}
+                        styles: sense_text_primary_style
                         text: ${icon}
                     - label:
                         align: bottom_left
@@ -53,6 +55,7 @@ lvgl:
                         y: -6
                         text_font: nunito_16
                         id: label_${uid}
+                        styles: sense_text_primary_style
                         text: ${text}
                   on_short_click:
                     - homeassistant.action:
@@ -80,23 +83,26 @@ binary_sensor:
           then:
             - lvgl.widget.update:
                 id: button_${uid}
-                bg_color: ${on_bg_color | default("${ui_base_button_on_color}")}
+                bg_color: ${on_bg_color | default("theme_display_row_btn_bg_default")}
             - lvgl.widget.update:
                 id: icon_${uid}
-                text_color: ${ui_base_icon_on_color}
+                text_color: ${ui_state_text_active_color}
             - lvgl.widget.update:
                 id: label_${uid}
-                text_color: ${ui_base_label_on_color}
+                text_color: ${ui_state_text_active_color}
           else:
             - lvgl.widget.update:
                 id: button_${uid}
-                bg_color: ${off_bg_color | default("${ui_base_button_off_color}")}
+                bg_color: ${off_bg_color | default("theme_nav_btn_bg_default")}
             - lvgl.widget.update:
                 id: icon_${uid}
-                text_color: ${ui_base_icon_off_color}
+                text_color: ${ui_state_text_inactive_color}
             - lvgl.widget.update:
                 id: label_${uid}
-                text_color: ${ui_base_label_off_color}
+                text_color: ${ui_state_text_inactive_color}
+
+
+
 
 
 

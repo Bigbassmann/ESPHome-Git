@@ -7,7 +7,7 @@
 # Keep entity wiring out of this file:
 # - Entity/attribute mapping belongs in common/ha_entities-*.yaml.
 # - Page placement/layout belongs in pages/*-sensecap*.yaml.
-# - Color defaults should resolve via ui_* vars and family color tokens.
+# - Color defaults should resolve via shared theme styles/tokens first, with per-page overrides only when needed.
 ---
 # Non-clickable placeholder tile
 # vars:
@@ -39,22 +39,28 @@ lvgl:
               - button:
                   id: button_${uid}
                   clickable: false
-                  bg_color: ${bg_color | default("sense_surface_alt")}
+                  styles: sense_tile_placeholder_style
+                  bg_color: ${bg_color | default("theme_placeholder_bg_default")}
                   widgets:
                     - label:
                         id: icon_${uid}
                         text_font: $icon_font
+                        styles: sense_text_muted_style
                         align: top_left
                         x: 10
                         y: 8
                         text: ${icon}
-                        text_color: ${icon_color | default("sense_tile_placeholder_text")}
+                        text_color: ${icon_color | default("${ui_state_text_inactive_color}")}
                     - label:
                         id: label_${uid}
                         align: left_mid
                         x: 42
                         text_font: nunito_16
+                        styles: sense_text_muted_style
                         text: ${text}
-                        text_color: ${text_color | default("sense_tile_placeholder_text")}
+                        text_color: ${text_color | default("${ui_state_text_inactive_color}")}
+
+
+
 
 
